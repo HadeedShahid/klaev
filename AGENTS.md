@@ -43,11 +43,12 @@ Performance is the top priority for this site. Aim for top-tier scores, and neve
 | Components | shadcn/ui, `base-nova` style: Base UI primitives, Lucide icons, Geist | installed |
 | Class merging | `cn` package (shadcn's replacement for clsx + tailwind-merge), re-exported from `@/lib/utils` | installed |
 | Database | Supabase Postgres, project `klaev` (ref `qbncuwubzrhnbvhfmbrh`, `ap-south-1` Mumbai, free plan) | project created |
-| ORM | Drizzle ORM 0.45 + drizzle-kit | planned |
+| ORM | Drizzle ORM 0.45 + drizzle-kit, `postgres` driver | installed |
 | Auth, file storage | Supabase Auth via `@supabase/ssr`, Supabase Storage | planned |
 | Mutations | Server Actions via next-safe-action | planned |
-| Validation, forms | Zod 4, React Hook Form | planned |
-| Env vars | `@t3-oss/env-nextjs` | planned |
+| Validation | Zod 4, server only (never in client code) | installed |
+| Forms | Undecided. React Hook Form with its Zod resolver would ship Zod to the browser, so consider native validation with Server Actions | to decide |
+| Env vars | `constants/env.server.ts` (Zod, server-only) and `constants/env.client.ts` (public values, no Zod) | installed |
 
 Package manager: npm.
 
@@ -60,6 +61,24 @@ Package manager: npm.
 - Connect Drizzle through Supabase's transaction pooler (port 6543) with `prepare: false`, because the pooler doesn't support prepared statements.
 - Session refresh and route gating go in `proxy.ts`. Next.js 16 renamed `middleware.ts` to `proxy.ts`.
 - Store money as integer PKR. Never use floats for prices.
+
+## Database
+
+- Import the client as `db` from `@/db`. It's marked `server-only`.
+- The schema lives in `db/schema/`, one file per area (`products.ts`, `collections.ts`). Shared columns are in `columns.ts`, and every relation is in `relations.ts` so table files never import each other in a loop.
+- `db/schema/index.ts` re-exports everything, because `drizzle()` and drizzle-kit need the whole schema as one object. App code imports tables from their own file, like `@/db/schema/products`. A new area file must be added to the index.
+- Columns are camelCase in TypeScript and snake_case in Postgres. `casing: "snake_case"` is set in both `db/index.ts` and `drizzle.config.ts`, so keep them matching.
+- Every table ends with `.enableRLS()`.
+- To change the schema: edit the file in `db/schema/`, run `npm run db:generate -- --name <change>`, read the generated SQL in `db/migrations/`, then run `npm run db:migrate`. Commit the migration files. Don't use `drizzle-kit push`.
+- Migrations connect through the session pooler (port 5432). `drizzle.config.ts` builds that URL from `DATABASE_URL`.
+
+## Code organization
+
+- **Constants** live in `constants/`, one file per topic. Import from the specific file, like `@/constants/site`. Don't add index files that re-export them.
+- **Index (barrel) files** are only for cases where a library needs everything as one object, like `db/schema/index.ts`. Everywhere else, import from the specific file. Barrels slow builds, and when one re-exports server-only or heavy code, a single import pulls all of it in.
+- **Env vars:** server code imports `env` from `@/constants/env.server`, which is server-only and validates every var with Zod when first imported. Client code imports from `@/constants/env.client`, which reads each `process.env.NEXT_PUBLIC_*` by its full literal name so Next.js can inline the value. Don't read `process.env` anywhere else, except in `drizzle.config.ts`, which runs outside Next.
+- **Adding an env var:** put it in `.env` (git-ignored), `.env.example`, and the schema in `env.server.ts`. Public vars also go in `env.client.ts`.
+- **Never import Zod or server-only modules into client components.** Zod with its locale files measured about 92 KB gzipped in a client bundle.
 
 ## Styling
 

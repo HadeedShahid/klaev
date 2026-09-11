@@ -22,6 +22,18 @@ The site used to run on Shopify. The store closed in September 2026 because it c
 - **Payments:** not decided yet. Stripe isn't available to businesses in Pakistan. Cash on delivery is the likely first method, with a local gateway later.
 - **Catalog:** small, around 15 products. The Shopify SKU pattern was `BELT-{STYLE}-{COLOR}`, for example `BELT-STC-BK`.
 
+## Performance comes first
+
+Performance is the top priority for this site. Aim for top-tier scores, and never trade performance away for a feature.
+
+- **Review every feature for performance before building it.** Before writing code, tell the user what the feature costs: JavaScript shipped to the browser, extra network requests, third-party scripts, layout shift, and whether it stops a page from being server-rendered. Then decide together whether it's worth building. If the cost can't be justified, find a lighter approach or leave the feature out.
+- **Mobile first.** Design, build and test for phones first. Desktop is the enhancement.
+- **Server-rendered first.** Pages render on the server. Client components are rare: use one only when an interaction can't work without it, and keep it small and as far down the component tree as possible.
+
+## Dev tools
+
+- **next-devtools MCP** (configured in `.mcp.json`): with `npm run dev` running, use `nextjs_index` to find the dev server and `nextjs_call` to read its errors, routes and logs. Check it when debugging, and after every change before calling the work done.
+
 ## Stack
 
 | Layer | Choice | Status |
@@ -30,7 +42,7 @@ The site used to run on Shopify. The store closed in September 2026 because it c
 | Styling | Tailwind CSS v4 | installed |
 | Components | shadcn/ui, `base-nova` style: Base UI primitives, Lucide icons, Geist | installed |
 | Class merging | `cn` package (shadcn's replacement for clsx + tailwind-merge), re-exported from `@/lib/utils` | installed |
-| Database | Supabase Postgres | planned |
+| Database | Supabase Postgres, project `klaev` (ref `qbncuwubzrhnbvhfmbrh`, `ap-south-1` Mumbai, free plan) | project created |
 | ORM | Drizzle ORM 0.45 + drizzle-kit | planned |
 | Auth, file storage | Supabase Auth via `@supabase/ssr`, Supabase Storage | planned |
 | Mutations | Server Actions via next-safe-action | planned |

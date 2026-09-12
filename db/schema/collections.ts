@@ -12,7 +12,6 @@ import { products } from "./products";
 
 export const collections = pgTable("collections", {
   id: uuid().primaryKey().defaultRandom(),
-  // URL segment: /collections/[handle]
   handle: text().notNull().unique(),
   title: text().notNull(),
   description: text().notNull().default(""),

@@ -3,8 +3,6 @@ import { relations } from "drizzle-orm";
 import { collectionProducts, collections } from "./collections";
 import { productImages, products, productVariants } from "./products";
 
-// All relations live here so the table files never import each other in a loop.
-
 export const productsRelations = relations(products, ({ many }) => ({
   variants: many(productVariants),
   images: many(productImages),

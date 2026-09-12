@@ -22,12 +22,10 @@ export const products = pgTable(
   "products",
   {
     id: uuid().primaryKey().defaultRandom(),
-    // URL segment: /products/[handle]
     handle: text().notNull().unique(),
     title: text().notNull(),
     description: text().notNull().default(""),
     status: productStatus().notNull().default("draft"),
-    // Whole rupees. Never store prices as floats.
     pricePkr: integer().notNull(),
     seoTitle: text(),
     seoDescription: text(),
@@ -46,9 +44,7 @@ export const productVariants = pgTable(
     productId: uuid()
       .notNull()
       .references(() => products.id, { onDelete: "cascade" }),
-    // Shopify pattern: BELT-{STYLE}-{COLOR}, e.g. BELT-STC-BK
     sku: text().notNull().unique(),
-    // Jacket size or belt waist size. Null for one-size products.
     size: text(),
     stock: integer().notNull().default(0),
     position: integer().notNull().default(0),
@@ -67,10 +63,8 @@ export const productImages = pgTable(
     productId: uuid()
       .notNull()
       .references(() => products.id, { onDelete: "cascade" }),
-    // Supabase Storage object path
     path: text().notNull(),
     alt: text().notNull(),
-    // Required so next/image can reserve space and avoid layout shift.
     width: integer().notNull(),
     height: integer().notNull(),
     position: integer().notNull().default(0),

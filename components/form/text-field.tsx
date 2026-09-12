@@ -9,6 +9,7 @@ import { cn } from "cn";
 
 type TextFieldProps = Omit<FieldShellProps, "children"> & {
   value: string;
+  onChange: (value: string | undefined) => void;
   inputProps: React.ComponentProps<"input">;
   type?: React.HTMLInputTypeAttribute;
   autoComplete?: string;
@@ -17,6 +18,7 @@ type TextFieldProps = Omit<FieldShellProps, "children"> & {
 
 export function TextField({
   value,
+  onChange,
   inputProps,
   type = "text",
   autoComplete,
@@ -24,6 +26,14 @@ export function TextField({
   hideLabel = true,
   ...shell
 }: TextFieldProps) {
+  // A password manager writes into the element directly, which the form store
+  // never sees, so the next render would wipe it.
+  React.useEffect(() => {
+    const input = document.getElementById(shell.id) as HTMLInputElement | null;
+    if (input?.value && input.value !== value) onChange(input.value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shell.id]);
+
   return (
     <FieldShell {...shell} hideLabel={hideLabel}>
       {({ id, invalid, describedBy }) => (

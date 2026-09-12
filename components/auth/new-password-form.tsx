@@ -47,11 +47,7 @@ export function NewPasswordForm({
   };
 
   return (
-    <Form
-      of={form}
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-5.5"
-    >
+    <Form of={form} onSubmit={handleSubmit} className="flex flex-col gap-5.5">
       <div className="flex flex-col gap-3">
         <FormischField of={form} path={["password"]}>
           {(field) => (
@@ -61,6 +57,7 @@ export function NewPasswordForm({
               autoComplete="new-password"
               hint="At least 8 characters, one number."
               value={field.input ?? ""}
+              onChange={field.onChange}
               errors={field.errors}
               inputProps={field.props}
             />
@@ -74,6 +71,7 @@ export function NewPasswordForm({
               label="Confirm new password"
               autoComplete="new-password"
               value={field.input ?? ""}
+              onChange={field.onChange}
               errors={field.errors}
               inputProps={field.props}
             />

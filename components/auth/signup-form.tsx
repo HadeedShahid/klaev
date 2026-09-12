@@ -47,11 +47,7 @@ export function SignupForm({
   };
 
   return (
-    <Form
-      of={form}
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-5.5"
-    >
+    <Form of={form} onSubmit={handleSubmit} className="flex flex-col gap-5.5">
       <div className="flex flex-col gap-3">
         <FormischField of={form} path={["fullName"]}>
           {(field) => (
@@ -60,6 +56,7 @@ export function SignupForm({
               label="Full name"
               autoComplete="name"
               value={field.input ?? ""}
+              onChange={field.onChange}
               errors={field.errors}
               inputProps={field.props}
             />
@@ -74,6 +71,7 @@ export function SignupForm({
               type="email"
               autoComplete="email"
               value={field.input ?? ""}
+              onChange={field.onChange}
               errors={field.errors}
               inputProps={field.props}
             />
@@ -87,6 +85,7 @@ export function SignupForm({
               label="Password"
               autoComplete="new-password"
               value={field.input ?? ""}
+              onChange={field.onChange}
               errors={field.errors}
               inputProps={field.props}
             />

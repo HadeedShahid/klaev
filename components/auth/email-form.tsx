@@ -51,11 +51,7 @@ export function EmailForm({
   };
 
   return (
-    <Form
-      of={form}
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-5.5"
-    >
+    <Form of={form} onSubmit={handleSubmit} className="flex flex-col gap-5.5">
       <div className="flex flex-col gap-3">
         <FormischField of={form} path={["email"]}>
           {(field) => (
@@ -65,6 +61,7 @@ export function EmailForm({
               type="email"
               autoComplete="email"
               value={field.input ?? ""}
+              onChange={field.onChange}
               errors={field.errors}
               inputProps={field.props}
             />

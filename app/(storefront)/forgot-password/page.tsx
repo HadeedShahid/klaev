@@ -5,6 +5,8 @@ import { EmailForm } from "@/components/auth/email-form";
 import { ResendNotice } from "@/components/auth/resend-notice";
 import { Button } from "@/components/ui/button";
 
+import { redirectIfSignedIn } from "@/lib/auth";
+
 import { requestPasswordReset, resendPasswordReset } from "./actions";
 
 export const metadata: Metadata = {
@@ -21,6 +23,8 @@ export default async function ForgotPasswordPage({
 }: PageProps<"/forgot-password">) {
   const params = await searchParams;
   const sentTo = text(params.sent);
+
+  await redirectIfSignedIn();
 
   if (sentTo) {
     return (
@@ -62,11 +66,7 @@ export default async function ForgotPasswordPage({
           defaultEmail={text(params.email)}
         />
 
-        <AltAction
-          text="Remembered it?"
-          href="/login"
-          label="Back to log in"
-        />
+        <AltAction text="Remembered it?" href="/login" label="Back to log in" />
       </div>
     </AuthShell>
   );

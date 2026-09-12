@@ -77,6 +77,7 @@ The site is two apps in one repo. `app/(storefront)` and `app/(admin)` each have
 - **Actions return `{ error }` for failures and redirect on success.** Field-level errors come from the form; page-level messages (an expired email link, for example) still arrive as `?error=` or `?notice=` and render through `components/auth/auth-message.tsx`.
 - **Emailed links land on `/auth/confirm`** (signup confirmation and password reset), **Google returns to `/auth/callback`**. Both validate where they send people next with `safeRedirectPath()` in `lib/redirects.ts`. Never redirect to a target from a URL or an email without it.
 - **Login messages never reveal whether an address has an account.**
+- **Signed-in visitors don't see the auth pages.** `/login`, `/signup` and `/forgot-password` call `redirectIfSignedIn()`, and `/admin/login` calls `redirectIfAdmin()`, both honouring `next`. `/reset-password` is the deliberate exception: the emailed link signs you in before you land there, so it must not redirect.
 
 **Supabase Auth is the decision, not Better Auth.** Better Auth was considered for one real reason: it keeps users in our own Postgres, so customers and orders join normally, and its config lives in code rather than a dashboard. It was set aside because the trigger for raising it, Supabase's email rate limit, is an email-delivery problem that Better Auth doesn't solve either: it sends no email at all and needs the same provider wired in. Revisit it on its actual merit, owning the user table, and preferably before checkout exists rather than after.
 

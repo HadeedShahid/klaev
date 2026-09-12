@@ -10,6 +10,8 @@ import {
 import { GoogleButton } from "@/components/auth/google-button";
 import { LoginForm } from "@/components/auth/login-form";
 
+import { redirectIfSignedIn } from "@/lib/auth";
+
 import { signInWithGoogle, signInWithPassword } from "./actions";
 
 export const metadata: Metadata = {
@@ -24,6 +26,8 @@ function text(value: string | string[] | undefined) {
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const params = await searchParams;
   const next = text(params.next);
+
+  await redirectIfSignedIn(next);
 
   return (
     <AuthShell

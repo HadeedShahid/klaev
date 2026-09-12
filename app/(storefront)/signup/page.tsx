@@ -12,6 +12,8 @@ import { ResendNotice } from "@/components/auth/resend-notice";
 import { SignupForm } from "@/components/auth/signup-form";
 import { Button } from "@/components/ui/button";
 
+import { redirectIfSignedIn } from "@/lib/auth";
+
 import { resendConfirmation, signUp } from "./actions";
 import { signInWithGoogle } from "../login/actions";
 
@@ -29,6 +31,8 @@ export default async function SignupPage({
 }: PageProps<"/signup">) {
   const params = await searchParams;
   const sentTo = text(params.sent);
+
+  await redirectIfSignedIn();
 
   if (sentTo) {
     return (

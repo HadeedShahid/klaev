@@ -4,6 +4,8 @@ import { AuthMessage } from "@/components/auth/auth-message";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { LoginForm } from "@/components/auth/login-form";
 
+import { redirectIfAdmin } from "@/lib/auth";
+
 import { signInAsAdmin } from "./actions";
 
 export const metadata: Metadata = {
@@ -17,6 +19,8 @@ export default async function AdminLoginPage({
   const params = await searchParams;
   const error = typeof params.error === "string" ? params.error : undefined;
   const next = typeof params.next === "string" ? params.next : undefined;
+
+  await redirectIfAdmin(next);
 
   return (
     <AuthShell title="Klaev admin">

@@ -26,9 +26,7 @@ export default async function AccountPage({
         <AuthMessage notice={notice} />
 
         <div className="flex flex-col gap-1">
-          <Text className="text-sm text-muted-foreground">
-            Signed in as
-          </Text>
+          <Text className="text-sm text-muted-foreground">Signed in as</Text>
           <Text>{customer.email}</Text>
         </div>
 

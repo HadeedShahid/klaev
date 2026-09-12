@@ -5,6 +5,7 @@ import { cache } from "react";
 
 import { env } from "@/constants/env.server";
 
+import { safeRedirectPath } from "./redirects";
 import { createClient } from "./supabase/server";
 
 const CUSTOMER_LOGIN = "/login";
@@ -40,6 +41,18 @@ export async function requireCustomer(): Promise<SessionUser> {
   const customer = await getSessionUser();
   if (!customer) redirect(CUSTOMER_LOGIN);
   return customer;
+}
+
+export async function redirectIfSignedIn(next?: string): Promise<void> {
+  const customer = await getSessionUser();
+  if (customer) redirect(safeRedirectPath(next, "/account"));
+}
+
+export async function redirectIfAdmin(next?: string): Promise<void> {
+  const admin = await getAdmin();
+  if (!admin) return;
+  const target = safeRedirectPath(next, "/admin");
+  redirect(target.startsWith("/admin") ? target : "/admin");
 }
 
 export async function getAdmin(): Promise<SessionUser | null> {

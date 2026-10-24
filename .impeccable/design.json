@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-25T00:00:00.000Z",
+  "title": "Design System: Klaev",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Ink",
+        "canonical": "oklch(0.218 0.004 286)",
+        "hex": "#1a1a1c",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#262628",
+          "#454547",
+          "#666668",
+          "#89898b",
+          "#adadb0",
+          "#d4d4d7",
+          "#eeeef1"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(1 0 0)",
+        "hex": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#262628",
+          "#454547",
+          "#666668",
+          "#89898b",
+          "#adadb0",
+          "#d4d4d7",
+          "#eeeef1"
+        ]
+      },
+      "paper-on-ink": {
+        "role": "neutral",
+        "displayName": "Paper on Ink",
+        "canonical": "oklch(0.99 0 0)",
+        "hex": "#fcfcfc",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#262628",
+          "#454547",
+          "#666668",
+          "#89898b",
+          "#adadb0",
+          "#d4d4d7",
+          "#eeeef1"
+        ]
+      },
+      "panel-grey": {
+        "role": "neutral",
+        "displayName": "Panel Grey",
+        "canonical": "oklch(0.97 0.0016 286)",
+        "hex": "#f5f5f6",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#262628",
+          "#454547",
+          "#666668",
+          "#89898b",
+          "#adadb0",
+          "#d4d4d7",
+          "#eeeef1"
+        ]
+      },
+      "quiet-grey": {
+        "role": "neutral",
+        "displayName": "Quiet Grey",
+        "canonical": "oklch(0.52 0.008 286)",
+        "hex": "#68686d",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#262628",
+          "#454547",
+          "#666668",
+          "#89898b",
+          "#adadb0",
+          "#d4d4d7",
+          "#eeeef1"
+        ]
+      },
+      "press-grey": {
+        "role": "neutral",
+        "displayName": "Press Grey",
+        "canonical": "oklch(0.95 0.002 286)",
+        "hex": "#eeeef0",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#262628",
+          "#454547",
+          "#666668",
+          "#89898b",
+          "#adadb0",
+          "#d4d4d7",
+          "#eeeef1"
+        ]
+      },
+      "outline-grey": {
+        "role": "neutral",
+        "displayName": "Outline Grey",
+        "canonical": "oklch(0.87 0.0056 286)",
+        "hex": "#d4d4d8",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#262628",
+          "#454547",
+          "#666668",
+          "#89898b",
+          "#adadb0",
+          "#d4d4d7",
+          "#eeeef1"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(0.925 0.003 286)",
+        "hex": "#e6e6e8",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#262628",
+          "#454547",
+          "#666668",
+          "#89898b",
+          "#adadb0",
+          "#d4d4d7",
+          "#eeeef1"
+        ]
+      },
+      "signal-red": {
+        "role": "tertiary",
+        "displayName": "Signal Red",
+        "canonical": "oklch(0.55 0.2 27)",
+        "hex": "#cc2827",
+        "tonalRamp": [
+          "#3d0a08",
+          "#621512",
+          "#8a1f1b",
+          "#b42923",
+          "#cc4a42",
+          "#dd7a72",
+          "#eaa9a3",
+          "#f6dcd9"
+        ]
+      }
+    },
+    "cssVariables": {
+      "ink": "--foreground / --primary / --ring",
+      "paper": "--background / --card",
+      "paper-on-ink": "--primary-foreground",
+      "panel-grey": "--muted / --secondary",
+      "quiet-grey": "--muted-foreground",
+      "press-grey": "--accent",
+      "outline-grey": "--border / --input",
+      "hairline": "--hairline",
+      "signal-red": "--destructive"
+    },
+    "typographyMeta": {
+      "hero": {
+        "displayName": "Hero",
+        "purpose": "Landing headline only; 3.75rem from 768px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Landing story headlines, 3rem from 768px. Page titles on collection, cart and not-found share the 2rem size at line-height 1.25."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "Product name; 2.25rem from 768px. Landing sub-section headings (colour cards, FAQ, line tiles) use the same size at line-height 1.25."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section and collection headings."
+      },
+      "price": {
+        "displayName": "Price",
+        "purpose": "Product price under the name; tabular numerals."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default text and taglines."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Quiet Grey supporting line under a Hero or Title; 1.25rem on the hero from 768px."
+      },
+      "body-reading": {
+        "displayName": "Body Reading",
+        "purpose": "Description and accordion content, in Quiet Grey."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Step labels, pill text, card titles."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Payment rows, assurances, nav, size guide."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Measurements, advance line, fee notes."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "KLAEV in header and footer only; uppercase."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "morph",
+        "value": "380ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "View transition: product photo morphs from card to product page. Zero duration under reduced motion."
+      },
+      {
+        "name": "state",
+        "value": "150ms ease (Tailwind transition default)",
+        "purpose": "Colour and background changes on links, icon buttons, size cards, pill."
+      },
+      {
+        "name": "press",
+        "value": "transform: scale(0.98)",
+        "purpose": "Primary pill on active."
+      },
+      {
+        "name": "indicator",
+        "value": "300ms colour",
+        "purpose": "Gallery segment change."
+      },
+      {
+        "name": "disclosure",
+        "value": "rotate(180deg)",
+        "purpose": "Chevron when a details element opens."
+      },
+      {
+        "name": "nudge",
+        "value": "translateX(2px), 150ms",
+        "purpose": "Chevron on the hero's quiet link on hover."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "md",
+        "value": "768px"
+      }
+    ],
+    "layout": {
+      "maxWidth": "72rem",
+      "cartMaxWidth": "48rem",
+      "headerHeight": "56px",
+      "productGrid": "minmax(0,7fr) minmax(0,5fr), 40px gap",
+      "stickyBuyColumnTop": "80px",
+      "mobileBottomReserve": "112px",
+      "sectionTop": "64px phones, 112px from 768px",
+      "landingTextMaxWidth": "42rem (story), 48rem (hero, FAQ)",
+      "heroImage": "full bleed, 5:6 phones, 16:9 from 768px, object-position 50% 25%",
+      "storyImage": "4:5 phones; 16:10 at 50% 30% or whole 4:5 at max 36rem from 768px",
+      "sharedPill": "lib/styles.ts pill"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Pill",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single primary action per view: add to cart, order on WhatsApp, shop a line. Shared as the pill class in lib/styles.ts.",
+      "html": "<button class=\"ds-btn-primary\">Add to cart, size M</button> <button class=\"ds-btn-primary\" disabled>Choose a size</button>",
+      "css": ".ds-btn-primary{height:48px;padding:0 24px;border:0;border-radius:9999px;background:var(--primary,oklch(0.218 0.004 286));color:var(--primary-foreground,oklch(0.99 0 0));font-family:Geist,system-ui,sans-serif;font-size:0.9375rem;font-weight:500;cursor:pointer;transition:background-color 150ms,transform 150ms}.ds-btn-primary:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-btn-primary:active{transform:scale(0.98)}.ds-btn-primary:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-btn-primary:disabled{background:oklch(0.97 0.0016 286);color:oklch(0.52 0.008 286);cursor:default;transform:none}"
+    },
+    {
+      "name": "Icon Button (cart)",
+      "kind": "button",
+      "refersTo": "button-icon",
+      "description": "44px circle for cart and remove, with an Ink count pill.",
+      "html": "<a class=\"ds-icon-btn\" href=\"#\" aria-label=\"Cart, 2 items\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16 10a4 4 0 0 1-8 0\"/><path d=\"M3.103 6.034h17.794\"/><path d=\"M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z\"/></svg><span class=\"ds-count\">2</span></a>",
+      "css": ".ds-icon-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:9999px;color:oklch(0.218 0.004 286);transition:background-color 150ms}.ds-icon-btn:hover{background:oklch(0.95 0.002 286)}.ds-icon-btn:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-count{position:absolute;top:6px;right:4px;min-width:18px;padding:0 4px;border-radius:9999px;background:oklch(0.218 0.004 286);color:#fff;font:600 0.6875rem/18px Geist,system-ui,sans-serif;font-variant-numeric:tabular-nums;text-align:center}"
+    },
+    {
+      "name": "Size Cards",
+      "kind": "custom",
+      "refersTo": "size-card",
+      "description": "Signature step: whole-card radios naming the chest measurement; sold out stays visible.",
+      "html": "<div class=\"ds-sizes\" role=\"radiogroup\"><label class=\"ds-size\"><input type=\"radio\" name=\"s\"><b>S</b><small>Jacket chest 41 in</small></label><label class=\"ds-size\"><input type=\"radio\" name=\"s\" checked><b>M</b><small>Jacket chest 43 in</small></label><label class=\"ds-size\"><input type=\"radio\" name=\"s\"><b>L</b><small>Jacket chest 45 in</small></label><label class=\"ds-size\"><input type=\"radio\" name=\"s\" disabled><b>XL</b><small>Jacket chest 47 in</small><em>Sold out</em></label></div>",
+      "css": ".ds-sizes{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:360px;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-size{position:relative;display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:64px;padding:12px 16px;border:1px solid oklch(0.87 0.0056 286);border-radius:1.05rem;background:#fff;cursor:pointer;transition:border-color 150ms,box-shadow 150ms}.ds-size input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer;appearance:none}.ds-size b{font-size:1rem;font-weight:600}.ds-size small{font-size:0.75rem;color:oklch(0.52 0.008 286)}.ds-size em{font-style:normal;font-size:0.75rem;font-weight:500}.ds-size:has(input:checked){border-color:oklch(0.218 0.004 286);box-shadow:0 0 0 1px oklch(0.218 0.004 286)}.ds-size:has(input:focus-visible){outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-size:has(input:disabled){background:oklch(0.97 0.0016 286);color:oklch(0.52 0.008 286);cursor:not-allowed}"
+    },
+    {
+      "name": "Payment Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Grey panel with hairline-split rows giving the real cash-on-delivery and bank-transfer numbers (PaymentBreakdown), followed by the exchange terms line.",
+      "html": "<div class=\"ds-panel\"><div class=\"ds-row\"><div class=\"ds-head\"><p>Cash on delivery</p><span>PKR 18,899 total</span></div><dl><dt>Send now to confirm</dt><dd>PKR 2,000</dd><dt>Pay on delivery</dt><dd>PKR 16,899</dd></dl><small>Includes PKR 900 delivery.</small></div><div class=\"ds-row\"><div class=\"ds-head\"><p>Bank transfer</p><span>PKR 17,999 total</span></div><small>Pay in full before dispatch. Free delivery.</small></div></div><p class=\"ds-terms\"><b>Exchanges.</b> Size exchanges within 7 days of delivery. Unworn, tags on. You cover delivery both ways. No refunds.</p>",
+      "css": ".ds-panel{max-width:360px;border-radius:1.35rem;background:oklch(0.97 0.0016 286);font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286);font-variant-numeric:tabular-nums}.ds-row{display:flex;flex-direction:column;gap:8px;padding:16px}.ds-row+.ds-row{border-top:1px solid oklch(0.925 0.003 286)}.ds-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}.ds-head p{margin:0;font-weight:500}.ds-head span,.ds-row small,.ds-row dt{font-size:0.875rem;color:oklch(0.52 0.008 286)}.ds-row small{font-size:0.75rem}.ds-row dl{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin:0;font-size:0.875rem}.ds-row dd{margin:0;text-align:right;font-weight:500}.ds-terms{max-width:360px;margin:12px 0 0;font:400 0.875rem/1.43 Geist,system-ui,sans-serif;color:oklch(0.52 0.008 286)}.ds-terms b{font-weight:500;color:oklch(0.218 0.004 286)}"
+    },
+    {
+      "name": "Disclosure Rows",
+      "kind": "custom",
+      "refersTo": "disclosure-row",
+      "description": "Native details accordion ruled by hairlines, chevron rotates open. Product details, size guide and the landing FAQ.",
+      "html": "<div class=\"ds-details\"><details><summary>Materials and finish<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></summary><p>Full-grain sheepskin, finished in Pakistan.</p></details><details><summary>Care<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></summary><p>Wipe with a dry cloth.</p></details></div>",
+      "css": ".ds-details{max-width:360px;border-top:1px solid oklch(0.925 0.003 286);border-bottom:1px solid oklch(0.925 0.003 286);font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-details details+details{border-top:1px solid oklch(0.925 0.003 286)}.ds-details summary{display:flex;align-items:center;justify-content:space-between;min-height:56px;font-weight:500;cursor:pointer;list-style:none}.ds-details summary::-webkit-details-marker{display:none}.ds-details summary:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-details svg{color:oklch(0.52 0.008 286);transition:transform 150ms}.ds-details details[open] svg{transform:rotate(180deg)}.ds-details p{margin:0;padding-bottom:20px;font-size:0.9375rem;line-height:1.625;color:oklch(0.52 0.008 286)}"
+    },
+    {
+      "name": "Product Card",
+      "kind": "card",
+      "refersTo": "product-card-image",
+      "description": "Whole-card link: 4:5 rounded photo, title, price or Sold out.",
+      "html": "<a class=\"ds-card\" href=\"#\"><span class=\"ds-photo\"></span><span class=\"ds-title\">Black Cropped Sheepskin Leather Jacket</span><span class=\"ds-price\">PKR 17,999</span></a>",
+      "css": ".ds-card{display:flex;flex-direction:column;gap:12px;width:180px;text-decoration:none;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-photo{display:block;aspect-ratio:4/5;border-radius:1.35rem;background:linear-gradient(160deg,#5a3a2c,#2a1a14);transition:opacity 150ms}.ds-card:hover .ds-photo{opacity:0.9}.ds-card:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-title{padding:0 2px;font-size:0.9375rem;font-weight:500;line-height:1.375}.ds-price{padding:0 2px;margin-top:-10px;font-size:0.875rem;color:oklch(0.52 0.008 286);font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Site Header",
+      "kind": "nav",
+      "refersTo": "header",
+      "description": "Sticky 56px white bar with hairline, spaced wordmark, Shop link and cart.",
+      "html": "<header class=\"ds-header\"><a class=\"ds-mark\" href=\"#\">Klaev</a><nav><a class=\"ds-nav\" href=\"#\">Shop</a></nav></header>",
+      "css": ".ds-header{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 20px;background:#fff;border-bottom:1px solid oklch(0.925 0.003 286);font-family:Geist,system-ui,sans-serif}.ds-mark{font-size:1.0625rem;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:oklch(0.218 0.004 286);text-decoration:none}.ds-nav{display:flex;align-items:center;height:44px;padding:0 12px;border-radius:9999px;font-size:0.875rem;color:oklch(0.52 0.008 286);text-decoration:none;transition:color 150ms}.ds-nav:hover{color:oklch(0.218 0.004 286)}.ds-nav:focus-visible,.ds-mark:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}"
+    },
+    {
+      "name": "Sticky Buy Bar",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "Phone-only fixed bar: price, advance to confirm, and the primary pill.",
+      "html": "<div class=\"ds-buybar\"><div><b>PKR 17,999</b><small>PKR 2,000 to confirm</small></div><button class=\"ds-buy\">Choose a size</button></div>",
+      "css": ".ds-buybar{display:flex;align-items:center;gap:16px;max-width:390px;padding:12px 20px;background:#fff;border-top:1px solid oklch(0.925 0.003 286);font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286);font-variant-numeric:tabular-nums}.ds-buybar div{display:flex;flex-direction:column;flex:1;font-size:0.875rem}.ds-buybar b{font-weight:600}.ds-buybar small{font-size:0.75rem;color:oklch(0.52 0.008 286)}.ds-buy{height:48px;padding:0 20px;border:0;border-radius:9999px;background:oklch(0.218 0.004 286);color:oklch(0.99 0 0);font:500 0.9375rem Geist,system-ui,sans-serif;cursor:pointer;transition:background-color 150ms,transform 150ms}.ds-buy:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-buy:active{transform:scale(0.98)}.ds-buy:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}"
+    },
+    {
+      "name": "Landing Hero",
+      "kind": "custom",
+      "refersTo": "hero-image",
+      "description": "Centred Hero headline, Lead line, price, pill and quiet link above a full-bleed art-directed campaign photo.",
+      "html": "<section class=\"ds-hero\"><div class=\"ds-hero-text\"><h1>Cropped leather jackets.</h1><p class=\"ds-lead\">Full-grain sheepskin, cut to the waist.</p><p class=\"ds-price\">PKR 17,999</p><div class=\"ds-actions\"><a class=\"ds-pill\" href=\"#\">Shop cropped</a><a class=\"ds-quiet\" href=\"#\">See the colours<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></a></div></div><div class=\"ds-hero-photo\"></div></section>",
+      "css": ".ds-hero{display:flex;flex-direction:column;max-width:390px;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286);background:#fff}.ds-hero-text{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 20px 32px;text-align:center}.ds-hero h1{margin:0;font-size:2.5rem;line-height:1.05;font-weight:600;letter-spacing:-0.025em;text-wrap:balance}.ds-lead{margin:0;font-size:1.125rem;color:oklch(0.52 0.008 286)}.ds-price{margin:0;font-weight:500;font-variant-numeric:tabular-nums}.ds-actions{display:flex;align-items:center;gap:24px;padding-top:8px}.ds-pill{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 24px;border-radius:9999px;background:oklch(0.218 0.004 286);color:oklch(0.99 0 0);font-size:0.9375rem;font-weight:500;text-decoration:none;transition:background-color 150ms}.ds-pill:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-pill:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-quiet{display:inline-flex;align-items:center;gap:2px;height:48px;font-size:0.9375rem;font-weight:500;color:oklch(0.218 0.004 286);text-decoration:none}.ds-quiet:hover{text-decoration:underline}.ds-quiet svg{transition:transform 150ms}.ds-quiet:hover svg{transform:translateX(2px)}.ds-quiet:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-hero-photo{aspect-ratio:5/6;width:100%;background:linear-gradient(160deg,#5a3a2c,#2a1a14)}"
+    },
+    {
+      "name": "Colour Cards",
+      "kind": "card",
+      "refersTo": "colour-card-image",
+      "description": "Three 4:5 photo links with colour name and stock line; photos morph into the product page.",
+      "html": "<section class=\"ds-colours\"><div class=\"ds-colours-head\"><h2>Three colours.</h2><p>Same cut, same leather.</p></div><ul><li><a href=\"#\"><span class=\"ds-cphoto\"></span><b>Black</b><small>S, M, L in stock</small></a></li><li><a href=\"#\"><span class=\"ds-cphoto\"></span><b>Dark Brown</b><small>M, L in stock</small></a></li><li><a href=\"#\"><span class=\"ds-cphoto\"></span><b>Burgundy</b><small>Sold out</small></a></li></ul></section>",
+      "css": ".ds-colours{display:flex;flex-direction:column;gap:20px;max-width:390px;padding:0 20px;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-colours-head{text-align:center}.ds-colours h2{margin:0;font-size:1.75rem;line-height:1.25;font-weight:600;letter-spacing:-0.025em}.ds-colours-head p{margin:4px 0 0;color:oklch(0.52 0.008 286)}.ds-colours ul{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0;padding:0;list-style:none}.ds-colours a{display:flex;flex-direction:column;gap:8px;color:inherit;text-decoration:none}.ds-colours a:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-cphoto{display:block;aspect-ratio:4/5;border-radius:1.05rem;background:linear-gradient(160deg,#5a3a2c,#2a1a14);transition:opacity 150ms}.ds-colours a:hover .ds-cphoto{opacity:0.9}.ds-colours b{padding:0 2px;margin-bottom:-8px;font-size:0.875rem;font-weight:500}.ds-colours small{padding:0 2px;font-size:0.75rem;color:oklch(0.52 0.008 286)}"
+    },
+    {
+      "name": "Story Section",
+      "kind": "custom",
+      "refersTo": "story-image",
+      "description": "One doubt per screen: centred Title and Lead copy, proof beneath as a 4:5 photo (16:10 or portrait fit from 768px) or a grey panel.",
+      "html": "<section class=\"ds-story\"><div class=\"ds-story-text\"><h2>Cut to the waist.</h2><p>Shorter than a standard leather jacket, it finishes at the trouser waistband.</p></div><div class=\"ds-story-photo\"></div></section>",
+      "css": ".ds-story{display:flex;flex-direction:column;align-items:center;gap:24px;max-width:390px;padding:64px 20px 0;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-story-text{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:42rem;text-align:center}.ds-story h2{margin:0;font-size:2rem;line-height:1.1;font-weight:600;letter-spacing:-0.025em;text-wrap:balance}.ds-story p{margin:0;font-size:1.125rem;color:oklch(0.52 0.008 286);text-wrap:balance}.ds-story-photo{aspect-ratio:4/5;width:100%;border-radius:1.35rem;background:linear-gradient(160deg,#5a3a2c,#2a1a14)}"
+    },
+    {
+      "name": "Line Tile",
+      "kind": "card",
+      "refersTo": "line-tile",
+      "description": "Panel Grey 2xl tile pointing to another line: heading, line, price, pill, nested 5:4 photo at xl radius.",
+      "html": "<div class=\"ds-tile\"><h2>Lambskin leather jackets.</h2><p>Soft from day one, and it ages into its own patina.</p><p class=\"ds-tprice\">From PKR 15,999</p><a class=\"ds-pill\" href=\"#\">Shop lambskin</a><span class=\"ds-tphoto\"></span></div>",
+      "css": ".ds-tile{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:360px;padding:40px 20px 0;border-radius:1.35rem;background:oklch(0.97 0.0016 286);text-align:center;overflow:hidden;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-tile h2{margin:0;font-size:1.75rem;line-height:1.25;font-weight:600;letter-spacing:-0.025em;text-wrap:balance}.ds-tile p{margin:0;color:oklch(0.52 0.008 286);text-wrap:balance}.ds-tile .ds-tprice{color:oklch(0.218 0.004 286);font-weight:500;font-variant-numeric:tabular-nums}.ds-pill{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 24px;border-radius:9999px;background:oklch(0.218 0.004 286);color:oklch(0.99 0 0);font-size:0.9375rem;font-weight:500;text-decoration:none;transition:background-color 150ms}.ds-pill:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-pill:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-tile .ds-pill{margin-top:4px}.ds-tphoto{display:block;width:100%;aspect-ratio:5/4;margin:12px 0 20px;border-radius:1.05rem;background:linear-gradient(160deg,#5a3a2c,#2a1a14)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Counter",
+    "overview": "Klaev is the category standard executed at Apple Store craft: a white room with a well lit counter, where one product is laid out, its price is stated once and clearly, and every choice is made in order. The system is deliberately colourless. White ground, soft grey panels and near-black ink are the whole palette; the leather photography supplies every warm tone on the screen, so nothing in the interface competes with the hide.\n\nDensity is calm and single-column on the phone (390px first). Content stacks in one column with generous 32px gaps between blocks; on wide screens the same column sits beside the photos as a sticky buy column. Form is soft and rounded: pill actions, rounded selection cards, rounded grey panels, with hairlines used to rule lists and to seat fixed chrome. Depth is flat. Motion is functional only: the product photo morphs from its card into the product page, chevrons turn, buttons settle under the finger.\n\nThe interface earns trust with exact information rather than decoration. Money is always tabular, sizes are named by chest measurement, and payment is broken into what you send now and what you pay on delivery. The user rejected loud streetwear urgency, generic template looks, and dark, moody \"leather brand\" styling; the white ground is the answer to all three.",
+    "keyCharacteristics": [
+      "White ground, grey panels, near-black ink; the photography is the only colour.",
+      "One typeface, Geist Sans, with large tight semibold headings and tabular numerals for money.",
+      "Black pill for the one primary action per view.",
+      "Rounded panels and selection cards; hairlines rule lists and seat fixed bars.",
+      "No shadows. Depth comes from grey panels against white.",
+      "Motion serves navigation and state, never ornament."
+    ],
+    "rules": [
+      {
+        "name": "The Leather Is the Colour Rule",
+        "body": "The interface carries no hue. Warmth on screen comes from the product photographs alone; no brand tint, gradient or coloured badge is added.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Grey Voice Rule",
+        "body": "Secondary text uses Quiet Grey and nothing else. Hierarchy below that comes from size and weight, not from more greys.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Money Rule",
+        "body": "Every PKR amount, size measurement and count is set with tabular numerals so columns of money align.",
+        "section": "typography"
+      },
+      {
+        "name": "The Wordmark Is the Only Spaced Caps Rule",
+        "body": "Wide letterspaced uppercase belongs to the KLAEV wordmark. Headings, labels and buttons stay in sentence case.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Counter Rule",
+        "body": "No box-shadow, no backdrop blur, no hover lift. If something needs to stand apart, it gets a grey panel or a hairline.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep the interface to Ink, Paper, the greys and Hairline; let the leather photographs carry all colour.",
+      "**Do** use the black pill for the single primary action in a view, 48px tall on phones.",
+      "**Do** set every PKR amount and measurement with tabular numerals, and show the cash-on-delivery split (advance now, balance on delivery) wherever a total is shown.",
+      "**Do** keep sold-out options visible and disabled on a Panel Grey ground, never hidden.",
+      "**Do** separate blocks with space (32px) and group related facts in a Panel Grey panel at 2xl radius.",
+      "**Do** keep touch targets at 44px or larger and size cards at 64px or taller.",
+      "**Do** honour reduced motion: view-transition animations drop to zero duration."
+    ],
+    "donts": [
+      "**Don't** add box-shadows, blurs or hover lift to any surface.",
+      "**Don't** introduce a brand hue, gradient, coloured badge or marquee; Signal Red is for validation messages only.",
+      "**Don't** use a dark, moody ground for the store; the user rejected it.",
+      "**Don't** set headings, labels or buttons in letterspaced uppercase; that treatment belongs to the wordmark.",
+      "**Don't** use a second typeface or a second secondary-text grey.",
+      "**Don't** use urgency devices (countdowns, stock pressure, \"selling fast\") in the visual system."
+    ]
+  }
+}

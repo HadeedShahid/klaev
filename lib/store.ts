@@ -1,0 +1,17 @@
+// Store-wide terms. Each becomes an admin setting once the database exists.
+export const STORE = {
+  codDeliveryFee: 900,
+  codAdvance: 2000,
+  exchangeDays: 7,
+  deliveryDays: "2 to 5",
+  whatsappNumber: "923231483650",
+  whatsappDisplay: "+92 323 1483650",
+  instagram: "getklaev",
+  email: "business.klaev@gmail.com",
+} as const;
+
+export function whatsappLink(message?: string) {
+  const url = new URL(`https://wa.me/${STORE.whatsappNumber}`);
+  if (message) url.searchParams.set("text", message);
+  return url.toString();
+}

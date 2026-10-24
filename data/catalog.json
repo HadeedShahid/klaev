@@ -1,0 +1,1574 @@
+{
+  "source": "Snapshot of the live Shopify store (klaev.com/products.json), 24 October 2026. Images still load from the Shopify CDN until they move to R2.",
+  "collections": [
+    {
+      "handle": "cropped-leather-jackets",
+      "title": "Cropped Leather Jackets",
+      "products": [
+        "dark-brown-cropped-sheepskin-leather-jacket",
+        "burgundy-cropped-leather-jacket",
+        "black-cropped-leather-jacket"
+      ]
+    },
+    {
+      "handle": "leather-belts",
+      "title": "Leather Belts",
+      "products": [
+        "black-stitched-leather-belt",
+        "black-studded-leather-belt",
+        "brown-textured-leather-belt",
+        "maroon-stitched-leather-belt",
+        "brown-dotted-leather-belt",
+        "brown-black-twin-shade-leather-belt"
+      ]
+    },
+    {
+      "handle": "suede-jackets",
+      "title": "Suede Jackets",
+      "products": [
+        "black-suede-jacket"
+      ]
+    },
+    {
+      "handle": "leather-jackets",
+      "title": "Leather Jackets",
+      "products": [
+        "oxblood-lambskin-leather-jacket",
+        "black-lambskin-leather-jacket"
+      ]
+    }
+  ],
+  "products": [
+    {
+      "handle": "dark-brown-cropped-sheepskin-leather-jacket",
+      "status": "active",
+      "title": "Dark Brown Cropped Sheepskin Leather Jacket",
+      "collection": "cropped-leather-jackets",
+      "price": 17999,
+      "compareAtPrice": null,
+      "colour": "Dark brown",
+      "tagline": "Cropped clean. Built in full grain.",
+      "intro": [
+        "Cut to sit at the waist. A-grade full-grain sheepskin, finished in Pakistan. Soft in the hand, structured in shape, with minimal hardware in an understated dark brown."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Full-grain sheepskin",
+              "text": "Soft and supple, with the natural grain intact."
+            },
+            {
+              "title": "Cropped to the waist",
+              "text": "Shorter proportions that finish at the trouser waistband."
+            },
+            {
+              "title": "Minimal construction",
+              "text": "A pointed collar, a clean front zip, two vertical welt pockets."
+            },
+            {
+              "title": "Snap-tab cuffs",
+              "text": "Adjustable, with restrained metal hardware."
+            },
+            {
+              "title": "Made in Pakistan",
+              "text": "Cut, assembled and inspected one by one by Klaev's leather craftsmen."
+            }
+          ],
+          "paragraphs": []
+        },
+        {
+          "heading": "Materials and finish",
+          "items": [],
+          "paragraphs": [
+            "A-grade full-grain sheepskin, chosen for a soft hand and a clean surface. Grain and tone vary a little from hide to hide. That is real leather, so no two jackets are identical."
+          ]
+        },
+        {
+          "heading": "Fit and sizing",
+          "items": [],
+          "paragraphs": [
+            "S to XL. Shorter than Klaev's other leather jackets, it finishes at the waist. Take your usual size, or size up to layer heavy knitwear underneath."
+          ]
+        },
+        {
+          "heading": "Care",
+          "items": [
+            {
+              "title": null,
+              "text": "Keep the jacket away from sharp objects."
+            },
+            {
+              "title": null,
+              "text": "Do not spray cologne or perfume directly onto the jacket."
+            }
+          ],
+          "paragraphs": []
+        }
+      ],
+      "variants": [
+        {
+          "id": "49253873647687",
+          "sku": "KLAEV-CROP-DBRN-S",
+          "size": "S",
+          "colour": "Dark brown",
+          "available": true
+        },
+        {
+          "id": "49253873680455",
+          "sku": "KLAEV-CROP-DBRN-M",
+          "size": "M",
+          "colour": "Dark brown",
+          "available": true
+        },
+        {
+          "id": "49253873713223",
+          "sku": "KLAEV-CROP-DBRN-L",
+          "size": "L",
+          "colour": "Dark brown",
+          "available": true
+        },
+        {
+          "id": "49253873745991",
+          "sku": "KLAEV-CROP-DBRN-XL",
+          "size": "XL",
+          "colour": "Dark brown",
+          "available": false
+        }
+      ],
+      "sizeGuide": {
+        "kind": "garment",
+        "note": "Measured on the jacket, in inches. Chest is the full chest, twice the width laid flat. Compare with a jacket you own.",
+        "rows": [
+          {
+            "size": "S",
+            "chestFlat": 20.5,
+            "length": 22.5
+          },
+          {
+            "size": "M",
+            "chestFlat": 21.5,
+            "length": 23
+          },
+          {
+            "size": "L",
+            "chestFlat": 22.5,
+            "length": 23.5
+          },
+          {
+            "size": "XL",
+            "chestFlat": 23.5,
+            "length": 24
+          }
+        ]
+      },
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_prxo8fprxo8fprxo.jpg?v=1791180762",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 1 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_1siccd1siccd1sic.jpg?v=1791180789",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 2 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_an4x9jan4x9jan4x.jpg?v=1791180810",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 3 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_62g06762g06762g0.jpg?v=1791180810",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 4 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_mjbi1wmjbi1wmjbi.jpg?v=1791180846",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 5 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_yh35tcyh35tcyh35.jpg?v=1791180846",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 6 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_57bn2n57bn2n57bn.jpg?v=1791180845",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 7 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_cuon3gcuon3gcuon.jpg?v=1791180846",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 8 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_vowle8vowle8vowl.jpg?v=1791180844",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 9 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_gkhbl9gkhbl9gkhb.jpg?v=1791180846",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 10 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_czz5djczz5djczz5.jpg?v=1791180846",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 11 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/Gemini_Generated_Image_vam5npvam5npvam5.jpg?v=1791180846",
+          "width": 1844,
+          "height": 2304,
+          "alt": "Dark Brown Cropped Sheepskin Leather Jacket, photo 12 of 12"
+        }
+      ],
+      "tags": [
+        "cropped leather jacket",
+        "dark brown",
+        "full-grain",
+        "men's leather jacket",
+        "sheepskin",
+        "winter"
+      ],
+      "publishedAt": "2026-10-05T11:30:23+05:00"
+    },
+    {
+      "handle": "burgundy-cropped-leather-jacket",
+      "status": "active",
+      "title": "Burgundy Cropped Sheepskin Leather Jacket",
+      "collection": "cropped-leather-jackets",
+      "price": 17999,
+      "compareAtPrice": null,
+      "colour": "Burgundy",
+      "tagline": "Cropped clean. Built in full grain.",
+      "intro": [
+        "Cut to sit at the waist. A-grade full-grain sheepskin, finished in Pakistan. Soft in the hand, structured in shape, with minimal hardware in a deep burgundy."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Full-grain sheepskin",
+              "text": "Soft and supple, with the natural grain intact."
+            },
+            {
+              "title": "Cropped to the waist",
+              "text": "Shorter proportions that finish at the trouser waistband."
+            },
+            {
+              "title": "Minimal construction",
+              "text": "A pointed collar, a clean front zip, two vertical welt pockets."
+            },
+            {
+              "title": "Snap-tab cuffs",
+              "text": "Adjustable, with restrained metal hardware."
+            },
+            {
+              "title": "Made in Pakistan",
+              "text": "Cut, assembled and inspected one by one by Klaev's leather craftsmen."
+            }
+          ],
+          "paragraphs": []
+        },
+        {
+          "heading": "Materials and finish",
+          "items": [],
+          "paragraphs": [
+            "A-grade full-grain sheepskin, chosen for a soft hand and a clean surface. Grain and tone vary a little from hide to hide. That is real leather, so no two jackets are identical."
+          ]
+        },
+        {
+          "heading": "Fit and sizing",
+          "items": [],
+          "paragraphs": [
+            "S to XL. Shorter than Klaev's other leather jackets, it finishes at the waist. Take your usual size, or size up to layer heavy knitwear underneath."
+          ]
+        },
+        {
+          "heading": "Care",
+          "items": [
+            {
+              "title": null,
+              "text": "Keep the jacket away from sharp objects."
+            },
+            {
+              "title": null,
+              "text": "Do not spray cologne or perfume directly onto the jacket."
+            }
+          ],
+          "paragraphs": []
+        }
+      ],
+      "variants": [
+        {
+          "id": "49142312730695",
+          "sku": "KLAEV-CROP-BRG-S",
+          "size": "S",
+          "colour": "Burgundy",
+          "available": true
+        },
+        {
+          "id": "49142312763463",
+          "sku": "KLAEV-CROP-BRG-M",
+          "size": "M",
+          "colour": "Burgundy",
+          "available": false
+        },
+        {
+          "id": "49142312796231",
+          "sku": "KLAEV-CROP-BRG-L",
+          "size": "L",
+          "colour": "Burgundy",
+          "available": false
+        },
+        {
+          "id": "49142312828999",
+          "sku": "KLAEV-CROP-BRG-XL",
+          "size": "XL",
+          "colour": "Burgundy",
+          "available": false
+        }
+      ],
+      "sizeGuide": {
+        "kind": "garment",
+        "note": "Measured on the jacket, in inches. Chest is the full chest, twice the width laid flat. Compare with a jacket you own.",
+        "rows": [
+          {
+            "size": "S",
+            "chestFlat": 20.5,
+            "length": 22.5
+          },
+          {
+            "size": "M",
+            "chestFlat": 21.5,
+            "length": 23
+          },
+          {
+            "size": "L",
+            "chestFlat": 22.5,
+            "length": 23.5
+          },
+          {
+            "size": "XL",
+            "chestFlat": 23.5,
+            "length": 24
+          }
+        ]
+      },
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-burgundy-cropped-leather-jacket-product-front-v02.webp?v=1791139166",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 1 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-burgundy-cropped-leather-jacket-model-front-v02.webp?v=1791139171",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 2 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-burgundy-cropped-leather-jacket-three-quarter-left-v02.webp?v=1791139176",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 3 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-burgundy-cropped-leather-jacket-three-quarter-right-v02.webp?v=1791139214",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 4 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-burgundy-cropped-leather-jacket-side-left-v02.webp?v=1791139203",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 5 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-burgundy-cropped-leather-jacket-back-v02.webp?v=1791139198",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 6 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-burgundy-cropped-leather-jacket-side-right-v02.webp?v=1791139181",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 7 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-burgundy-cropped-leather-jacket-left-pocket-v02.webp?v=1791139187",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 8 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-burgundy-cropped-leather-jacket-right-pocket-v02.webp?v=1791139192",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 9 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/burgundy-cropped-leather-jacket-collar-zipper-detail-v02.webp?v=1791139225",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 10 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/burgundy-cropped-sheepskin-leather-grain-zipper-detail-v03.webp?v=1791139209",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 11 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/burgundy-cropped-leather-jacket-sleeve-detail-v02.webp?v=1791139219",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Burgundy Cropped Sheepskin Leather Jacket, photo 12 of 12"
+        }
+      ],
+      "tags": [
+        "burgundy",
+        "cropped leather jacket",
+        "full-grain",
+        "men's leather jacket",
+        "sheepskin",
+        "winter"
+      ],
+      "publishedAt": "2026-10-04T23:44:00+05:00"
+    },
+    {
+      "handle": "black-cropped-leather-jacket",
+      "status": "active",
+      "title": "Black Cropped Sheepskin Leather Jacket",
+      "collection": "cropped-leather-jackets",
+      "price": 17999,
+      "compareAtPrice": null,
+      "colour": "Black",
+      "tagline": "Cropped clean. Built in full grain.",
+      "intro": [
+        "Cut to sit at the waist. A-grade full-grain sheepskin, finished in Pakistan. Soft in the hand, structured in shape, with minimal hardware in an understated black."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Full-grain sheepskin",
+              "text": "Soft and supple, with the natural grain intact."
+            },
+            {
+              "title": "Cropped to the waist",
+              "text": "Shorter proportions that finish at the trouser waistband."
+            },
+            {
+              "title": "Minimal construction",
+              "text": "A pointed collar, a clean front zip, two vertical welt pockets."
+            },
+            {
+              "title": "Snap-tab cuffs",
+              "text": "Adjustable, with restrained metal hardware."
+            },
+            {
+              "title": "Made in Pakistan",
+              "text": "Cut, assembled and inspected one by one by Klaev's leather craftsmen."
+            }
+          ],
+          "paragraphs": []
+        },
+        {
+          "heading": "Materials and finish",
+          "items": [],
+          "paragraphs": [
+            "A-grade full-grain sheepskin, chosen for a soft hand and a clean surface. Grain and tone vary a little from hide to hide. That is real leather, so no two jackets are identical."
+          ]
+        },
+        {
+          "heading": "Fit and sizing",
+          "items": [],
+          "paragraphs": [
+            "S to XL. Shorter than Klaev's other leather jackets, it finishes at the waist. Take your usual size, or size up to layer heavy knitwear underneath."
+          ]
+        },
+        {
+          "heading": "Care",
+          "items": [
+            {
+              "title": null,
+              "text": "Keep the jacket away from sharp objects."
+            },
+            {
+              "title": null,
+              "text": "Do not spray cologne or perfume directly onto the jacket."
+            }
+          ],
+          "paragraphs": []
+        }
+      ],
+      "variants": [
+        {
+          "id": "45831741505607",
+          "sku": "KLAEV-CROP-BLK-S",
+          "size": "S",
+          "colour": "Black",
+          "available": true
+        },
+        {
+          "id": "45831741538375",
+          "sku": "KLAEV-CROP-BLK-M",
+          "size": "M",
+          "colour": "Black",
+          "available": false
+        },
+        {
+          "id": "45831741571143",
+          "sku": "KLAEV-CROP-BLK-L",
+          "size": "L",
+          "colour": "Black",
+          "available": false
+        },
+        {
+          "id": "45831741603911",
+          "sku": "KLAEV-CROP-BLK-XL",
+          "size": "XL",
+          "colour": "Black",
+          "available": false
+        }
+      ],
+      "sizeGuide": {
+        "kind": "garment",
+        "note": "Measured on the jacket, in inches. Chest is the full chest, twice the width laid flat. Compare with a jacket you own.",
+        "rows": [
+          {
+            "size": "S",
+            "chestFlat": 20.5,
+            "length": 22.5
+          },
+          {
+            "size": "M",
+            "chestFlat": 21.5,
+            "length": 23
+          },
+          {
+            "size": "L",
+            "chestFlat": 22.5,
+            "length": 23.5
+          },
+          {
+            "size": "XL",
+            "chestFlat": 23.5,
+            "length": 24
+          }
+        ]
+      },
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-black-cropped-leather-jacket-product-front.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 1 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-black-cropped-leather-jacket-model-front.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 2 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-black-cropped-leather-jacket-three-quarter-left.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 3 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-black-cropped-leather-jacket-three-quarter-right.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 4 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-black-cropped-leather-jacket-side-left.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 5 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-black-cropped-leather-jacket-back.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 6 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-black-cropped-leather-jacket-side-right.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 7 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-black-cropped-leather-jacket-left-pocket.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 8 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/mens-black-cropped-leather-jacket-right-pocket.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 9 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/black-cropped-leather-jacket-collar-zipper-detail.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 10 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/black-cropped-sheepskin-leather-grain-zipper-detail.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 11 of 12"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/black-cropped-leather-jacket-sleeve-detail.webp?v=1789846271",
+          "width": 2560,
+          "height": 3200,
+          "alt": "Black Cropped Sheepskin Leather Jacket, photo 12 of 12"
+        }
+      ],
+      "tags": [
+        "black",
+        "cropped leather jacket",
+        "full-grain",
+        "men's leather jacket",
+        "sheepskin",
+        "winter"
+      ],
+      "publishedAt": "2026-09-20T00:52:41+05:00"
+    },
+    {
+      "handle": "black-stitched-leather-belt",
+      "status": "draft",
+      "title": "Black Stitched Leather Belt",
+      "collection": "leather-belts",
+      "price": 2500,
+      "compareAtPrice": null,
+      "colour": null,
+      "tagline": "Black. Double stitched. Red at the loop.",
+      "intro": [
+        "Black cow leather, cut from one solid piece. Clean double stitching runs the full length, with a small red accent on the loop. Wears with trousers or jeans."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Pure leather",
+              "text": "One solid piece of cow leather. No bonded layers, nothing to crack."
+            },
+            {
+              "title": "Double stitching",
+              "text": "Two clean parallel lines, end to end."
+            },
+            {
+              "title": "Red loop",
+              "text": "One small red detail on the loop."
+            },
+            {
+              "title": "Standard width",
+              "text": "35mm. Fits standard belt loops."
+            },
+            {
+              "title": "Real leather",
+              "text": "It wears in, not out."
+            }
+          ],
+          "paragraphs": []
+        }
+      ],
+      "variants": [
+        {
+          "id": "42606810529863",
+          "sku": "BELT-STC-BK",
+          "size": null,
+          "colour": null,
+          "available": true
+        }
+      ],
+      "sizeGuide": null,
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/black2_8dc1c8d4-ee17-4832-bbe3-27b36b8b731b.png?v=1773574272",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Black Stitched Leather Belt, photo 1 of 2"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-stitched-leather-belt-02.png?v=1779028100",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Black Stitched Leather Belt, photo 2 of 2"
+        }
+      ],
+      "tags": [
+        "Belts",
+        "coming soon"
+      ],
+      "publishedAt": "2026-03-15T16:24:13+05:00"
+    },
+    {
+      "handle": "black-studded-leather-belt",
+      "status": "draft",
+      "title": "Black Studded Leather Belt",
+      "collection": "leather-belts",
+      "price": 2500,
+      "compareAtPrice": null,
+      "colour": null,
+      "tagline": "Black leather. Silver studs.",
+      "intro": [
+        "Black cow leather from one solid piece, with polished silver studs on the loop. A classic belt with one sharp detail. Made for black jeans and casual trousers."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Pure leather",
+              "text": "One solid piece of cow leather. It will not peel or crack."
+            },
+            {
+              "title": "Studded loop",
+              "text": "Polished silver studs on the loop."
+            },
+            {
+              "title": "Silver buckle",
+              "text": "Solid metal, polished bright."
+            },
+            {
+              "title": "Standard width",
+              "text": "35mm. Fits standard belt loops."
+            },
+            {
+              "title": "Real leather",
+              "text": "Built for daily wear."
+            }
+          ],
+          "paragraphs": []
+        }
+      ],
+      "variants": [
+        {
+          "id": "42606803877959",
+          "sku": "BELT-STD-BK",
+          "size": null,
+          "colour": null,
+          "available": true
+        }
+      ],
+      "sizeGuide": null,
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/blackbelt_52c370fa-55be-4dc6-92fe-0d44050772fd.png?v=1773573162",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Black Studded Leather Belt, photo 1 of 2"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-studded-leather-belt-02.png?v=1779028100",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Black Studded Leather Belt, photo 2 of 2"
+        }
+      ],
+      "tags": [
+        "Belts",
+        "coming soon"
+      ],
+      "publishedAt": "2026-03-15T16:03:22+05:00"
+    },
+    {
+      "handle": "brown-textured-leather-belt",
+      "status": "draft",
+      "title": "Brown Textured Leather Belt",
+      "collection": "leather-belts",
+      "price": 2500,
+      "compareAtPrice": null,
+      "colour": null,
+      "tagline": "Deep brown. Embossed grain.",
+      "intro": [
+        "Deep brown cow leather with an embossed grain. More texture than a plain belt, still at home at work. A dark gunmetal buckle."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Pure leather",
+              "text": "One solid sheet of cow leather. It will not peel or crack."
+            },
+            {
+              "title": "Embossed grain",
+              "text": "Adds depth, and hides daily wear."
+            },
+            {
+              "title": "Gunmetal buckle",
+              "text": "Heavy metal in a dark finish."
+            },
+            {
+              "title": "Standard width",
+              "text": "35mm. Fits standard belt loops."
+            },
+            {
+              "title": "Real leather",
+              "text": "It ages with use."
+            }
+          ],
+          "paragraphs": []
+        }
+      ],
+      "variants": [
+        {
+          "id": "42606802927687",
+          "sku": "BELT-TXT-BR",
+          "size": null,
+          "colour": null,
+          "available": true
+        }
+      ],
+      "sizeGuide": null,
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/darkbrown.png?v=1773572422",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Brown Textured Leather Belt, photo 1 of 2"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-brown-textured-leather-belt-02.png?v=1779028100",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Brown Textured Leather Belt, photo 2 of 2"
+        }
+      ],
+      "tags": [
+        "Belts",
+        "coming soon"
+      ],
+      "publishedAt": "2026-03-15T15:57:53+05:00"
+    },
+    {
+      "handle": "maroon-stitched-leather-belt",
+      "status": "draft",
+      "title": "Maroon Stitched Leather Belt",
+      "collection": "leather-belts",
+      "price": 2500,
+      "compareAtPrice": null,
+      "colour": null,
+      "tagline": "Deep maroon. Double stitched.",
+      "intro": [
+        "Deep maroon cow leather, cut from one solid piece. Stitching runs the length on both edges, for more detail than a plain belt. A brushed matte silver buckle. Jeans or semi-formal trousers."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Pure leather",
+              "text": "One solid piece of cow leather, for strength."
+            },
+            {
+              "title": "Double stitching",
+              "text": "A line of stitching along each edge."
+            },
+            {
+              "title": "Matte silver buckle",
+              "text": "Solid metal with a smooth, brushed finish."
+            },
+            {
+              "title": "Standard width",
+              "text": "35mm. Fits standard belt loops."
+            },
+            {
+              "title": "Real leather",
+              "text": "It gets better with every wear."
+            }
+          ],
+          "paragraphs": []
+        }
+      ],
+      "variants": [
+        {
+          "id": "42606795128903",
+          "sku": "BELT-STC-MR",
+          "size": null,
+          "colour": null,
+          "available": true
+        }
+      ],
+      "sizeGuide": null,
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/graveled_1_0b8875f0-f302-46b4-b577-8140e293175e.png?v=1773571883",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Maroon Stitched Leather Belt, photo 1 of 2"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-maroon-stitched-leather-belt-02.png?v=1779028100",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Maroon Stitched Leather Belt, photo 2 of 2"
+        }
+      ],
+      "tags": [
+        "Belts",
+        "coming soon"
+      ],
+      "publishedAt": "2026-03-15T15:49:01+05:00"
+    },
+    {
+      "handle": "brown-dotted-leather-belt",
+      "status": "draft",
+      "title": "Brown Dotted Leather Belt",
+      "collection": "leather-belts",
+      "price": 2500,
+      "compareAtPrice": null,
+      "colour": null,
+      "tagline": "Brown leather. Dotted edge.",
+      "intro": [
+        "Brown cow leather with a dotted edge. Built for daily wear, with blue jeans or casual trousers. A brushed matte buckle. Refined, never flashy."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Pure leather",
+              "text": "One solid piece of cow leather. It will not peel or crack."
+            },
+            {
+              "title": "Dotted edge",
+              "text": "A dotted pattern along both borders."
+            },
+            {
+              "title": "Matte silver buckle",
+              "text": "Solid metal with a smooth, brushed finish."
+            },
+            {
+              "title": "Standard width",
+              "text": "35mm. Fits standard belt loops."
+            },
+            {
+              "title": "Real leather",
+              "text": "Built for years of wear."
+            }
+          ],
+          "paragraphs": []
+        }
+      ],
+      "variants": [
+        {
+          "id": "42606784872519",
+          "sku": "BELT-DOT-BR",
+          "size": null,
+          "colour": null,
+          "available": true
+        }
+      ],
+      "sizeGuide": null,
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/lightbrown.png?v=1773571427",
+          "width": 1024,
+          "height": 1024,
+          "alt": "Brown Dotted Leather Belt, photo 1 of 2"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-brown-dotted-leather-belt-02.png?v=1779028100",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Brown Dotted Leather Belt, photo 2 of 2"
+        }
+      ],
+      "tags": [
+        "Belts",
+        "coming soon"
+      ],
+      "publishedAt": "2026-03-15T15:35:57+05:00"
+    },
+    {
+      "handle": "brown-black-twin-shade-leather-belt",
+      "status": "draft",
+      "title": "Twin Shade Leather Belt",
+      "collection": "leather-belts",
+      "price": 2500,
+      "compareAtPrice": null,
+      "colour": null,
+      "tagline": "Brown centre. Black edges.",
+      "intro": [
+        "A coffee-brown centre with black edges, so it goes with brown and with black. One belt for the office, a wedding, or jeans."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Pure leather",
+              "text": "One solid piece of cow leather. Not bonded, so nothing to crack or peel."
+            },
+            {
+              "title": "Two tones",
+              "text": "Coffee brown at the centre, blending into black at the edges."
+            },
+            {
+              "title": "Silver buckle",
+              "text": "Heavy metal, polished bright."
+            },
+            {
+              "title": "Standard width",
+              "text": "35mm. Fits standard belt loops."
+            }
+          ],
+          "paragraphs": []
+        }
+      ],
+      "variants": [
+        {
+          "id": "42606247706695",
+          "sku": "BELT-TWN-BB",
+          "size": null,
+          "colour": null,
+          "available": true
+        }
+      ],
+      "sizeGuide": null,
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/twotone.png?v=1773520719",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Twin Shade Leather Belt, photo 1 of 2"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-twin-shade-leather-belt-02.png?v=1779028100",
+          "width": 1264,
+          "height": 848,
+          "alt": "Twin Shade Leather Belt, photo 2 of 2"
+        }
+      ],
+      "tags": [
+        "Belts",
+        "coming soon"
+      ],
+      "publishedAt": "2026-03-15T15:33:28+05:00"
+    },
+    {
+      "handle": "black-suede-jacket",
+      "status": "active",
+      "title": "Black Goatskin Suede Jacket",
+      "collection": "suede-jackets",
+      "price": 18999,
+      "compareAtPrice": null,
+      "colour": "Black",
+      "tagline": "Matte. Velvety. Quiet.",
+      "intro": [
+        "Goatskin, finished as suede. Velvety in the hand, matte black on the surface. Light enough for autumn evenings and mild winters, when full leather feels too heavy. No visible branding. Just the suede."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Goatskin suede",
+              "text": "Matte and velvety, with finer fibres than cowhide. Ages well with care."
+            },
+            {
+              "title": "Light",
+              "text": "Layer it in autumn, or wear it alone through a mild winter."
+            },
+            {
+              "title": "Minimal",
+              "text": "No logos, no loud hardware, no extra detail."
+            },
+            {
+              "title": "Smooth lining",
+              "text": "A breathable cotton blend. Soft over a t-shirt or a thin knit."
+            },
+            {
+              "title": "Structured shoulders, relaxed body",
+              "text": "Close at the shoulders, a little easier through the torso."
+            },
+            {
+              "title": "Made in Pakistan",
+              "text": "Cut and finished by hand by a small team of craftsmen."
+            }
+          ],
+          "paragraphs": []
+        },
+        {
+          "heading": "Materials",
+          "items": [],
+          "paragraphs": [
+            "Goatskin suede has finer fibres than cowhide or lambskin, a softer hand and a deeper velvet texture. Klaev's goatskin comes from leading Pakistani tanneries that also supply international luxury houses. The surface is brushed and finished by hand, so no two jackets look identical up close."
+          ]
+        },
+        {
+          "heading": "Care",
+          "items": [
+            {
+              "title": null,
+              "text": "Keep the jacket away from sharp objects."
+            },
+            {
+              "title": null,
+              "text": "Do not spray cologne or perfume directly onto the jacket."
+            }
+          ],
+          "paragraphs": []
+        },
+        {
+          "heading": "Sizing",
+          "items": [],
+          "paragraphs": [
+            "Sized by chest. M fits 38 to 40 in, L fits 40 to 42 in, XL fits 42 to 44 in. Between sizes, size up to layer. Full measurements are in the size guide."
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "42205323198535",
+          "sku": "SUD-BLK-M",
+          "size": "M",
+          "colour": "Black",
+          "available": false
+        },
+        {
+          "id": "42205323231303",
+          "sku": "SUD-BLK-L",
+          "size": "L",
+          "colour": "Black",
+          "available": false
+        },
+        {
+          "id": "42205323264071",
+          "sku": "SUD-BLK-XL",
+          "size": "XL",
+          "colour": "Black",
+          "available": true
+        }
+      ],
+      "sizeGuide": {
+        "kind": "body",
+        "note": "Body chest measurement in inches. Between sizes, size up to layer.",
+        "rows": [
+          {
+            "size": "M",
+            "chest": [
+              38,
+              40
+            ]
+          },
+          {
+            "size": "L",
+            "chest": [
+              40,
+              42
+            ]
+          },
+          {
+            "size": "XL",
+            "chest": [
+              42,
+              44
+            ]
+          }
+        ]
+      },
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-suede-jacket-01.png?v=1779028099",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Black Goatskin Suede Jacket, photo 1 of 7"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-suede-jacket-02.png?v=1779028099",
+          "width": 1792,
+          "height": 2400,
+          "alt": "Black Goatskin Suede Jacket, photo 2 of 7"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-suede-jacket-03.png?v=1779028099",
+          "width": 1792,
+          "height": 2400,
+          "alt": "Black Goatskin Suede Jacket, photo 3 of 7"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-suede-jacket-04.png?v=1779028099",
+          "width": 1792,
+          "height": 2400,
+          "alt": "Black Goatskin Suede Jacket, photo 4 of 7"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-suede-jacket-05.png?v=1779028099",
+          "width": 1792,
+          "height": 2400,
+          "alt": "Black Goatskin Suede Jacket, photo 5 of 7"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-suede-jacket-06.png?v=1779028099",
+          "width": 1792,
+          "height": 2400,
+          "alt": "Black Goatskin Suede Jacket, photo 6 of 7"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-suede-jacket-07.png?v=1779028099",
+          "width": 1792,
+          "height": 2400,
+          "alt": "Black Goatskin Suede Jacket, photo 7 of 7"
+        }
+      ],
+      "tags": [
+        "premium"
+      ],
+      "publishedAt": "2025-11-12T10:39:50+05:00"
+    },
+    {
+      "handle": "oxblood-lambskin-leather-jacket",
+      "status": "active",
+      "title": "Oxblood Lambskin Leather Jacket",
+      "collection": "leather-jackets",
+      "price": 14999,
+      "compareAtPrice": 0,
+      "colour": "Ox blood",
+      "tagline": "Hand-waxed. Oxblood. Ages its own way.",
+      "intro": [
+        "Full-grain lambskin, hand-waxed in Pakistan. A deep oxblood with highlights that shift in the light and deepen into a patina over time. The wax goes on panel by panel, so no two jackets match. A smooth lining and a structured fit. Refined, never formal."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Hand-waxed full-grain lambskin",
+              "text": "It builds its own patina. No two age the same way."
+            },
+            {
+              "title": "Deep oxblood",
+              "text": "Rich burgundy, with highlights that change with the light."
+            },
+            {
+              "title": "Smooth lining",
+              "text": "Breathable and soft. Comfortable all day."
+            },
+            {
+              "title": "Structured fit",
+              "text": "Close at the shoulders, slim through the torso, slightly tapered at the waist."
+            },
+            {
+              "title": "Solid metal hardware",
+              "text": "YKK zips and brass studs that age with the leather."
+            },
+            {
+              "title": "Made in Pakistan",
+              "text": "Cut and finished by hand, not on a factory line."
+            }
+          ],
+          "paragraphs": []
+        },
+        {
+          "heading": "Materials",
+          "items": [],
+          "paragraphs": [
+            "Lambskin from leading Pakistani tanneries that also supply international luxury brands. The wax is applied by hand, panel by panel, which is why each jacket builds its own pattern of highlights. The grain stays intact, and the leather softens with every wear."
+          ]
+        },
+        {
+          "heading": "Care",
+          "items": [
+            {
+              "title": null,
+              "text": "Keep the jacket away from sharp objects."
+            },
+            {
+              "title": null,
+              "text": "Do not spray cologne or perfume directly onto the jacket."
+            }
+          ],
+          "paragraphs": []
+        },
+        {
+          "heading": "Sizing",
+          "items": [],
+          "paragraphs": [
+            "Sized by chest. M fits 38 to 40 in, L fits 40 to 42 in, XL fits 42 to 44 in. Between sizes, size up to layer. Full measurements are in the size guide."
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "42205297246279",
+          "sku": "LTHR-OXB-M",
+          "size": "M",
+          "colour": "Ox Blood",
+          "available": false
+        },
+        {
+          "id": "42205297279047",
+          "sku": "LTHR-OXB-L",
+          "size": "L",
+          "colour": "Ox Blood",
+          "available": false
+        },
+        {
+          "id": "42205297311815",
+          "sku": "LTHR-OXB-XL",
+          "size": "XL",
+          "colour": "Ox Blood",
+          "available": true
+        }
+      ],
+      "sizeGuide": {
+        "kind": "body",
+        "note": "Body chest measurement in inches. Between sizes, size up to layer.",
+        "rows": [
+          {
+            "size": "M",
+            "chest": [
+              38,
+              40
+            ]
+          },
+          {
+            "size": "L",
+            "chest": [
+              40,
+              42
+            ]
+          },
+          {
+            "size": "XL",
+            "chest": [
+              42,
+              44
+            ]
+          }
+        ]
+      },
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-oxblood-lambskin-leather-jacket-01.png?v=1779028100",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Oxblood Lambskin Leather Jacket, photo 1 of 6"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-oxblood-lambskin-leather-jacket-02.png?v=1779028100",
+          "width": 1792,
+          "height": 2400,
+          "alt": "Oxblood Lambskin Leather Jacket, photo 2 of 6"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-oxblood-lambskin-leather-jacket-03.png?v=1779028100",
+          "width": 864,
+          "height": 1184,
+          "alt": "Oxblood Lambskin Leather Jacket, photo 3 of 6"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-oxblood-lambskin-leather-jacket-04.png?v=1779028100",
+          "width": 864,
+          "height": 1184,
+          "alt": "Oxblood Lambskin Leather Jacket, photo 4 of 6"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-oxblood-lambskin-leather-jacket-05.png?v=1779028100",
+          "width": 864,
+          "height": 1184,
+          "alt": "Oxblood Lambskin Leather Jacket, photo 5 of 6"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-oxblood-lambskin-leather-jacket-06.png?v=1779028100",
+          "width": 1792,
+          "height": 2400,
+          "alt": "Oxblood Lambskin Leather Jacket, photo 6 of 6"
+        }
+      ],
+      "tags": [],
+      "publishedAt": "2025-11-12T10:16:33+05:00"
+    },
+    {
+      "handle": "black-lambskin-leather-jacket",
+      "status": "active",
+      "title": "Black Lambskin Leather Jacket",
+      "collection": "leather-jackets",
+      "price": 14999,
+      "compareAtPrice": 0,
+      "colour": "Black",
+      "tagline": "Soft. Tailored. Built to age.",
+      "intro": [
+        "Full-grain lambskin, finished by hand in Pakistan. Soft and supple, with a tailored fit that works over a tee, a knit or a shirt. A smooth, breathable cotton-blend lining, comfortable all day. The grain builds a patina as you wear it, so it looks better in year five than on day one."
+      ],
+      "sections": [
+        {
+          "heading": "Key features",
+          "items": [
+            {
+              "title": "Full-grain lambskin",
+              "text": "The highest grade of real leather. Soft on day one, better with the years."
+            },
+            {
+              "title": "Smooth lining",
+              "text": "A breathable cotton blend. Comfortable all day, easy over a shirt."
+            },
+            {
+              "title": "Tailored fit",
+              "text": "Close at the shoulders, slim through the torso, sleeves ending at the wrist bone."
+            },
+            {
+              "title": "Solid metal hardware",
+              "text": "YKK zips and brass studs."
+            },
+            {
+              "title": "Made in Pakistan",
+              "text": "Cut and finished by hand by a small team of leather craftsmen."
+            },
+            {
+              "title": "Solid leather",
+              "text": "Every panel cut from one piece. No bonded scraps, no glue, nothing to peel."
+            }
+          ],
+          "paragraphs": []
+        },
+        {
+          "heading": "Materials",
+          "items": [],
+          "paragraphs": [
+            "Lambskin from leading Pakistani tanneries that also supply international luxury brands. Full grain, with the natural pattern visible and intact. Every panel is cut from a solid piece, never bonded scraps. The lining is a smooth, breathable cotton blend."
+          ]
+        },
+        {
+          "heading": "Care",
+          "items": [
+            {
+              "title": null,
+              "text": "Keep the jacket away from sharp objects."
+            },
+            {
+              "title": null,
+              "text": "Do not spray cologne or perfume directly onto the jacket."
+            }
+          ],
+          "paragraphs": []
+        },
+        {
+          "heading": "Sizing",
+          "items": [],
+          "paragraphs": [
+            "Sized by chest. M fits 38 to 40 in, L fits 40 to 42 in, XL fits 42 to 44 in. Between sizes, size up to layer. Full measurements are in the size guide."
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "42204090892359",
+          "sku": "LTHR-BLK-M",
+          "size": "M",
+          "colour": "Black",
+          "available": true
+        },
+        {
+          "id": "42204090925127",
+          "sku": "LTHR-BLK-L",
+          "size": "L",
+          "colour": "Black",
+          "available": true
+        },
+        {
+          "id": "42204090957895",
+          "sku": "LTHR-BLK-XL",
+          "size": "XL",
+          "colour": "Black",
+          "available": false
+        }
+      ],
+      "sizeGuide": {
+        "kind": "body",
+        "note": "Body chest measurement in inches. Between sizes, size up to layer.",
+        "rows": [
+          {
+            "size": "M",
+            "chest": [
+              38,
+              40
+            ]
+          },
+          {
+            "size": "L",
+            "chest": [
+              40,
+              42
+            ]
+          },
+          {
+            "size": "XL",
+            "chest": [
+              42,
+              44
+            ]
+          }
+        ]
+      },
+      "images": [
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-lambskin-leather-jacket-01.png?v=1779028100",
+          "width": 2048,
+          "height": 2048,
+          "alt": "Black Lambskin Leather Jacket, photo 1 of 5"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-lambskin-leather-jacket-02.png?v=1779028100",
+          "width": 864,
+          "height": 1184,
+          "alt": "Black Lambskin Leather Jacket, photo 2 of 5"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-lambskin-leather-jacket-03.png?v=1779028100",
+          "width": 1792,
+          "height": 2400,
+          "alt": "Black Lambskin Leather Jacket, photo 3 of 5"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-lambskin-leather-jacket-04.png?v=1779028100",
+          "width": 1792,
+          "height": 1879,
+          "alt": "Black Lambskin Leather Jacket, photo 4 of 5"
+        },
+        {
+          "src": "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/IMG_3301.jpg?v=1764414658",
+          "width": 3024,
+          "height": 4032,
+          "alt": "Black Lambskin Leather Jacket, photo 5 of 5"
+        }
+      ],
+      "tags": [],
+      "publishedAt": "2025-11-11T23:30:10+05:00"
+    }
+  ]
+}

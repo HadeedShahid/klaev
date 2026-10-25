@@ -9,12 +9,14 @@ import { ProductCard } from "@/components/product/product-card";
 import { ProductDetails } from "@/components/product/product-details";
 import { PurchasePanel } from "@/components/product/purchase-panel";
 import { SizeGuide } from "@/components/product/size-guide";
-import { getProduct, getProducts, getRelatedProducts } from "@/lib/catalog";
+import { getProduct, getProducts, getRelatedProducts, type Product } from "@/lib/catalog";
 import { formatPKR } from "@/lib/money";
 import { codSummary } from "@/lib/payment";
 import { sizeMeasurement } from "@/lib/sizing";
 
-// Only the prerendered handles exist; anything else is a real 404.
+// Live handles are listed at build so their pages never expire. Deploys don't upload the built
+// pages (AGENTS.md), so each one renders on the Worker from the database on its first visit after
+// a deploy and is served from the R2 cache after that. Any other handle is a real 404.
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -26,26 +28,28 @@ export async function generateMetadata({ params }: PageProps<"/products/[handle]
   const product = await getProduct((await params).handle);
   if (!product) return {};
   return {
-    title: product.title,
-    description: product.tagline ? `${product.tagline} ${formatPKR(product.price)}.` : undefined,
+    // Search titles carried over from Shopify are complete titles, so they skip the "| Klaev" template.
+    title: product.seoTitle ? { absolute: product.seoTitle } : product.title,
+    description:
+      product.seoDescription ?? (product.tagline ? `${product.tagline} ${formatPKR(product.price)}.` : undefined),
     openGraph: { images: product.images.slice(0, 1).map((image) => image.src) },
   };
 }
 
-// The page never reads the URL itself, so its shell is shared by every product. The URL is read
-// inside the boundary; known products are still prerendered in full, and prefetched links resolve them.
-export default function ProductPage({ params }: PageProps<"/products/[handle]">) {
+// The handle is checked before anything streams, so unknown and draft handles answer with a real
+// 404 status. Inside the boundary the response would already have gone out as 200.
+export default async function ProductPage({ params }: PageProps<"/products/[handle]">) {
+  const product = await getProduct((await params).handle);
+  if (!product) notFound();
+
   return (
     <Suspense fallback={<ProductSkeleton />}>
-      <ProductView params={params} />
+      <ProductView product={product} />
     </Suspense>
   );
 }
 
-async function ProductView({ params }: Pick<PageProps<"/products/[handle]">, "params">) {
-  const product = await getProduct((await params).handle);
-  if (!product) notFound();
-
+async function ProductView({ product }: { product: Product }) {
   const related = await getRelatedProducts(product.handle);
   const sized = product.variants.filter((variant) => variant.size !== null);
   const sizes = sized.map((variant) => ({

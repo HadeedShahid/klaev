@@ -1,8 +1,13 @@
 import "server-only";
 
-import snapshot from "@/data/catalog.json";
+import { asc, eq } from "drizzle-orm";
+import { cache } from "react";
 
+import { getDb } from "./db";
+import { collections, productImages, products, variants, type ProductSection } from "./db/schema";
 import type { SizeGuide } from "./sizing";
+
+export type { ProductSection };
 
 export type ProductImage = { src: string; width: number; height: number; alt: string };
 
@@ -14,15 +19,9 @@ export type Variant = {
   available: boolean;
 };
 
-export type ProductSection = {
-  heading: string;
-  items: { title: string | null; text: string }[];
-  paragraphs: string[];
-};
-
 export type Product = {
   handle: string;
-  // Drafts are kept in the catalog but never shown or sold. Belts are drafts until they launch.
+  // Drafts stay in the database but are never shown or sold. Belts are drafts until they launch.
   status: "active" | "draft";
   title: string;
   collection: string;
@@ -30,6 +29,8 @@ export type Product = {
   compareAtPrice: number | null;
   colour: string | null;
   tagline: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
   intro: string[];
   sections: ProductSection[];
   variants: Variant[];
@@ -38,51 +39,87 @@ export type Product = {
   tags: string[];
 };
 
-export type Collection = { handle: string; title: string; products: string[] };
+export type Collection = { handle: string; title: string };
 
 export type CollectionWithItems = Collection & { items: Product[] };
 
 // The storefront-wide listing at /collections/all, kept from the Shopify URL shape.
-const ALL: Collection = { handle: "all", title: "Shop all", products: [] };
+const ALL: Collection = { handle: "all", title: "Shop all" };
 
-type Catalog = { collections: Collection[]; products: Product[] };
+// This is the only module that knows where the catalog lives (Cloudflare D1, through Drizzle).
+// The live catalog is a dozen products, so each request loads it once and the functions below
+// pick from it. Revisit when it grows past a few hundred.
+const loadCatalog = cache(async () => {
+  const db = await getDb();
+  const [rows, collectionRows] = await Promise.all([
+    db.query.products.findMany({
+      where: eq(products.status, "active"),
+      orderBy: [asc(products.position), asc(products.id)],
+      with: {
+        variants: { orderBy: [asc(variants.position), asc(variants.id)] },
+        images: { orderBy: [asc(productImages.position), asc(productImages.id)] },
+      },
+    }),
+    db.select({ handle: collections.handle, title: collections.title }).from(collections).orderBy(asc(collections.position)),
+  ]);
 
-// This is the only module that knows the catalog is a JSON snapshot.
-// Swapping in Cloudflare D1 means rewriting these functions, nothing else.
-const catalog = snapshot as Catalog;
-const live = catalog.products.filter((product) => product.status === "active");
+  const live: Product[] = rows.map((row) => ({
+    handle: row.handle,
+    status: row.status,
+    title: row.title,
+    collection: row.collectionHandle,
+    price: row.price,
+    compareAtPrice: row.compareAtPrice,
+    colour: row.colour,
+    tagline: row.tagline,
+    seoTitle: row.seoTitle,
+    seoDescription: row.seoDescription,
+    intro: row.intro,
+    sections: row.sections,
+    sizeGuide: row.sizeGuide,
+    tags: row.tags,
+    variants: row.variants.map((variant) => ({
+      id: String(variant.id),
+      sku: variant.sku,
+      size: variant.size,
+      colour: variant.colour,
+      available: variant.stock > 0,
+    })),
+    images: row.images.map(({ src, width, height, alt }) => ({ src, width, height, alt })),
+  }));
 
-function withItems(collection: Collection): CollectionWithItems {
-  const items =
-    collection.handle === ALL.handle
-      ? live
-      : collection.products
-          .map((handle) => live.find((product) => product.handle === handle))
-          .filter((product): product is Product => product !== undefined);
+  return { live, collections: collectionRows };
+});
+
+function withItems(collection: Collection, live: Product[]): CollectionWithItems {
+  const items = collection.handle === ALL.handle ? live : live.filter((product) => product.collection === collection.handle);
   return { ...collection, items };
 }
 
 export async function getProducts(): Promise<Product[]> {
-  return live;
+  return (await loadCatalog()).live;
 }
 
 export async function getProduct(handle: string): Promise<Product | null> {
-  return live.find((product) => product.handle === handle) ?? null;
+  return (await loadCatalog()).live.find((product) => product.handle === handle) ?? null;
 }
 
 // Collections with nothing live in them (belts, for now) are left out entirely.
 export async function getCollections(): Promise<CollectionWithItems[]> {
-  return catalog.collections.map(withItems).filter((collection) => collection.items.length > 0);
+  const { live, collections } = await loadCatalog();
+  return collections.map((collection) => withItems(collection, live)).filter((collection) => collection.items.length > 0);
 }
 
 export async function getCollection(handle: string): Promise<CollectionWithItems | null> {
-  const collection = handle === ALL.handle ? ALL : catalog.collections.find((c) => c.handle === handle);
+  const { live, collections } = await loadCatalog();
+  const collection = handle === ALL.handle ? ALL : collections.find((candidate) => candidate.handle === handle);
   if (!collection) return null;
-  const resolved = withItems(collection);
+  const resolved = withItems(collection, live);
   return resolved.items.length > 0 ? resolved : null;
 }
 
 export async function getRelatedProducts(handle: string, limit = 4): Promise<Product[]> {
+  const { live } = await loadCatalog();
   const product = live.find((candidate) => candidate.handle === handle);
   if (!product) return [];
   const sameLine = live.filter((p) => p.collection === product.collection && p.handle !== handle);
@@ -91,7 +128,7 @@ export async function getRelatedProducts(handle: string, limit = 4): Promise<Pro
 }
 
 export async function getVariant(id: string): Promise<{ product: Product; variant: Variant } | null> {
-  for (const product of live) {
+  for (const product of (await loadCatalog()).live) {
     const variant = product.variants.find((candidate) => candidate.id === id);
     if (variant) return { product, variant };
   }

@@ -1,9 +1,9 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
-import staticAssetsIncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/static-assets-incremental-cache";
+import r2IncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/r2-incremental-cache";
 
-// The catalog is a build-time snapshot, so prerendered pages are served read-only from static assets.
+// Product and collection pages render on the Worker on first visit and are kept in R2 (the
+// NEXT_INC_CACHE_R2_BUCKET binding). Keys include the build id, so every deploy starts fresh.
 // Cache interception stays off because it does not work with partial prerendering.
-// When products live in D1 and edits must refresh pages, switch to the R2 incremental cache.
 export default defineCloudflareConfig({
-  incrementalCache: staticAssetsIncrementalCache,
+  incrementalCache: r2IncrementalCache,
 });

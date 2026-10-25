@@ -55,3 +55,6 @@ next-env.d.ts
 /.wrangler/
 .dev.vars*
 cloudflare-env.d.ts
+
+# Shopify exports and anything generated from them: customer names, phones and addresses. Never commit.
+/data/private/

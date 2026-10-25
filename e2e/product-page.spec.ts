@@ -14,6 +14,15 @@ test.describe("product page", () => {
     await expect(page.getByRole("img", { name: /photo \d+ of 12$/ })).toHaveCount(12);
   });
 
+  test("keeps the search title and description the Shopify store ranked with", async ({ page }) => {
+    await page.goto("/products/burgundy-cropped-leather-jacket");
+    await expect(page).toHaveTitle("Men’s Burgundy Cropped Leather Jacket | Klaev Pakistan");
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      "content",
+      /^Shop Klaev’s men’s burgundy cropped leather jacket, crafted from full-grain sheepskin/,
+    );
+  });
+
   test("sizes name their measurements, and sold-out sizes stay visible but can't be chosen", async ({
     page,
   }) => {

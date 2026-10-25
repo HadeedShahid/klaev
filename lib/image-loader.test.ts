@@ -1,23 +1,30 @@
 import { describe, expect, test } from "vitest";
 
 import imageLoader from "./image-loader";
+import { MEDIA_URL } from "./media";
 
-const SHOPIFY = "https://cdn.shopify.com/s/files/1/0624/0796/6791/files/klaev-black-suede-jacket-01.png?v=1779028099";
+const photo = `${MEDIA_URL}/products/black-cropped-leather-jacket/4f1c2a9b7e.webp`;
 
 describe("imageLoader", () => {
-  test("asks the Shopify CDN for the exact width, keeping its version parameter", () => {
-    const url = new URL(imageLoader({ src: SHOPIFY, width: 384 }));
-    expect(url.hostname).toBe("cdn.shopify.com");
-    expect(url.searchParams.get("v")).toBe("1779028099");
-    expect(url.searchParams.get("width")).toBe("384");
+  test("a product photo loads the stored copy made for that width", () => {
+    expect(imageLoader({ src: photo, width: 1080 })).toBe(
+      `${MEDIA_URL}/products/black-cropped-leather-jacket/4f1c2a9b7e-1080.webp`,
+    );
   });
 
-  test("replaces a width that is already on the URL", () => {
-    const url = new URL(imageLoader({ src: `${SHOPIFY}&width=2048`, width: 828 }));
-    expect(url.searchParams.getAll("width")).toEqual(["828"]);
+  test("a width with no stored copy rounds up to the next one", () => {
+    expect(imageLoader({ src: photo, width: 700 })).toBe(
+      `${MEDIA_URL}/products/black-cropped-leather-jacket/4f1c2a9b7e-828.webp`,
+    );
   });
 
-  test("leaves other sources untouched apart from the width hint", () => {
-    expect(imageLoader({ src: "/hero.webp", width: 640 })).toBe("/hero.webp?w=640");
+  test("anything wider than the largest copy gets the largest", () => {
+    expect(imageLoader({ src: photo, width: 3840 })).toBe(
+      `${MEDIA_URL}/products/black-cropped-leather-jacket/4f1c2a9b7e-1920.webp`,
+    );
+  });
+
+  test("files shipped with the site are left as they are", () => {
+    expect(imageLoader({ src: "/_next/static/media/hero.webp", width: 640 })).toBe("/_next/static/media/hero.webp?w=640");
   });
 });

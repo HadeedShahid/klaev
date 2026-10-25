@@ -23,7 +23,8 @@ test.describe("collections", () => {
 
   for (const path of ["/collections/leather-belts", "/collections/not-a-collection", "/products/black-stitched-leather-belt"]) {
     test(`${path} is not on the site`, async ({ page }) => {
-      await page.goto(path);
+      const response = await page.goto(path);
+      expect(response?.status()).toBe(404);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText("This page isn't here");
     });
   }

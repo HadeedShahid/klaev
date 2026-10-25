@@ -28,6 +28,9 @@ type Product = (typeof snapshot.products)[number];
 function productTexts(product: Product) {
   return [
     product.tagline ?? "",
+    product.seoTitle ?? "",
+    product.seoDescription ?? "",
+    ...product.images.map((image) => image.alt),
     ...product.intro,
     ...product.sections.flatMap((section) => [
       ...section.items.flatMap((item) => [item.title ?? "", item.text]),

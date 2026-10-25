@@ -11,10 +11,11 @@ The store for [Klaev](https://klaev.com): leather jackets and belts in real leat
 
 ```bash
 pnpm install
+pnpm db:setup   # a local Cloudflare D1 database with the schema and the catalog seed
 pnpm dev
 ```
 
-The site runs at http://localhost:3000. The catalog is a snapshot of the Shopify products in `data/catalog.json` until the Cloudflare D1 database is connected.
+The site runs at http://localhost:3000. It reads the local database; the live store reads the real one on Cloudflare.
 
 ## Check it
 

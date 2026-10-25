@@ -25,6 +25,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
+      # A local D1 with the schema and the catalog seed: the landing page reads it while building.
+      - run: pnpm db:setup
       # The Cloudflare build runs `next build` and then bundles the Worker, so adapter breakage shows here.
       - run: pnpm exec opennextjs-cloudflare build
 
@@ -41,6 +43,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium webkit
+      - run: pnpm db:setup
       - run: pnpm test:e2e
       - uses: actions/upload-artifact@v7
         if: failure()

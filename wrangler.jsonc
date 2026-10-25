@@ -16,9 +16,24 @@
 			"service": "klaev"
 		}
 	],
+	"d1_databases": [
+		{
+			// The store database: catalog, stock, customers, orders and payments. Schema in lib/db/schema.ts,
+			// migrations in drizzle/. Local development and CI use a local copy under .wrangler/state.
+			"binding": "DB",
+			"database_name": "klaev",
+			"database_id": "db113c94-9161-419e-8d1c-46d137eab5d5",
+			"migrations_dir": "drizzle"
+		}
+	],
+	"r2_buckets": [
+		{
+			// OpenNext's page cache (open-next.config.ts).
+			"binding": "NEXT_INC_CACHE_R2_BUCKET",
+			"bucket_name": "klaev-cache"
+		}
+	],
 	"observability": {
 		"enabled": true
 	}
-	// No R2 bucket yet: the incremental cache is the read-only static assets cache (open-next.config.ts).
-	// Add NEXT_INC_CACHE_R2_BUCKET when D1 lands and pages need revalidating.
 }

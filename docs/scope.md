@@ -28,7 +28,7 @@ Klaev sells premium leather jackets and belts in Pakistan. This repo replaces th
 | App | Next.js 16 on Cloudflare Workers, deployed with the OpenNext adapter | One codebase for the storefront, admin and API |
 | Plan | Workers Paid, $5 a month | The free plan allows 10 ms of CPU per request, which is too little for server rendering |
 | Database | D1 (SQLite) with Drizzle ORM | Included in Workers Paid: 25 billion row reads and 50 million row writes a month |
-| Images and uploads | R2, resized through Cloudflare Images | Product photos and bank transfer receipts |
+| Images and uploads | R2. Product photos are stored ready-sized as WebP, one copy per width the site asks for, so nothing resizes on request | Product photos and bank transfer receipts |
 | Admin login | Clerk, free plan | Prebuilt sign-in and user management, and ready for customer accounts later |
 | Email | Resend, templates in React Email | Cloudflare's own sending is still in beta. All mail goes through one `sendEmail()` so switching later is a one-file change |
 | Scheduled jobs | Cron Triggers | Abandoned checkout reminders, daily summary email, nightly analytics rollups |
@@ -281,8 +281,10 @@ Many customers in Pakistan don't read email, so confirming by WhatsApp is a one-
 ## Moving off Shopify
 
 1. Export products, customers, orders (history feeds the reports) and journal posts. Move images to R2.
+   Done on 25 October 2026, except journal posts: the catalog, stock, cost prices, 58 customers and orders #1004 to #1021 (with their payments) are in D1, and the photos are in the `klaev-media` R2 bucket. The exports were deleted after the import.
 2. Keep every URL, and 301 redirect anything that changes.
 3. Run both sites side by side, then point the domain at Cloudflare and cancel Shopify.
+4. At cutover, give the `klaev-media` bucket a custom domain (media.klaev.com) and change `MEDIA_URL` in `lib/media.ts`, plus one `UPDATE` of `product_images.src`. Its r2.dev address is rate limited and meant for testing.
 
 ## Open questions
 

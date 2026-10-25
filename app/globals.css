@@ -67,6 +67,15 @@
     @apply font-sans;
     -webkit-tap-highlight-color: transparent;
     text-size-adjust: 100%;
+    /* The sticky header covers the top 56px; focus and anchor jumps stop below it. */
+    scroll-padding-top: 4.5rem;
+  }
+  /* A page with a bar fixed to the bottom on phones (checkout) tells the browser the bar covers
+     that strip, so a field focused by keyboard or by script scrolls clear of it. */
+  @media (width < 48rem) {
+    html:has([data-fixed-bar]) {
+      scroll-padding-bottom: 7rem;
+    }
   }
   body {
     @apply bg-background text-foreground;

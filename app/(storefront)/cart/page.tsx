@@ -98,16 +98,16 @@ async function CartContents() {
       <PaymentOptions id="cart" subtotal={cart.subtotal} />
       <ExchangeTerms />
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col items-center gap-2">
+        <Link href="/checkout" className={`${pill} h-14 w-full`}>
+          Checkout
+        </Link>
         <a
           href={whatsappLink(orderMessage(cart.lines, cart.subtotal))}
-          className={`${pill} h-14`}
+          className="flex h-11 items-center text-sm text-muted-foreground underline-offset-[0.2em] hover:text-foreground hover:underline"
         >
-          Order on WhatsApp
+          Send your order on WhatsApp
         </a>
-        <p className="text-center text-sm text-muted-foreground">
-          Online checkout opens soon. Until then, send your order on WhatsApp and we confirm it there.
-        </p>
       </div>
     </div>
   );

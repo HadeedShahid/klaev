@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-25T00:00:00.000Z",
+  "generatedAt": "2026-10-25T12:00:00.000Z",
   "title": "Design System: Klaev",
   "extensions": {
     "colorMeta": {
@@ -175,7 +175,7 @@
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Section and collection headings."
+        "purpose": "Section and collection headings; checkout legends and order page section headings."
       },
       "price": {
         "displayName": "Price",
@@ -187,7 +187,7 @@
       },
       "lead": {
         "displayName": "Lead",
-        "purpose": "Quiet Grey supporting line under a Hero or Title; 1.25rem on the hero from 768px."
+        "purpose": "Quiet Grey supporting line under a Hero or Title; 1.25rem on the hero from 768px. On the order page a 500 Ink first line leads it."
       },
       "body-reading": {
         "displayName": "Body Reading",
@@ -195,7 +195,7 @@
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Step labels, pill text, card titles."
+        "purpose": "Step and field labels, pill text, card and order line titles."
       },
       "small": {
         "displayName": "Small",
@@ -241,6 +241,16 @@
         "name": "nudge",
         "value": "translateX(2px), 150ms",
         "purpose": "Chevron on the hero's quiet link on hover."
+      },
+      {
+        "name": "figure-crossfade",
+        "value": "fade-in 300ms",
+        "purpose": "Checkout bar figure when the payment choice changes. Off under reduced motion."
+      },
+      {
+        "name": "copy-confirm",
+        "value": "glyph swap Copy to Check, 2000ms",
+        "purpose": "Copy button confirms in place and announces Copied; no movement."
       }
     ],
     "breakpoints": [
@@ -260,7 +270,12 @@
       "landingTextMaxWidth": "42rem (story), 48rem (hero, FAQ)",
       "heroImage": "full bleed, 5:6 phones, 16:9 from 768px, object-position 50% 25%",
       "storyImage": "4:5 phones; 16:10 at 50% 30% or whole 4:5 at max 36rem from 768px",
-      "sharedPill": "lib/styles.ts pill"
+      "sharedPill": "lib/styles.ts pill",
+      "checkoutMaxWidth": "36rem",
+      "checkoutBottomReserve": "144px phones, 64px from 768px",
+      "checkoutSectionGap": "40px between sections, 16px between fields, 6px label to control to hint",
+      "scrollPaddingTop": "4.5rem (sticky header)",
+      "scrollPaddingBottom": "7rem below 768px on pages with [data-fixed-bar]"
     }
   },
   "components": [
@@ -359,6 +374,38 @@
       "description": "Panel Grey 2xl tile pointing to another line: heading, line, price, pill, nested 5:4 photo at xl radius.",
       "html": "<div class=\"ds-tile\"><h2>Lambskin leather jackets.</h2><p>Soft from day one, and it ages into its own patina.</p><p class=\"ds-tprice\">From PKR 15,999</p><a class=\"ds-pill\" href=\"#\">Shop lambskin</a><span class=\"ds-tphoto\"></span></div>",
       "css": ".ds-tile{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:360px;padding:40px 20px 0;border-radius:1.35rem;background:oklch(0.97 0.0016 286);text-align:center;overflow:hidden;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-tile h2{margin:0;font-size:1.75rem;line-height:1.25;font-weight:600;letter-spacing:-0.025em;text-wrap:balance}.ds-tile p{margin:0;color:oklch(0.52 0.008 286);text-wrap:balance}.ds-tile .ds-tprice{color:oklch(0.218 0.004 286);font-weight:500;font-variant-numeric:tabular-nums}.ds-pill{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 24px;border-radius:9999px;background:oklch(0.218 0.004 286);color:oklch(0.99 0 0);font-size:0.9375rem;font-weight:500;text-decoration:none;transition:background-color 150ms}.ds-pill:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-pill:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-tile .ds-pill{margin-top:4px}.ds-tphoto{display:block;width:100%;aspect-ratio:5/4;margin:12px 0 20px;border-radius:1.05rem;background:linear-gradient(160deg,#5a3a2c,#2a1a14)}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "48px xl-radius field with label above and hint below; an invalid field keeps its grey border and only the error line is red.",
+      "html": "<div class=\"ds-fields\"><div class=\"ds-field\"><label for=\"ds-n\">Full name</label><input id=\"ds-n\" class=\"ds-input\" autocomplete=\"name\"></div><div class=\"ds-field\"><label for=\"ds-p\">Mobile number</label><input id=\"ds-p\" class=\"ds-input\" type=\"tel\" aria-invalid=\"true\"><p class=\"ds-error\">Enter a mobile number, like 0300 1234567.</p><p class=\"ds-hint\">We confirm every order on WhatsApp, on this number.</p></div><div class=\"ds-field\"><label for=\"ds-a\">Full address</label><textarea id=\"ds-a\" class=\"ds-input ds-multi\" rows=\"3\"></textarea></div></div>",
+      "css": ".ds-fields{display:flex;flex-direction:column;gap:16px;max-width:360px;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-field{display:flex;flex-direction:column;gap:6px}.ds-field label{font-size:0.9375rem;font-weight:500}.ds-input{width:100%;height:48px;padding:0 16px;border:1px solid oklch(0.87 0.0056 286);border-radius:1.05rem;background:#fff;color:oklch(0.218 0.004 286);font:400 1rem Geist,system-ui,sans-serif;transition:border-color 150ms}.ds-input:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-multi{height:auto;min-height:96px;padding:12px 16px;line-height:1.5;resize:none}.ds-error{margin:0;font-size:0.875rem;color:oklch(0.55 0.2 27)}.ds-hint{margin:0;font-size:0.875rem;color:oklch(0.52 0.008 286)}"
+    },
+    {
+      "name": "Payment Choice Cards",
+      "kind": "custom",
+      "refersTo": "choice-card",
+      "description": "The size card language as a stacked choice: whole-card radios with title, note and total; Ink outline when chosen.",
+      "html": "<div class=\"ds-choices\" role=\"radiogroup\" aria-label=\"How you pay\"><label class=\"ds-choice\"><input type=\"radio\" name=\"pay\" checked><span><b>Cash on delivery</b><small>PKR 900 delivery</small></span><em>PKR 18,899</em></label><label class=\"ds-choice\"><input type=\"radio\" name=\"pay\"><span><b>Bank transfer</b><small>Free delivery</small></span><em>PKR 17,999</em></label></div>",
+      "css": ".ds-choices{display:flex;flex-direction:column;gap:8px;max-width:360px;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-choice{position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;padding:12px 16px;border:1px solid oklch(0.87 0.0056 286);border-radius:1.05rem;background:#fff;cursor:pointer;transition:border-color 150ms,box-shadow 150ms}.ds-choice input{position:absolute;inset:0;margin:0;opacity:0;appearance:none;cursor:pointer}.ds-choice span{display:flex;flex-direction:column}.ds-choice b{font-size:1rem;font-weight:600}.ds-choice small{font-size:0.75rem;color:oklch(0.52 0.008 286)}.ds-choice em{font-style:normal;font-size:0.875rem;font-weight:500;font-variant-numeric:tabular-nums}.ds-choice:has(input:checked){border-color:oklch(0.218 0.004 286);box-shadow:0 0 0 1px oklch(0.218 0.004 286)}.ds-choice:has(input:focus-visible){outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}"
+    },
+    {
+      "name": "Checkout Bar",
+      "kind": "custom",
+      "refersTo": "checkout-bar",
+      "description": "Phone-fixed bar stating what to send now, the rest beneath, and the Place order pill; the figure crossfades when the payment choice changes.",
+      "html": "<div class=\"ds-cobar\" data-fixed-bar><p><b>PKR 2,000</b><small>to confirm, PKR 18,899 total</small></p><button class=\"ds-place\">Place order</button></div>",
+      "css": ".ds-cobar{display:flex;align-items:center;gap:16px;max-width:390px;padding:12px 20px;background:#fff;border-top:1px solid oklch(0.925 0.003 286);font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286);font-variant-numeric:tabular-nums}.ds-cobar p{display:flex;flex-direction:column;flex:1;margin:0;animation:ds-fade 300ms}.ds-cobar b{font-size:1rem;font-weight:600}.ds-cobar small{font-size:0.75rem;color:oklch(0.52 0.008 286)}.ds-place{height:48px;padding:0 24px;border:0;border-radius:9999px;background:oklch(0.218 0.004 286);color:oklch(0.99 0 0);font:500 0.9375rem Geist,system-ui,sans-serif;cursor:pointer;transition:background-color 150ms,transform 150ms}.ds-place:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-place:active{transform:scale(0.98)}.ds-place:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-place:disabled{background:oklch(0.97 0.0016 286);color:oklch(0.52 0.008 286)}@keyframes ds-fade{from{opacity:0}}@media (prefers-reduced-motion:reduce){.ds-cobar p{animation:none}}"
+    },
+    {
+      "name": "Account Panel",
+      "kind": "card",
+      "refersTo": "account-panel",
+      "description": "Grey panel of hairline-split rows: amount, bank, title, account number with a copy-in-place button; then the upload pill and the quiet WhatsApp link.",
+      "html": "<div class=\"ds-acct-wrap\"><dl class=\"ds-acct\"><div><dt>Amount</dt><dd><b>PKR 2,000</b></dd></div><div><dt>Bank</dt><dd>Example Bank</dd></div><div><dt>Account title</dt><dd>Klaev</dd></div><div><dt>Account number</dt><dd class=\"ds-num\"><span>00001234567890</span><button class=\"ds-copy\" aria-label=\"Copy account number\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/></svg></button></dd></div></dl><div class=\"ds-acts\"><label class=\"ds-up\">Upload screenshot<input type=\"file\"></label><a class=\"ds-wa\" href=\"#\">Send it on WhatsApp<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></a></div></div>",
+      "css": ".ds-acct-wrap{display:flex;flex-direction:column;gap:16px;max-width:360px;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-acct{margin:0;padding:0 16px;border-radius:1.35rem;background:oklch(0.97 0.0016 286);font-size:0.9375rem}.ds-acct div{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:56px;padding:12px 0}.ds-acct div+div{border-top:1px solid oklch(0.925 0.003 286)}.ds-acct dt{color:oklch(0.52 0.008 286)}.ds-acct dd{margin:0;text-align:right}.ds-acct b{font-weight:600;font-variant-numeric:tabular-nums}.ds-num{display:flex;align-items:center;gap:8px}.ds-num span{font-weight:500;letter-spacing:0.025em;font-variant-numeric:tabular-nums}.ds-copy{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin:-8px -8px -8px 0;border:0;border-radius:9999px;background:none;color:oklch(0.218 0.004 286);cursor:pointer;transition:background-color 150ms}.ds-copy:hover{background:oklch(0.95 0.002 286)}.ds-copy:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}.ds-up{position:relative;display:inline-flex;align-items:center;height:48px;padding:0 20px;border-radius:9999px;background:oklch(0.218 0.004 286);color:oklch(0.99 0 0);font-size:0.9375rem;font-weight:500;cursor:pointer;transition:background-color 150ms}.ds-up:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-up input{position:absolute;inset:0;opacity:0;cursor:pointer}.ds-up:has(input:focus-visible){outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-wa{display:inline-flex;align-items:center;gap:2px;height:48px;font-size:0.9375rem;font-weight:500;color:oklch(0.218 0.004 286);text-decoration:none}.ds-wa:hover{text-decoration:underline}.ds-wa svg{transition:transform 150ms}.ds-wa:hover svg{transform:translateX(2px)}.ds-wa:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}"
     }
   ],
   "narrative": {
@@ -384,6 +431,11 @@
         "section": "colors"
       },
       {
+        "name": "The Red Line Rule",
+        "body": "Red belongs to the error line alone. An invalid field keeps its Outline Grey border and white ground; the Small Signal Red line beneath it says what to fix, and the first invalid field takes focus.",
+        "section": "colors"
+      },
+      {
         "name": "The Tabular Money Rule",
         "body": "Every PKR amount, size measurement and count is set with tabular numerals so columns of money align.",
         "section": "typography"
@@ -406,7 +458,10 @@
       "**Do** keep sold-out options visible and disabled on a Panel Grey ground, never hidden.",
       "**Do** separate blocks with space (32px) and group related facts in a Panel Grey panel at 2xl radius.",
       "**Do** keep touch targets at 44px or larger and size cards at 64px or taller.",
-      "**Do** honour reduced motion: view-transition animations drop to zero duration."
+      "**Do** honour reduced motion: view-transition animations drop to zero duration, and the checkout bar's crossfade is off.",
+      "**Do** build forms from 48px xl-radius fields with the label above, and choices from whole-card radios in the size card language.",
+      "**Do** state what to send now in the fixed bar of any page that takes an order, and change it the moment the choice changes.",
+      "**Do** give any page with a fixed bottom bar the `data-fixed-bar` mark so focused fields scroll clear of it."
     ],
     "donts": [
       "**Don't** add box-shadows, blurs or hover lift to any surface.",
@@ -414,7 +469,8 @@
       "**Don't** use a dark, moody ground for the store; the user rejected it.",
       "**Don't** set headings, labels or buttons in letterspaced uppercase; that treatment belongs to the wordmark.",
       "**Don't** use a second typeface or a second secondary-text grey.",
-      "**Don't** use urgency devices (countdowns, stock pressure, \"selling fast\") in the visual system."
+      "**Don't** use urgency devices (countdowns, stock pressure, \"selling fast\") in the visual system.",
+      "**Don't** turn an invalid field's border or ground red; the error line carries it."
     ]
   }
 }

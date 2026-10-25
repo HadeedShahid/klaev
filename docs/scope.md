@@ -290,4 +290,9 @@ Many customers in Pakistan don't read email, so confirming by WhatsApp is a one-
 
 None right now.
 
-To ask when building checkout: the bank account details shown for bank transfers and the COD advance.
+Settled while building checkout (25 October 2026):
+- The bank account shown for transfers and the COD advance is HBL, in the database's settings, not in the code.
+- Checkout is one scrolling page with the place-order bar fixed at the bottom, saying what to send now.
+- The receipt screenshot is uploaded after the order is placed, from the order page, with WhatsApp as the other way. Receipts are kept in a private R2 bucket.
+- No discount code field until the admin can create codes.
+- An order takes its stock when it is placed. When that sells out a size, every cached page refreshes.

@@ -12,3 +12,9 @@ export function normalizePhone(input: string): string | null {
   if (digits.length === 10 && digits.startsWith("3")) return `+92${digits}`;
   return null;
 }
+
+// For display: +92 300 1234567, the way Pakistani mobiles are written. Other numbers as stored.
+export function formatPhone(phone: string) {
+  const mobile = phone.match(/^\+92(3\d{2})(\d{7})$/);
+  return mobile ? `+92 ${mobile[1]} ${mobile[2]}` : phone;
+}

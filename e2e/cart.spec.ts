@@ -27,14 +27,15 @@ test.describe("cart", () => {
     await expect(page.getByText("No refunds.").filter({ visible: true })).toBeVisible();
   });
 
-  test("until checkout opens, the order can be sent on WhatsApp with its contents", async ({ page }) => {
+  test("checkout is the way on, and the order can still go on WhatsApp with its contents", async ({ page }) => {
     await page.goto(CROPPED);
     await page.getByRole("radio", { name: /^M\b/ }).check();
     await page.getByTestId("buy-button").filter({ visible: true }).click();
     await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
 
     await page.goto("/cart");
-    const order = page.getByRole("link", { name: "Order on WhatsApp" });
+    await expect(page.getByRole("link", { name: "Checkout" })).toHaveAttribute("href", "/checkout");
+    const order = page.getByRole("link", { name: "Send your order on WhatsApp" });
     const href = (await order.getAttribute("href")) ?? "";
     expect(href).toMatch(/^https:\/\/wa\.me\/923231483650\?text=/);
     const message = new URL(href).searchParams.get("text") ?? "";

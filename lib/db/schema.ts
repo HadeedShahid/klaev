@@ -119,7 +119,8 @@ export const customers = sqliteTable(
   (t) => [index("customers_phone_idx").on(t.phone)],
 );
 
-export const ORDER_STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
+// pending: placed, waiting for the advance or transfer. refused: turned away at the door (returned to origin).
+export const ORDER_STATUSES = ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled", "refused"] as const;
 export const PAYMENT_METHODS = ["cod", "bank_transfer", "in_person"] as const;
 
 export const orders = sqliteTable(
@@ -128,6 +129,8 @@ export const orders = sqliteTable(
     id: integer().primaryKey({ autoIncrement: true }),
     // The number customers see. Shopify used #1001 to #1021; this store carries on from there.
     number: integer().notNull().unique(),
+    // The secret in the customer's order link (/orders/<token>). Orders imported from Shopify have none.
+    token: text().unique(),
     customerId: integer().references(() => customers.id, { onDelete: "set null" }),
     status: text({ enum: ORDER_STATUSES }).notNull().default("pending"),
     paymentMethod: text({ enum: PAYMENT_METHODS }).notNull(),
@@ -213,6 +216,30 @@ export const payments = sqliteTable(
   (t) => [index("payments_order_idx").on(t.orderId)],
 );
 
+// Bank transfer receipts customers upload from their order page. The files live in the private
+// klaev-receipts R2 bucket under `key`.
+export const receipts = sqliteTable(
+  "receipts",
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    orderId: integer()
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    key: text().notNull().unique(),
+    contentType: text().notNull(),
+    size: integer().notNull(),
+    createdAt,
+  },
+  (t) => [index("receipts_order_idx").on(t.orderId)],
+);
+
+// Store settings the admin will edit, one JSON value per key (lib/settings.ts).
+export const settings = sqliteTable("settings", {
+  key: text().primaryKey(),
+  value: text({ mode: "json" }).notNull(),
+  updatedAt,
+});
+
 export const collectionsRelations = relations(collections, ({ many }) => ({
   products: many(products),
 }));
@@ -239,6 +266,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
   customer: one(customers, { fields: [orders.customerId], references: [customers.id] }),
   lines: many(orderLines),
   payments: many(payments),
+  receipts: many(receipts),
 }));
 
 export const orderLinesRelations = relations(orderLines, ({ one }) => ({
@@ -248,4 +276,8 @@ export const orderLinesRelations = relations(orderLines, ({ one }) => ({
 
 export const paymentsRelations = relations(payments, ({ one }) => ({
   order: one(orders, { fields: [payments.orderId], references: [orders.id] }),
+}));
+
+export const receiptsRelations = relations(receipts, ({ one }) => ({
+  order: one(orders, { fields: [receipts.orderId], references: [orders.id] }),
 }));

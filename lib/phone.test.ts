@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { normalizePhone } from "./phone";
+import { formatPhone, normalizePhone } from "./phone";
 
 describe("normalizePhone", () => {
   test.each([
@@ -23,5 +23,16 @@ describe("normalizePhone", () => {
 
   test.each(["", "   ", "phone", "12345", "4763431484", "+12"])("%j is not a usable number", (input) => {
     expect(normalizePhone(input)).toBeNull();
+  });
+});
+
+describe("formatPhone", () => {
+  test("a Pakistani mobile reads the way people write it", () => {
+    expect(formatPhone("+923001234567")).toBe("+92 300 1234567");
+  });
+
+  test("anything else is shown as stored", () => {
+    expect(formatPhone("+966597651149")).toBe("+966597651149");
+    expect(formatPhone("+924235761234")).toBe("+924235761234");
   });
 });

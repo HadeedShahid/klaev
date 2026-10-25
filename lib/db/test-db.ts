@@ -5,10 +5,10 @@ import { getPlatformProxy } from "wrangler";
 
 import { connect } from ".";
 
-// For Vitest only: a throwaway in-memory D1, built by Wrangler exactly like the real one,
+// For Vitest only: a throwaway in-memory D1 (and R2), built by Wrangler exactly like the real ones,
 // with every migration in drizzle/ applied.
 export async function createTestDb() {
-  const proxy = await getPlatformProxy<{ DB: D1Database }>({ persist: false });
+  const proxy = await getPlatformProxy<{ DB: D1Database; RECEIPTS: R2Bucket }>({ persist: false });
   const database = proxy.env.DB;
 
   const migrations = path.join(process.cwd(), "drizzle");
@@ -21,6 +21,7 @@ export async function createTestDb() {
   }
 
   return {
+    env: proxy.env,
     database,
     db: connect(database),
     run: (statements: string[]) => database.batch(statements.map((statement) => database.prepare(statement))),

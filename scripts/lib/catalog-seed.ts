@@ -1,7 +1,7 @@
 import type { ProductSection } from "../../lib/db/schema";
 import type { SizeGuide } from "../../lib/sizing";
 
-import { insert } from "./sql";
+import { insert, literal } from "./sql";
 
 // The shape of data/catalog.json, the seed for local development and CI.
 export type CatalogSnapshot = {
@@ -84,4 +84,17 @@ export function catalogSeedStatements(snapshot: CatalogSnapshot): string[] {
   });
 
   return statements;
+}
+
+// Store settings for local development and CI. The real database holds the real bank account,
+// which never goes in this public repository.
+export const DEV_SETTINGS = {
+  bank: { bank: "Example Bank", accountTitle: "Klaev Test", accountNumber: "00001234567890" },
+};
+
+export function devSettingsStatements(): string[] {
+  return Object.entries(DEV_SETTINGS).map(
+    ([key, value]) =>
+      `INSERT INTO settings (key, value) VALUES (${literal(key)}, ${literal(value)}) ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+  );
 }

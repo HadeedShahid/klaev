@@ -22,12 +22,14 @@ export default defineConfig({
     { name: "iphone", use: { ...devices["iPhone 15"] } },
     { name: "android", use: { ...devices["Pixel 7"] } },
   ],
+  // The test server always starts fresh on a reset local database: checkout tests place orders and
+  // take stock, so a reused server would run out of the sizes they buy.
   webServer: external
     ? undefined
     : {
-        command: `pnpm dev --port ${PORT}`,
+        command: `pnpm db:setup && pnpm dev --port ${PORT}`,
         url: baseURL,
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
+        reuseExistingServer: false,
+        timeout: 180_000,
       },
 });

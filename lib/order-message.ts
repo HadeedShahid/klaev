@@ -2,7 +2,7 @@ import { formatPKR } from "./money";
 
 type Line = { title: string; size: string | null; quantity: number; lineTotal: number };
 
-// The WhatsApp message a shopper sends to order while online checkout doesn't exist yet.
+// The WhatsApp message for a shopper who would rather order there than through checkout.
 export function orderMessage(lines: Line[], subtotal: number) {
   const items = lines.map((line) => {
     const size = line.size ? `, size ${line.size}` : "";

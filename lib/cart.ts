@@ -1,9 +1,9 @@
 import "server-only";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { getVariant } from "./catalog";
-import { CART_COOKIE, decodeCart, encodeCart, type CartLine } from "./cart-codec";
+import { CART_COOKIE, CART_COUNT_COOKIE, cartCount, decodeCart, encodeCart, type CartLine } from "./cart-codec";
 
 export type CartView = {
   lines: {
@@ -26,14 +26,19 @@ export async function readCart(): Promise<CartLine[]> {
   return decodeCart((await cookies()).get(CART_COOKIE)?.value);
 }
 
+// Secure everywhere except plain-http local addresses, where Safari would drop a Secure cookie
+// (the dev server and the local Cloudflare preview both run on http://localhost).
+async function isLocalRequest() {
+  const host = (await headers()).get("host") ?? "";
+  return /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host);
+}
+
 export async function writeCart(lines: CartLine[]) {
-  (await cookies()).set(CART_COOKIE, encodeCart(lines), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: THIRTY_DAYS,
-  });
+  const store = await cookies();
+  const options = { sameSite: "lax", secure: !(await isLocalRequest()), path: "/", maxAge: THIRTY_DAYS } as const;
+  store.set(CART_COOKIE, encodeCart(lines), { ...options, httpOnly: true });
+  // Not httpOnly: the header's cart count reads it in the browser, so cached pages stay static.
+  store.set(CART_COUNT_COOKIE, String(cartCount(lines)), options);
 }
 
 // Lines whose variant no longer exists in the catalog are dropped from the view.
@@ -59,7 +64,7 @@ export async function getCartView(): Promise<CartView> {
   const view = resolved.filter((line) => line !== null);
   return {
     lines: view,
-    count: view.reduce((sum, line) => sum + line.quantity, 0),
+    count: cartCount(view),
     subtotal: view.reduce((sum, line) => sum + line.lineTotal, 0),
   };
 }

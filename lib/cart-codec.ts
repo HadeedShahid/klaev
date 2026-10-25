@@ -1,6 +1,8 @@
 export type CartLine = { variantId: string; quantity: number };
 
 export const CART_COOKIE = "klaev_cart";
+// A readable copy of the item count, so static pages can show it in the header without a server render.
+export const CART_COUNT_COOKIE = "klaev_cart_count";
 export const MAX_QUANTITY = 5;
 
 // The cookie stores short keys to stay well under the 4 KB cookie limit.
@@ -40,4 +42,15 @@ export function addLine(lines: CartLine[], variantId: string): CartLine[] {
 
 export function removeLine(lines: CartLine[], variantId: string): CartLine[] {
   return lines.filter((line) => line.variantId !== variantId);
+}
+
+export function cartCount(lines: CartLine[]) {
+  return lines.reduce((sum, line) => sum + line.quantity, 0);
+}
+
+// Reads the count from a document.cookie string. Anything missing or garbled counts as an empty cart.
+export function readCartCount(cookieString: string) {
+  const match = cookieString.match(new RegExp(`(?:^|;\\s*)${CART_COUNT_COOKIE}=([^;]*)`));
+  const count = match ? Number(match[1]) : 0;
+  return Number.isInteger(count) && count > 0 ? count : 0;
 }

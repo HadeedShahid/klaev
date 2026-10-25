@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   startTransition,
   useActionState,
+  useEffect,
   useId,
   useLayoutEffect,
   useRef,
@@ -13,6 +14,7 @@ import {
 } from "react";
 
 import { addToCart, type AddToCartState } from "@/app/actions/cart";
+import { notifyCartChanged } from "@/components/site/cart-link";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +46,9 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
     latest.current = state;
   });
   useLayoutEffect(() => () => setDismissed(latest.current), []);
+  useEffect(() => {
+    if (state.status === "added") notifyCartChanged();
+  }, [state]);
   const added = state.status === "added" && state !== dismissed;
 
   const hasSizes = sizes.length > 0;

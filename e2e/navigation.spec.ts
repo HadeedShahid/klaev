@@ -4,6 +4,9 @@ import { expect, test } from "@playwright/test";
 const LAMBSKIN = "/products/black-lambskin-leather-jacket";
 
 test.describe("instant navigation", () => {
+  // instant() checks Cache Components' static shell, which is switched off for now.
+  test.skip(true, "Cache Components is off until OpenNext fixes it on Workers; see AGENTS.md");
+
   test("a product page's name and price are in the static shell", async ({ page, baseURL }) => {
     await instant(
       page,

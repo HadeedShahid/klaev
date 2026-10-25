@@ -10,7 +10,7 @@ web
 
 Chosen by the user:
 
-- Next.js 16 App Router with Cache Components (partial prerendering), React 19, TypeScript.
+- Next.js 16 App Router, React 19, TypeScript. Cache Components (partial prerendering) is the goal, switched off while OpenNext's Workers support for it has open bugs; pages are fully static meanwhile.
 - shadcn/ui on Base UI, Nova preset, Lucide icons, Tailwind CSS v4.
 - Geist Sans.
 - Hosting and data on Cloudflare: Workers through the OpenNext adapter, D1, R2. Clerk for admin sign-in. Resend for email. Cloudflare comes later; the design phase runs on fixtures.

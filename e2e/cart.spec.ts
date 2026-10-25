@@ -67,4 +67,16 @@ test.describe("cart", () => {
     await expect(page.getByText("Your cart is empty")).toBeVisible();
     await expect(page.getByRole("link", { name: "Cart, 0 items" })).toBeVisible();
   });
+
+  test("the cart count follows the shopper onto static pages", async ({ page }) => {
+    await page.goto(CROPPED);
+    await page.getByRole("radio", { name: /^M\b/ }).check();
+    await page.getByTestId("buy-button").filter({ visible: true }).click();
+    await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
+
+    await page.goto("/");
+    await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
+    await page.goto("/collections/all");
+    await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
+  });
 });

@@ -14,6 +14,9 @@ import { formatPKR } from "@/lib/money";
 import { codSummary } from "@/lib/payment";
 import { sizeMeasurement } from "@/lib/sizing";
 
+// Only the prerendered handles exist; anything else is a real 404.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const products = await getProducts();
   return products.map((product) => ({ handle: product.handle }));

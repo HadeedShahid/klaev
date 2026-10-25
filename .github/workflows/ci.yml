@@ -25,8 +25,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
-      # The build also runs Cache Components' prerender validation for every route.
-      - run: pnpm build
+      # The Cloudflare build runs `next build` and then bundles the Worker, so adapter breakage shows here.
+      - run: pnpm exec opennextjs-cloudflare build
 
   e2e:
     name: End-to-end on iPhone and Android

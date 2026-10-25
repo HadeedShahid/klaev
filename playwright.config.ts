@@ -1,7 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = 3100;
-const baseURL = `http://localhost:${PORT}`;
+// BASE_URL points the suite at an already running build instead of the dev server:
+// the local Cloudflare preview (http://localhost:8787) or a deployed preview.
+const external = process.env.BASE_URL;
+const baseURL = external ?? `http://localhost:${PORT}`;
 
 // Nearly every Klaev visitor is on a phone, so both projects are phones:
 // Safari's engine for iPhones, Chromium for Android.
@@ -19,10 +22,12 @@ export default defineConfig({
     { name: "iphone", use: { ...devices["iPhone 15"] } },
     { name: "android", use: { ...devices["Pixel 7"] } },
   ],
-  webServer: {
-    command: `pnpm dev --port ${PORT}`,
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: external
+    ? undefined
+    : {
+        command: `pnpm dev --port ${PORT}`,
+        url: baseURL,
+        reuseExistingServer: !process.env.CI,
+        timeout: 120_000,
+      },
 });

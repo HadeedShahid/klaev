@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { addLine, decodeCart, encodeCart, MAX_QUANTITY, removeLine } from "./cart-codec";
+import { addLine, cartCount, decodeCart, encodeCart, MAX_QUANTITY, readCartCount, removeLine } from "./cart-codec";
 
 describe("decodeCart", () => {
   test("returns an empty cart for a missing or malformed cookie", () => {
@@ -53,5 +53,26 @@ describe("removeLine", () => {
       { variantId: "2", quantity: 3 },
     ];
     expect(removeLine(lines, "1")).toEqual([{ variantId: "2", quantity: 3 }]);
+  });
+});
+
+describe("cartCount", () => {
+  test("adds up the quantities", () => {
+    expect(cartCount([])).toBe(0);
+    expect(cartCount([{ variantId: "1", quantity: 2 }, { variantId: "2", quantity: 1 }])).toBe(3);
+  });
+});
+
+describe("readCartCount", () => {
+  test("reads the count cookie out of document.cookie", () => {
+    expect(readCartCount("a=1; klaev_cart_count=3; b=2")).toBe(3);
+    expect(readCartCount("klaev_cart_count=0")).toBe(0);
+  });
+
+  test("treats a missing or garbled count as an empty cart", () => {
+    expect(readCartCount("")).toBe(0);
+    expect(readCartCount("a=1")).toBe(0);
+    expect(readCartCount("klaev_cart_count=abc")).toBe(0);
+    expect(readCartCount("klaev_cart_count=-4")).toBe(0);
   });
 });

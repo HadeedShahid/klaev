@@ -6,6 +6,7 @@ import { Suspense } from "react";
 
 import { removeFromCart } from "@/app/actions/cart";
 import { PaymentOptions } from "@/components/product/payment-options";
+import { CartCountSync } from "@/components/site/cart-link";
 import { ExchangeTerms } from "@/components/site/exchange-terms";
 import { getCartView } from "@/lib/cart";
 import { formatPKR } from "@/lib/money";
@@ -32,6 +33,7 @@ async function CartContents() {
   if (cart.lines.length === 0) {
     return (
       <div className="flex flex-col items-start gap-4 rounded-2xl bg-muted p-6">
+        <CartCountSync count={0} />
         <p className="font-medium">Your cart is empty</p>
         <Link
           href="/"
@@ -45,6 +47,7 @@ async function CartContents() {
 
   return (
     <div className="flex flex-col gap-8">
+      <CartCountSync count={cart.count} />
       <ul className="divide-y divide-hairline border-y border-hairline">
         {cart.lines.map((line) => {
           const sizeLabel = line.size ? `, size ${line.size}` : "";

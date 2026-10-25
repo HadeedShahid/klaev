@@ -78,6 +78,7 @@ test.describe("landing page", () => {
   });
 
   test("the headline and price are in the static shell", async ({ page, baseURL }) => {
+    test.skip(true, "Cache Components is off until OpenNext fixes it on Workers; see AGENTS.md");
     await instant(
       page,
       async () => {

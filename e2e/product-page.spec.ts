@@ -102,12 +102,10 @@ test.describe("product page", () => {
     await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
   });
 
-  // Browsers get the streamed shell, so the 404 is marked noindex rather than sent as a status.
-  // Crawlers render without streaming and get a real 404 (checked against a production build).
-  test("an unknown product shows a not found page that search engines skip", async ({ page }) => {
-    await page.goto("/products/not-a-real-product");
+  test("an unknown product is a real 404", async ({ page }) => {
+    const response = await page.goto("/products/not-a-real-product");
+    expect(response?.status()).toBe(404);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("This page isn't here");
-    await expect(page.locator('meta[name="robots"][content="noindex"]').first()).toBeAttached();
     await expect(page.getByRole("link", { name: "See all products" })).toHaveAttribute("href", "/");
   });
 });

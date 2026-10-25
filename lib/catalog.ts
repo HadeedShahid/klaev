@@ -1,7 +1,5 @@
 import "server-only";
 
-import { cacheLife, cacheTag } from "next/cache";
-
 import snapshot from "@/data/catalog.json";
 
 import type { SizeGuide } from "./sizing";
@@ -65,31 +63,19 @@ function withItems(collection: Collection): CollectionWithItems {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("catalog");
   return live;
 }
 
 export async function getProduct(handle: string): Promise<Product | null> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("catalog", `product:${handle}`);
   return live.find((product) => product.handle === handle) ?? null;
 }
 
 // Collections with nothing live in them (belts, for now) are left out entirely.
 export async function getCollections(): Promise<CollectionWithItems[]> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("catalog");
   return catalog.collections.map(withItems).filter((collection) => collection.items.length > 0);
 }
 
 export async function getCollection(handle: string): Promise<CollectionWithItems | null> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("catalog", `collection:${handle}`);
   const collection = handle === ALL.handle ? ALL : catalog.collections.find((c) => c.handle === handle);
   if (!collection) return null;
   const resolved = withItems(collection);
@@ -97,9 +83,6 @@ export async function getCollection(handle: string): Promise<CollectionWithItems
 }
 
 export async function getRelatedProducts(handle: string, limit = 4): Promise<Product[]> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("catalog");
   const product = live.find((candidate) => candidate.handle === handle);
   if (!product) return [];
   const sameLine = live.filter((p) => p.collection === product.collection && p.handle !== handle);
@@ -108,9 +91,6 @@ export async function getRelatedProducts(handle: string, limit = 4): Promise<Pro
 }
 
 export async function getVariant(id: string): Promise<{ product: Product; variant: Variant } | null> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("catalog");
   for (const product of live) {
     const variant = product.variants.find((candidate) => candidate.id === id);
     if (variant) return { product, variant };

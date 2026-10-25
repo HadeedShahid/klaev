@@ -49,3 +49,9 @@ next-env.d.ts
 # impeccable working files (the surface briefs in .impeccable/surfaces are tracked)
 /.impeccable/review/
 /.impeccable/questions/
+
+# cloudflare
+/.open-next/
+/.wrangler/
+.dev.vars*
+cloudflare-env.d.ts

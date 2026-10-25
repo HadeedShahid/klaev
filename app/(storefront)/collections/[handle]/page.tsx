@@ -5,6 +5,9 @@ import { Suspense } from "react";
 import { ProductCard } from "@/components/product/product-card";
 import { getCollection, getCollections } from "@/lib/catalog";
 
+// Only the prerendered handles exist; anything else is a real 404.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const collections = await getCollections();
   return [{ handle: "all" }, ...collections.map((collection) => ({ handle: collection.handle }))];

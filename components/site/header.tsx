@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Suspense } from "react";
 
-import { CartLink, CartLinkShell } from "./cart-link";
+import { CartLink } from "./cart-link";
 
 export function SiteHeader() {
   return (
@@ -17,9 +16,7 @@ export function SiteHeader() {
           >
             Shop
           </Link>
-          <Suspense fallback={<CartLinkShell count={null} />}>
-            <CartLink />
-          </Suspense>
+          <CartLink />
         </nav>
       </div>
     </header>

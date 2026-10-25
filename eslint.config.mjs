@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Cloudflare build output (OpenNext and Wrangler).
+    ".open-next/**",
+    ".wrangler/**",
+    "cloudflare-env.d.ts",
     // Impeccable's review captures and scripts are local working files.
     ".impeccable/**",
     "test-results/**",

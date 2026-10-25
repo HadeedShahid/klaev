@@ -4,6 +4,7 @@ import { asc, eq } from "drizzle-orm";
 import { cache } from "react";
 
 import { getDb } from "./db";
+import { retryLocalRead } from "./db/retry";
 import { collections, productImages, products, variants, type ProductSection } from "./db/schema";
 import type { SizeGuide } from "./sizing";
 
@@ -49,7 +50,9 @@ const ALL: Collection = { handle: "all", title: "Shop all" };
 // This is the only module that knows where the catalog lives (Cloudflare D1, through Drizzle).
 // The live catalog is a dozen products, so each request loads it once and the functions below
 // pick from it. Revisit when it grows past a few hundred.
-const loadCatalog = cache(async () => {
+const loadCatalog = cache(() => retryLocalRead(readCatalog));
+
+async function readCatalog() {
   const db = await getDb();
   const [rows, collectionRows] = await Promise.all([
     db.query.products.findMany({
@@ -89,7 +92,7 @@ const loadCatalog = cache(async () => {
   }));
 
   return { live, collections: collectionRows };
-});
+}
 
 function withItems(collection: Collection, live: Product[]): CollectionWithItems {
   const items = collection.handle === ALL.handle ? live : live.filter((product) => product.collection === collection.handle);

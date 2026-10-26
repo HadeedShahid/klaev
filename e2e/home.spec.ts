@@ -54,6 +54,24 @@ test.describe("landing page", () => {
     await expect.poll(async () => (await heading.boundingBox())?.y ?? 0).toBeGreaterThan(56);
   });
 
+  test("on a laptop, See the colours lands on the heading with every card whole in view", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 760 });
+    await page.goto("/");
+    await page.getByRole("link", { name: "See the colours" }).click();
+    const section = page.getByRole("region", { name: "Three colours" });
+    const heading = section.getByRole("heading");
+    const header = (await page.locator("header").first().boundingBox())!;
+    // Once the glide settles, the heading sits just under the header, not a band of hero above it.
+    await expect
+      .poll(async () => (await heading.boundingBox())!.y - (header.y + header.height), { timeout: 5000 })
+      .toBeLessThan(40);
+    expect((await heading.boundingBox())!.y).toBeGreaterThan(header.y + header.height);
+    for (const card of await section.getByRole("listitem").all()) {
+      const box = (await card.boundingBox())!;
+      expect(box.y + box.height).toBeLessThanOrEqual(760);
+    }
+  });
+
   test("tapping a colour opens that jacket", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("region", { name: "Three colours" }).getByRole("link", { name: /Dark Brown/ }).click();

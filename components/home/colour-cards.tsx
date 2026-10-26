@@ -12,12 +12,15 @@ function stockLine(product: Product) {
 }
 
 // The lead line's colours, right under the hero, for shoppers who already know they want one.
+// See the colours (#colours) lands on the heading itself: the page's scroll padding already clears
+// the header, and the negative scroll margin cancels the section's top padding, so the cards and
+// their names fit a laptop screen below it.
 export function ColourCards({ products }: { products: Product[] }) {
   return (
     <section
       id="colours"
       aria-labelledby="colours-title"
-      className="mx-auto flex max-w-6xl scroll-mt-16 flex-col gap-5 px-5 pt-12 md:px-8 md:pt-16"
+      className="mx-auto flex max-w-6xl -scroll-mt-12 flex-col gap-5 px-5 pt-12 md:-scroll-mt-16 md:px-8 md:pt-16"
     >
       <div className="flex flex-col gap-1 text-center">
         <h2 id="colours-title" className="text-[1.75rem] leading-tight font-semibold tracking-tight md:text-4xl">

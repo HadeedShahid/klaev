@@ -1,7 +1,7 @@
 "use server";
 
 import { getVariant } from "@/lib/catalog";
-import { readCart, writeCart } from "@/lib/cart";
+import { getCartView, readCart, writeCart, type CartView } from "@/lib/cart";
 import { addLine, removeLine } from "@/lib/cart-codec";
 
 export type AddToCartState =
@@ -28,4 +28,9 @@ export async function removeFromCart(formData: FormData) {
   const variantId = formData.get("variantId");
   if (typeof variantId !== "string") return;
   await writeCart(removeLine(await readCart(), variantId));
+}
+
+// What the cart drawer shows, fetched when it opens and after each change.
+export async function loadCart(): Promise<CartView> {
+  return getCartView();
 }

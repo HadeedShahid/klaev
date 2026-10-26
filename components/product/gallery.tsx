@@ -4,9 +4,11 @@ import { ViewTransition } from "react";
 import type { ProductImage } from "@/lib/catalog";
 
 import { GalleryIndicator } from "./gallery-indicator";
+import { GalleryViewer } from "./gallery-viewer";
 
 // Phones swipe one photo at a time; wider screens see the photos as a grid.
-export function Gallery({ handle, images }: { handle: string; images: ProductImage[] }) {
+// Every photo opens the full-screen viewer at that photo.
+export function Gallery({ handle, title, images }: { handle: string; title: string; images: ProductImage[] }) {
   const trackId = `gallery-${handle}`;
 
   return (
@@ -30,7 +32,7 @@ export function Gallery({ handle, images }: { handle: string; images: ProductIma
             />
           );
           return (
-            <li key={image.src} className="w-full shrink-0 snap-center snap-always">
+            <li key={image.src} className="relative w-full shrink-0 snap-center snap-always">
               {index === 0 ? (
                 <ViewTransition name={`product-photo-${handle}`} share="morph" default="none">
                   {photo}
@@ -38,11 +40,19 @@ export function Gallery({ handle, images }: { handle: string; images: ProductIma
               ) : (
                 photo
               )}
+              {/* Beside the photo rather than around it, so the photo stays an image to screen readers. */}
+              <button
+                type="button"
+                data-open-photo={index}
+                aria-label={`View photo ${index + 1} of ${images.length} larger`}
+                className="absolute inset-0 cursor-zoom-in md:rounded-2xl"
+              />
             </li>
           );
         })}
       </ul>
       {images.length > 1 ? <GalleryIndicator targetId={trackId} total={images.length} /> : null}
+      <GalleryViewer targetId={trackId} title={title} images={images} />
     </div>
   );
 }

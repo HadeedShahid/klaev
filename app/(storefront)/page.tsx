@@ -37,10 +37,18 @@ export default async function HomePage() {
   const sideView = darkBrown?.images[4];
   const closeUp = darkBrown?.images[9];
   const croppedPrice = Math.min(...croppedItems.map((product) => product.price));
+  // The hero shows each colour worn, from the side and at the collar: the same shot positions in every
+  // cropped jacket's photos. The swatch is cut from the flat-lay, the first photo.
+  const heroColours = croppedItems.flatMap((product) => {
+    const photos = [product.images[1], product.images[4], product.images[9]].filter((photo) => photo !== undefined);
+    const swatch = product.images[0];
+    if (photos.length === 0 || !swatch) return [];
+    return [{ handle: product.handle, name: product.colour ?? product.title, title: product.title, swatch, photos }];
+  });
 
   return (
     <div className="pb-8">
-      <Hero price={priceLabel(croppedItems)} />
+      <Hero price={priceLabel(croppedItems)} colours={heroColours} />
       <ColourCards products={croppedItems} />
 
       <StorySection

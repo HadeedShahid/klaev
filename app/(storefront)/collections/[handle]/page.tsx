@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ProductCard } from "@/components/product/product-card";
+import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
 import { getCollection, getCollections } from "@/lib/catalog";
 
 // Listed at build and rendered on first visit, like the product pages.
@@ -23,21 +24,31 @@ export default async function CollectionPage({ params }: PageProps<"/collections
   const collection = await getCollection((await params).handle);
   if (!collection) notFound();
 
+  const trail = [
+    { name: "Home", href: "/" },
+    { name: collection.title, href: `/collections/${collection.handle}` },
+  ];
+
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 pt-8 pb-16 md:px-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-[2rem] leading-tight font-semibold tracking-tight">{collection.title}</h1>
-        <p className="text-sm text-muted-foreground">
-          {collection.items.length} {collection.items.length === 1 ? "piece" : "pieces"}
-        </p>
+    <>
+      <BreadcrumbData trail={trail} />
+      <Breadcrumbs trail={trail} placement="top" />
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-5 pt-8 pb-16 md:px-8 md:pt-6">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-[2rem] leading-tight font-semibold tracking-tight">{collection.title}</h1>
+          <p className="text-sm text-muted-foreground">
+            {collection.items.length} {collection.items.length === 1 ? "piece" : "pieces"}
+          </p>
+        </div>
+        <ul className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-x-5">
+          {collection.items.map((product) => (
+            <li key={product.handle}>
+              <ProductCard product={product} sizes="(min-width: 768px) 25vw, 50vw" />
+            </li>
+          ))}
+        </ul>
       </div>
-      <ul className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-x-5">
-        {collection.items.map((product) => (
-          <li key={product.handle}>
-            <ProductCard product={product} sizes="(min-width: 768px) 25vw, 50vw" />
-          </li>
-        ))}
-      </ul>
-    </div>
+      <Breadcrumbs trail={trail} placement="bottom" />
+    </>
   );
 }

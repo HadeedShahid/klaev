@@ -1,5 +1,7 @@
 // Store-wide terms. Each becomes an admin setting once the database exists.
 export const STORE = {
+  // The real domain, for links search engines and messages carry. The preview runs on workers.dev.
+  siteUrl: "https://klaev.com",
   codDeliveryFee: 900,
   codAdvance: 2000,
   exchangeDays: 7,

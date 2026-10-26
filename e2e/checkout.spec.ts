@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { addToCart as addSize } from "./helpers";
+
 // Placing an order writes to the database and takes stock, so those tests run only against a local
 // server, whose database `pnpm db:setup` resets. Against the deployed preview they are skipped.
 const base = process.env.BASE_URL;
@@ -13,8 +15,7 @@ const RECEIPT = Buffer.from(
 
 async function addToCart(page: Page, path: string, size: string) {
   await page.goto(path);
-  await page.getByRole("radio", { name: new RegExp(`^${size}\\b`) }).check();
-  await page.getByTestId("buy-button").filter({ visible: true }).click();
+  await addSize(page, size);
   await expect(page.getByRole("link", { name: /^Cart, [1-9]/ })).toBeVisible();
 }
 
@@ -81,7 +82,7 @@ test.describe("checkout", () => {
     test.skip(!placesOrders, "submits the order form");
     const path = "/products/dark-brown-cropped-sheepskin-leather-jacket";
     await addToCart(page, path, "L");
-    await page.getByTestId("buy-button").filter({ visible: true }).click();
+    await addSize(page);
     await expect(page.getByRole("link", { name: "Cart, 2 items" })).toBeVisible();
 
     await page.goto("/checkout");

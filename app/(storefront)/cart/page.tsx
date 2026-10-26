@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -80,7 +80,7 @@ async function CartContents() {
                   aria-label={`Remove ${line.title}${sizeLabel}`}
                   className="-mr-2 flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
-                  <X className="size-4.5" aria-hidden />
+                  <Trash2 className="size-4.5" strokeWidth={1.6} aria-hidden />
                 </button>
               </form>
             </li>

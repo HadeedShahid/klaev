@@ -20,12 +20,38 @@ test.describe("landing page", () => {
     await expect(page.getByRole("img", { name: /cropped leather jacket/i }).first()).toBeVisible();
   });
 
+  test("the hero's colour picker swaps the photos, and a photo opens that jacket", async ({ page }) => {
+    await page.goto("/");
+    const picker = page.getByRole("radiogroup", { name: "Colour" });
+    await expect(picker.getByRole("radio", { name: "Black" })).toBeChecked();
+    const main = page.getByTestId("hero-main");
+    await expect(main).toHaveAttribute("href", "/products/black-cropped-leather-jacket");
+
+    await picker.getByRole("radio", { name: "Burgundy" }).check();
+    await expect(main).toHaveAttribute("href", "/products/burgundy-cropped-leather-jacket");
+    await expect(main.getByRole("img")).toHaveAttribute("src", /burgundy-cropped-leather-jacket/);
+
+    await main.click();
+    await page.waitForURL("**/products/burgundy-cropped-leather-jacket");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Burgundy Cropped Sheepskin Leather Jacket");
+  });
+
   test("lets a shopper tap any of the three colours right under the hero", async ({ page }) => {
     await page.goto("/");
     const colours = page.getByRole("region", { name: "Three colours" });
     for (const jacket of CROPPED) {
       await expect(colours.getByRole("link", { name: new RegExp(jacket.title) })).toHaveAttribute("href", jacket.href);
     }
+  });
+
+  test("See the colours glides down to the colours, clear of the header", async ({ page }) => {
+    await page.goto("/");
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe("smooth");
+    await page.getByRole("link", { name: "See the colours" }).click();
+    const heading = page.getByRole("region", { name: "Three colours" }).getByRole("heading");
+    await expect(heading).toBeInViewport();
+    // The sticky header must not cover the heading once the scroll settles.
+    await expect.poll(async () => (await heading.boundingBox())?.y ?? 0).toBeGreaterThan(56);
   });
 
   test("tapping a colour opens that jacket", async ({ page }) => {
@@ -70,6 +96,22 @@ test.describe("landing page", () => {
     await expect(page.getByText(/send a PKR 2,000 advance/i)).toBeVisible();
     await page.getByText("What if it does not fit?").click();
     await expect(page.getByText(/No refunds\./).filter({ visible: true }).first()).toBeVisible();
+  });
+
+  test("FAQ answers slide open and closed rather than jumping", async ({ page }) => {
+    await page.goto("/");
+    const item = page.locator("details").filter({ hasText: "Do you offer Cash on Delivery?" });
+    const closed = (await item.boundingBox())?.height ?? 0;
+
+    await item.getByText("Do you offer Cash on Delivery?").click();
+    // Partway through, the answer is still unfolding.
+    expect(await item.evaluate((element) => element.getAnimations().length)).toBeGreaterThan(0);
+    await expect(item.getByText(/send a PKR 2,000 advance/i)).toBeVisible();
+    await expect.poll(async () => (await item.boundingBox())?.height ?? 0).toBeGreaterThan(closed + 20);
+
+    await item.getByText("Do you offer Cash on Delivery?").click();
+    expect(await item.evaluate((element) => element.getAnimations().length)).toBeGreaterThan(0);
+    await expect.poll(async () => item.evaluate((element) => (element as HTMLDetailsElement).open)).toBe(false);
   });
 
   test("shows no belts while they are hidden", async ({ page }) => {

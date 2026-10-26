@@ -9,7 +9,8 @@ import { ProductCard } from "@/components/product/product-card";
 import { ProductDetails } from "@/components/product/product-details";
 import { PurchasePanel } from "@/components/product/purchase-panel";
 import { SizeGuide } from "@/components/product/size-guide";
-import { getProduct, getProducts, getRelatedProducts, type Product } from "@/lib/catalog";
+import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
+import { getCollection, getProduct, getProducts, getRelatedProducts, type Product } from "@/lib/catalog";
 import { formatPKR } from "@/lib/money";
 import { codSummary } from "@/lib/payment";
 import { sizeMeasurement } from "@/lib/sizing";
@@ -50,7 +51,12 @@ export default async function ProductPage({ params }: PageProps<"/products/[hand
 }
 
 async function ProductView({ product }: { product: Product }) {
-  const related = await getRelatedProducts(product.handle);
+  const [related, collection] = await Promise.all([getRelatedProducts(product.handle), getCollection(product.collection)]);
+  const trail = [
+    { name: "Home", href: "/" },
+    ...(collection ? [{ name: collection.title, href: `/collections/${collection.handle}` }] : []),
+    { name: product.title, href: `/products/${product.handle}` },
+  ];
   const sized = product.variants.filter((variant) => variant.size !== null);
   const sizes = sized.map((variant) => ({
     variantId: variant.id,
@@ -61,9 +67,11 @@ async function ProductView({ product }: { product: Product }) {
   const single = sized.length === 0 ? product.variants[0] : null;
 
   return (
-    <div className="pb-28 md:pb-0">
-      <div className="mx-auto max-w-6xl md:grid md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:gap-10 md:px-8 md:pt-8">
-        <Gallery handle={product.handle} images={product.images} />
+    <div>
+      <BreadcrumbData trail={trail} />
+      <Breadcrumbs trail={trail} placement="top" />
+      <div className="mx-auto max-w-6xl md:grid md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:gap-10 md:px-8 md:pt-6">
+        <Gallery handle={product.handle} title={product.title} images={product.images} />
 
         <div className="flex flex-col gap-8 px-5 pt-5 md:sticky md:top-20 md:self-start md:px-0 md:pt-0">
           <div className="flex flex-col gap-2">
@@ -104,6 +112,7 @@ async function ProductView({ product }: { product: Product }) {
           </ul>
         </section>
       ) : null}
+      <Breadcrumbs trail={trail} placement="bottom" />
     </div>
   );
 }

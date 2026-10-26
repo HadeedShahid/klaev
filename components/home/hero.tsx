@@ -1,25 +1,15 @@
 import { ChevronRight } from "lucide-react";
-import { getImageProps } from "next/image";
 import Link from "next/link";
 
-import heroDesktop from "@/assets/images/hero-cropped-black-desktop.webp";
-import heroMobile from "@/assets/images/hero-cropped-black-mobile.webp";
 import { pill } from "@/lib/styles";
 
-const alt = "Black cropped leather jacket, worn against a sunlit stone wall";
+import { HeroPhotos, type HeroColour } from "./hero-photos";
 
-// One campaign photo, cropped for each screen: portrait on phones, landscape from tablets up.
-const {
-  props: { srcSet: desktopSrcSet },
-} = getImageProps({ alt, src: heroDesktop, sizes: "100vw" });
-const {
-  props: { srcSet: mobileSrcSet, ...image },
-} = getImageProps({ alt, src: heroMobile, sizes: "100vw", loading: "eager", fetchPriority: "high" });
-
-export function Hero({ price }: { price: string }) {
+// Headline on top, then the studio photos of the cropped jackets, with a colour picker on the photo.
+export function Hero({ price, colours }: { price: string; colours: HeroColour[] }) {
   return (
     <section aria-labelledby="hero-title" className="flex flex-col">
-      <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 px-5 pt-10 pb-8 text-center md:pt-16 md:pb-10">
+      <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 px-5 pt-8 pb-6 text-center md:pt-14 md:pb-10">
         <h1
           id="hero-title"
           className="text-[2.5rem] leading-[1.05] font-semibold tracking-tight text-balance md:text-6xl"
@@ -43,15 +33,7 @@ export function Hero({ price }: { price: string }) {
           </a>
         </div>
       </div>
-      <picture>
-        <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
-        <img
-          {...image}
-          srcSet={mobileSrcSet}
-          alt={alt}
-          className="aspect-5/6 w-full bg-muted object-cover md:aspect-video md:object-[50%_25%]"
-        />
-      </picture>
+      <HeroPhotos colours={colours} />
     </section>
   );
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-25T12:00:00.000Z",
+  "generatedAt": "2026-10-26T12:00:00.000Z",
   "title": "Design System: Klaev",
   "extensions": {
     "colorMeta": {
@@ -175,7 +175,7 @@
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Section and collection headings; checkout legends and order page section headings."
+        "purpose": "Section and collection headings; checkout legends, order page section headings and the cart drawer title."
       },
       "price": {
         "displayName": "Price",
@@ -199,7 +199,7 @@
       },
       "small": {
         "displayName": "Small",
-        "purpose": "Payment rows, assurances, nav, size guide."
+        "purpose": "Payment rows, assurances, nav, breadcrumbs, colour picker name, viewer counter, size guide."
       },
       "caption": {
         "displayName": "Caption",
@@ -207,7 +207,7 @@
       },
       "wordmark": {
         "displayName": "Wordmark",
-        "purpose": "KLAEV in header and footer only; uppercase."
+        "purpose": "KLAEV in header (centred) and footer only; uppercase."
       }
     },
     "shadows": [],
@@ -234,8 +234,8 @@
       },
       {
         "name": "disclosure",
-        "value": "rotate(180deg)",
-        "purpose": "Chevron when a details element opens."
+        "value": "height 320ms open / 240ms close, cubic-bezier(0.32, 0.72, 0, 1); chevron rotate(180deg) over 320ms",
+        "purpose": "Native details panels slide open and closed (WAAPI); the chevron turns back as closing starts. Instant under reduced motion."
       },
       {
         "name": "nudge",
@@ -251,6 +251,26 @@
         "name": "copy-confirm",
         "value": "glyph swap Copy to Check, 2000ms",
         "purpose": "Copy button confirms in place and announces Copied; no movement."
+      },
+      {
+        "name": "drawer",
+        "value": "translate 320ms cubic-bezier(0.32, 0.72, 0, 1); backdrop Ink 0 to 30%",
+        "purpose": "Cart drawer slides in from the right. No slide under reduced motion."
+      },
+      {
+        "name": "viewer-fade",
+        "value": "opacity 220ms ease",
+        "purpose": "Photo viewer fades in and out. Off under reduced motion."
+      },
+      {
+        "name": "hero-swap",
+        "value": "fade-in 500ms",
+        "purpose": "Hero photos when a colour is chosen. Off under reduced motion."
+      },
+      {
+        "name": "smooth-scroll",
+        "value": "scroll-behavior: smooth",
+        "purpose": "In-page links (See the colours), only with no reduced-motion preference."
       }
     ],
     "breakpoints": [
@@ -262,20 +282,34 @@
     "layout": {
       "maxWidth": "72rem",
       "cartMaxWidth": "48rem",
-      "headerHeight": "56px",
+      "headerHeight": "48px phones, 52px from 768px",
       "productGrid": "minmax(0,7fr) minmax(0,5fr), 40px gap",
       "stickyBuyColumnTop": "80px",
-      "mobileBottomReserve": "112px",
+      "mobileBottomReserve": "7rem footer reserve below its last line on phone pages with [data-fixed-bar]; pages carry no bottom padding for the bar",
       "sectionTop": "64px phones, 112px from 768px",
-      "landingTextMaxWidth": "42rem (story), 48rem (hero, FAQ)",
-      "heroImage": "full bleed, 5:6 phones, 16:9 from 768px, object-position 50% 25%",
+      "landingTextMaxWidth": "42rem (story), 48rem (hero, FAQ); FAQ answers 52ch",
+      "heroImage": "phones: main photo alone, full bleed 4:5, object-top; from 768px: 2fr/1fr mosaic, height min(78vh,52rem), 8px gaps, 2xl tiles, main photo spans two rows at object-position 50% 60%",
       "storyImage": "4:5 phones; 16:10 at 50% 30% or whole 4:5 at max 36rem from 768px",
       "sharedPill": "lib/styles.ts pill",
       "checkoutMaxWidth": "36rem",
-      "checkoutBottomReserve": "144px phones, 64px from 768px",
+      "checkoutBottomReserve": "64px at every width; footer holds the phone bar's room",
       "checkoutSectionGap": "40px between sections, 16px between fields, 6px label to control to hint",
       "scrollPaddingTop": "4.5rem (sticky header)",
-      "scrollPaddingBottom": "7rem below 768px on pages with [data-fixed-bar]"
+      "scrollPaddingBottom": "7rem below 768px on pages with [data-fixed-bar]",
+      "heroColourPicker": "glass pill, bottom 16px (24px from 768px), 44px targets, 32px swatches",
+      "breadcrumbs": "top left, 24px below header, from 768px; closing the page on the footer rule on phones",
+      "cartDrawerWidth": "max 28rem, full height"
+    },
+    "glass": {
+      "background": "color-mix(in oklab, var(--background) 78%, transparent)",
+      "backdropFilter": "blur(20px) saturate(1.8)",
+      "edge": "1px solid oklch(0.218 0.004 286 / 0.08)",
+      "fallback": "solid Paper under prefers-reduced-transparency: reduce and where backdrop-filter is unsupported",
+      "usedBy": [
+        "Site header",
+        "Hero colour picker"
+      ],
+      "source": "@utility glass in app/globals.css"
     }
   },
   "components": [
@@ -291,7 +325,7 @@
       "name": "Icon Button (cart)",
       "kind": "button",
       "refersTo": "button-icon",
-      "description": "44px circle for cart and remove, with an Ink count pill.",
+      "description": "44px circle for cart, close and remove (Trash, Quiet Grey to Ink), with an Ink count pill on the cart.",
       "html": "<a class=\"ds-icon-btn\" href=\"#\" aria-label=\"Cart, 2 items\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16 10a4 4 0 0 1-8 0\"/><path d=\"M3.103 6.034h17.794\"/><path d=\"M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z\"/></svg><span class=\"ds-count\">2</span></a>",
       "css": ".ds-icon-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:9999px;color:oklch(0.218 0.004 286);transition:background-color 150ms}.ds-icon-btn:hover{background:oklch(0.95 0.002 286)}.ds-icon-btn:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-count{position:absolute;top:6px;right:4px;min-width:18px;padding:0 4px;border-radius:9999px;background:oklch(0.218 0.004 286);color:#fff;font:600 0.6875rem/18px Geist,system-ui,sans-serif;font-variant-numeric:tabular-nums;text-align:center}"
     },
@@ -315,9 +349,9 @@
       "name": "Disclosure Rows",
       "kind": "custom",
       "refersTo": "disclosure-row",
-      "description": "Native details accordion ruled by hairlines, chevron rotates open. Product details, size guide and the landing FAQ.",
+      "description": "Native details accordion ruled by hairlines; the panel slides open in 320ms and closed in 240ms on cubic-bezier(0.32,0.72,0,1) as the chevron rotates. Product details, size guide and the landing FAQ (answers capped at 52ch).",
       "html": "<div class=\"ds-details\"><details><summary>Materials and finish<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></summary><p>Full-grain sheepskin, finished in Pakistan.</p></details><details><summary>Care<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></summary><p>Wipe with a dry cloth.</p></details></div>",
-      "css": ".ds-details{max-width:360px;border-top:1px solid oklch(0.925 0.003 286);border-bottom:1px solid oklch(0.925 0.003 286);font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-details details+details{border-top:1px solid oklch(0.925 0.003 286)}.ds-details summary{display:flex;align-items:center;justify-content:space-between;min-height:56px;font-weight:500;cursor:pointer;list-style:none}.ds-details summary::-webkit-details-marker{display:none}.ds-details summary:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-details svg{color:oklch(0.52 0.008 286);transition:transform 150ms}.ds-details details[open] svg{transform:rotate(180deg)}.ds-details p{margin:0;padding-bottom:20px;font-size:0.9375rem;line-height:1.625;color:oklch(0.52 0.008 286)}"
+      "css": ".ds-details{max-width:360px;border-top:1px solid oklch(0.925 0.003 286);border-bottom:1px solid oklch(0.925 0.003 286);font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-details details+details{border-top:1px solid oklch(0.925 0.003 286)}.ds-details summary{display:flex;align-items:center;justify-content:space-between;min-height:56px;font-weight:500;cursor:pointer;list-style:none}.ds-details summary::-webkit-details-marker{display:none}.ds-details summary:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-details svg{color:oklch(0.52 0.008 286);transition:rotate 320ms cubic-bezier(0.32,0.72,0,1)}.ds-details details[open] svg{rotate:180deg}.ds-details p{max-width:52ch;margin:0;padding-bottom:20px;font-size:0.9375rem;line-height:1.625;color:oklch(0.52 0.008 286)}@media (prefers-reduced-motion:reduce){.ds-details svg{transition:none}}"
     },
     {
       "name": "Product Card",
@@ -331,9 +365,9 @@
       "name": "Site Header",
       "kind": "nav",
       "refersTo": "header",
-      "description": "Sticky 56px white bar with hairline, spaced wordmark, Shop link and cart.",
-      "html": "<header class=\"ds-header\"><a class=\"ds-mark\" href=\"#\">Klaev</a><nav><a class=\"ds-nav\" href=\"#\">Shop</a></nav></header>",
-      "css": ".ds-header{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 20px;background:#fff;border-bottom:1px solid oklch(0.925 0.003 286);font-family:Geist,system-ui,sans-serif}.ds-mark{font-size:1.0625rem;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:oklch(0.218 0.004 286);text-decoration:none}.ds-nav{display:flex;align-items:center;height:44px;padding:0 12px;border-radius:9999px;font-size:0.875rem;color:oklch(0.52 0.008 286);text-decoration:none;transition:color 150ms}.ds-nav:hover{color:oklch(0.218 0.004 286)}.ds-nav:focus-visible,.ds-mark:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}"
+      "description": "Full-width sticky glass bar, 48px on phones and 52px from 768px, Ink 8% rule: Shop left (Ink, Press Grey bubble on hover), centred spaced wordmark, cart right.",
+      "html": "<header class=\"ds-header\"><nav><a class=\"ds-nav\" href=\"#\">Shop</a></nav><a class=\"ds-mark\" href=\"#\">Klaev</a><a class=\"ds-cart\" href=\"#\" aria-label=\"Cart\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16 10a4 4 0 0 1-8 0\"/><path d=\"M3.103 6.034h17.794\"/><path d=\"M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z\"/></svg></a></header>",
+      "css": ".ds-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:48px;padding:0 20px;background:color-mix(in oklab,#fff 78%,transparent);-webkit-backdrop-filter:blur(20px) saturate(1.8);backdrop-filter:blur(20px) saturate(1.8);border:1px solid oklch(0.218 0.004 286 / 0.08);border-width:0 0 1px;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}@media (prefers-reduced-transparency:reduce){.ds-header{background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}}.ds-header nav{justify-self:start;margin-left:-12px}.ds-nav{display:flex;align-items:center;height:44px;padding:0 12px;border-radius:9999px;font-size:0.875rem;color:inherit;text-decoration:none;transition:background-color 150ms}.ds-nav:hover{background:oklch(0.95 0.002 286)}.ds-mark{padding-left:0.28em;font-size:1.0625rem;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:inherit;text-decoration:none}.ds-cart{justify-self:end;display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-8px;border-radius:9999px;color:inherit;transition:background-color 150ms}.ds-cart:hover{background:oklch(0.95 0.002 286)}.ds-nav:focus-visible,.ds-mark:focus-visible,.ds-cart:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}"
     },
     {
       "name": "Sticky Buy Bar",
@@ -347,9 +381,17 @@
       "name": "Landing Hero",
       "kind": "custom",
       "refersTo": "hero-image",
-      "description": "Centred Hero headline, Lead line, price, pill and quiet link above a full-bleed art-directed campaign photo.",
-      "html": "<section class=\"ds-hero\"><div class=\"ds-hero-text\"><h1>Cropped leather jackets.</h1><p class=\"ds-lead\">Full-grain sheepskin, cut to the waist.</p><p class=\"ds-price\">PKR 17,999</p><div class=\"ds-actions\"><a class=\"ds-pill\" href=\"#\">Shop cropped</a><a class=\"ds-quiet\" href=\"#\">See the colours<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></a></div></div><div class=\"ds-hero-photo\"></div></section>",
-      "css": ".ds-hero{display:flex;flex-direction:column;max-width:390px;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286);background:#fff}.ds-hero-text{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 20px 32px;text-align:center}.ds-hero h1{margin:0;font-size:2.5rem;line-height:1.05;font-weight:600;letter-spacing:-0.025em;text-wrap:balance}.ds-lead{margin:0;font-size:1.125rem;color:oklch(0.52 0.008 286)}.ds-price{margin:0;font-weight:500;font-variant-numeric:tabular-nums}.ds-actions{display:flex;align-items:center;gap:24px;padding-top:8px}.ds-pill{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 24px;border-radius:9999px;background:oklch(0.218 0.004 286);color:oklch(0.99 0 0);font-size:0.9375rem;font-weight:500;text-decoration:none;transition:background-color 150ms}.ds-pill:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-pill:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-quiet{display:inline-flex;align-items:center;gap:2px;height:48px;font-size:0.9375rem;font-weight:500;color:oklch(0.218 0.004 286);text-decoration:none}.ds-quiet:hover{text-decoration:underline}.ds-quiet svg{transition:transform 150ms}.ds-quiet:hover svg{transform:translateX(2px)}.ds-quiet:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-hero-photo{aspect-ratio:5/6;width:100%;background:linear-gradient(160deg,#5a3a2c,#2a1a14)}"
+      "description": "Centred Hero headline, Lead line, price, pill and quiet link above the photo mosaic: main worn photo alone at 4:5 on phones; from 768px a 2fr/1fr mosaic with the glass colour picker on the main photo.",
+      "html": "<section class=\"ds-hero\"><div class=\"ds-hero-text\"><h1>Cropped leather jackets.</h1><p class=\"ds-lead\">Full-grain sheepskin, cut to the waist.</p><p class=\"ds-price\">PKR 17,999</p><div class=\"ds-actions\"><a class=\"ds-pill\" href=\"#\">Shop cropped</a><a class=\"ds-quiet\" href=\"#\">See the colours<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></a></div></div><div class=\"ds-hero-main\"><a class=\"ds-hero-photo\" href=\"#\"></a><div class=\"ds-hero-pick\"><div class=\"ds-picker\" role=\"radiogroup\" aria-label=\"Colour\"><label class=\"ds-sw\"><input type=\"radio\" name=\"hc\" checked aria-label=\"Black\"><span style=\"background:#1b1a1a\"></span></label><label class=\"ds-sw\"><input type=\"radio\" name=\"hc\" aria-label=\"Dark Brown\"><span style=\"background:#4a2e22\"></span></label><label class=\"ds-sw\"><input type=\"radio\" name=\"hc\" aria-label=\"Burgundy\"><span style=\"background:#5a1f24\"></span></label><span class=\"ds-pname\">Black</span></div></div></div></section>",
+      "css": ".ds-hero{display:flex;flex-direction:column;max-width:390px;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286);background:#fff}.ds-hero-text{display:flex;flex-direction:column;align-items:center;gap:12px;padding:32px 20px 24px;text-align:center}.ds-hero h1{margin:0;font-size:2.5rem;line-height:1.05;font-weight:600;letter-spacing:-0.025em;text-wrap:balance}.ds-lead{margin:0;font-size:1.125rem;color:oklch(0.52 0.008 286)}.ds-price{margin:0;font-weight:500;font-variant-numeric:tabular-nums}.ds-actions{display:flex;align-items:center;gap:24px;padding-top:8px}.ds-pill{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 24px;border-radius:9999px;background:oklch(0.218 0.004 286);color:oklch(0.99 0 0);font-size:0.9375rem;font-weight:500;text-decoration:none;transition:background-color 150ms}.ds-pill:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-pill:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-quiet{display:inline-flex;align-items:center;gap:2px;height:48px;font-size:0.9375rem;font-weight:500;color:oklch(0.218 0.004 286);text-decoration:none}.ds-quiet:hover{text-decoration:underline}.ds-quiet svg{transition:transform 150ms}.ds-quiet:hover svg{transform:translateX(2px)}.ds-quiet:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-hero-main{position:relative}.ds-hero-photo{display:block;aspect-ratio:4/5;width:100%;background:linear-gradient(160deg,#5a3a2c,#2a1a14)}.ds-hero-pick{position:absolute;inset:auto 0 16px;display:flex;justify-content:center}.ds-picker{display:inline-flex;align-items:center;gap:4px;padding:4px 16px 4px 4px;border-radius:9999px;background:color-mix(in oklab,#fff 78%,transparent);-webkit-backdrop-filter:blur(20px) saturate(1.8);backdrop-filter:blur(20px) saturate(1.8);border:1px solid oklch(0.218 0.004 286 / 0.08);font:500 0.875rem Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-sw{position:relative;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:9999px;cursor:pointer}.ds-sw input{position:absolute;inset:0;margin:0;opacity:0;appearance:none;cursor:pointer}.ds-sw span{width:32px;height:32px;border-radius:9999px;pointer-events:none;box-shadow:0 0 0 2px transparent,0 0 0 3px oklch(0.218 0.004 286 / 0.1);transition:box-shadow 150ms}.ds-sw:has(input:checked) span{box-shadow:0 0 0 2px transparent,0 0 0 4px oklch(0.218 0.004 286)}.ds-sw:has(input:focus-visible){outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-pname{min-width:4.75rem;padding-left:4px}"
+    },
+    {
+      "name": "Hero Colour Picker",
+      "kind": "custom",
+      "refersTo": "hero-colour-picker",
+      "description": "Glass pill on the hero's main photo: three 44px radio targets with 32px leather swatches (the flat-lay enlarged 5x onto the chest panel), 2px Ink ring at offset when chosen, 1px Ink 10% at rest, then the colour name.",
+      "html": "<div class=\"ds-picker\" role=\"radiogroup\" aria-label=\"Colour\"><label class=\"ds-sw\"><input type=\"radio\" name=\"hc\" checked aria-label=\"Black\"><span style=\"background:#1b1a1a\"></span></label><label class=\"ds-sw\"><input type=\"radio\" name=\"hc\" aria-label=\"Dark Brown\"><span style=\"background:#4a2e22\"></span></label><label class=\"ds-sw\"><input type=\"radio\" name=\"hc\" aria-label=\"Burgundy\"><span style=\"background:#5a1f24\"></span></label><span class=\"ds-pname\">Black</span></div>",
+      "css": ".ds-picker{display:inline-flex;align-items:center;gap:4px;padding:4px 16px 4px 4px;border-radius:9999px;background:color-mix(in oklab,#fff 78%,transparent);-webkit-backdrop-filter:blur(20px) saturate(1.8);backdrop-filter:blur(20px) saturate(1.8);border:1px solid oklch(0.218 0.004 286 / 0.08);font:500 0.875rem Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-sw{position:relative;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:9999px;cursor:pointer}.ds-sw input{position:absolute;inset:0;margin:0;opacity:0;appearance:none;cursor:pointer}.ds-sw span{width:32px;height:32px;border-radius:9999px;pointer-events:none;box-shadow:0 0 0 2px transparent,0 0 0 3px oklch(0.218 0.004 286 / 0.1);transition:box-shadow 150ms}.ds-sw:has(input:checked) span{box-shadow:0 0 0 2px transparent,0 0 0 4px oklch(0.218 0.004 286)}.ds-sw:has(input:focus-visible){outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-pname{min-width:4.75rem;padding-left:4px}"
     },
     {
       "name": "Colour Cards",
@@ -406,23 +448,47 @@
       "description": "Grey panel of hairline-split rows: amount, bank, title, account number with a copy-in-place button; then the upload pill and the quiet WhatsApp link.",
       "html": "<div class=\"ds-acct-wrap\"><dl class=\"ds-acct\"><div><dt>Amount</dt><dd><b>PKR 2,000</b></dd></div><div><dt>Bank</dt><dd>Example Bank</dd></div><div><dt>Account title</dt><dd>Klaev</dd></div><div><dt>Account number</dt><dd class=\"ds-num\"><span>00001234567890</span><button class=\"ds-copy\" aria-label=\"Copy account number\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/></svg></button></dd></div></dl><div class=\"ds-acts\"><label class=\"ds-up\">Upload screenshot<input type=\"file\"></label><a class=\"ds-wa\" href=\"#\">Send it on WhatsApp<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></a></div></div>",
       "css": ".ds-acct-wrap{display:flex;flex-direction:column;gap:16px;max-width:360px;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-acct{margin:0;padding:0 16px;border-radius:1.35rem;background:oklch(0.97 0.0016 286);font-size:0.9375rem}.ds-acct div{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:56px;padding:12px 0}.ds-acct div+div{border-top:1px solid oklch(0.925 0.003 286)}.ds-acct dt{color:oklch(0.52 0.008 286)}.ds-acct dd{margin:0;text-align:right}.ds-acct b{font-weight:600;font-variant-numeric:tabular-nums}.ds-num{display:flex;align-items:center;gap:8px}.ds-num span{font-weight:500;letter-spacing:0.025em;font-variant-numeric:tabular-nums}.ds-copy{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin:-8px -8px -8px 0;border:0;border-radius:9999px;background:none;color:oklch(0.218 0.004 286);cursor:pointer;transition:background-color 150ms}.ds-copy:hover{background:oklch(0.95 0.002 286)}.ds-copy:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}.ds-up{position:relative;display:inline-flex;align-items:center;height:48px;padding:0 20px;border-radius:9999px;background:oklch(0.218 0.004 286);color:oklch(0.99 0 0);font-size:0.9375rem;font-weight:500;cursor:pointer;transition:background-color 150ms}.ds-up:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-up input{position:absolute;inset:0;opacity:0;cursor:pointer}.ds-up:has(input:focus-visible){outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-wa{display:inline-flex;align-items:center;gap:2px;height:48px;font-size:0.9375rem;font-weight:500;color:oklch(0.218 0.004 286);text-decoration:none}.ds-wa:hover{text-decoration:underline}.ds-wa svg{transition:transform 150ms}.ds-wa:hover svg{transform:translateX(2px)}.ds-wa:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}"
+    },
+    {
+      "name": "Breadcrumbs",
+      "kind": "nav",
+      "refersTo": "breadcrumbs",
+      "description": "Small trail: Quiet Grey links split by chevrons, current page in 500 Ink. Top left from 768px; on phones it closes the page on the footer rule.",
+      "html": "<nav class=\"ds-crumbs\" aria-label=\"Breadcrumb\"><ol><li><a href=\"#\">Home</a><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></li><li><a href=\"#\">Cropped Leather Jackets</a><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></li><li><span aria-current=\"page\">Black Cropped Sheepskin Leather Jacket</span></li></ol></nav>",
+      "css": ".ds-crumbs{max-width:390px;padding:20px;border-top:1px solid oklch(0.925 0.003 286);font:400 0.875rem Geist,system-ui,sans-serif;color:oklch(0.52 0.008 286)}.ds-crumbs ol{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:0;padding:0;list-style:none}.ds-crumbs li{display:flex;align-items:center;gap:6px}.ds-crumbs a{color:inherit;text-decoration:none;transition:color 150ms}.ds-crumbs a:hover{color:oklch(0.218 0.004 286)}.ds-crumbs a:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-crumbs span{font-weight:500;color:oklch(0.218 0.004 286)}"
+    },
+    {
+      "name": "Cart Drawer",
+      "kind": "custom",
+      "refersTo": "cart-drawer",
+      "description": "Native modal dialog from the right, max 28rem, full height, over the page dimmed by Ink 30%: title, lines with trash remove, subtotal, COD note, Checkout pill, quiet View cart link.",
+      "html": "<div class=\"ds-drawer\" role=\"dialog\" aria-label=\"Cart\"><div class=\"ds-dhead\"><h2>Cart</h2><button class=\"ds-ib\" aria-label=\"Close cart\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/></svg></button></div><ul class=\"ds-dlines\"><li><span class=\"ds-dthumb\"></span><div><a href=\"#\">Black Cropped Sheepskin Leather Jacket</a><p>Size M</p><b>PKR 17,999</b></div><button class=\"ds-ib ds-rm\" aria-label=\"Remove\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 6h18\"/><path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\"/><path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\"/><line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\"/><line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\"/></svg></button></li></ul><div class=\"ds-dfoot\"><p class=\"ds-sub\"><span>Subtotal</span><b>PKR 17,999</b></p><p class=\"ds-note\">Cash on delivery: send PKR 2,000 now and pay the rest at the door, plus PKR 900 delivery. Bank transfer delivers free.</p><a class=\"ds-pill ds-full\" href=\"#\">Checkout</a><a class=\"ds-vc\" href=\"#\">View cart</a></div></div>",
+      "css": ".ds-drawer{display:flex;flex-direction:column;width:360px;background:#fff;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286);box-sizing:border-box}.ds-dhead{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 20px;border-bottom:1px solid oklch(0.925 0.003 286)}.ds-dhead h2{margin:0;font-size:1.25rem;font-weight:600;letter-spacing:-0.025em}.ds-ib{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-8px;border:0;border-radius:9999px;background:none;color:inherit;cursor:pointer;transition:background-color 150ms,color 150ms}.ds-ib:hover{background:oklch(0.95 0.002 286)}.ds-ib:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-rm{color:oklch(0.52 0.008 286)}.ds-rm:hover{color:oklch(0.218 0.004 286)}.ds-dlines{margin:0;padding:0 20px;list-style:none}.ds-dlines li{display:flex;gap:16px;padding:16px 0}.ds-dthumb{flex:none;width:64px;aspect-ratio:4/5;border-radius:1.05rem;background:linear-gradient(160deg,#5a3a2c,#2a1a14)}.ds-dlines div{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}.ds-dlines a{font-size:0.9375rem;font-weight:500;color:inherit;text-decoration:none}.ds-dlines a:hover{text-decoration:underline}.ds-dlines p{margin:0;font-size:0.875rem;color:oklch(0.52 0.008 286)}.ds-dlines b{font-size:0.875rem;font-weight:500;font-variant-numeric:tabular-nums}.ds-dfoot{display:flex;flex-direction:column;gap:12px;padding:16px 20px 20px;border-top:1px solid oklch(0.925 0.003 286)}.ds-sub{display:flex;justify-content:space-between;align-items:baseline;margin:0;font-weight:500}.ds-sub b{font-size:1.125rem;font-weight:600;font-variant-numeric:tabular-nums}.ds-note{margin:0;font-size:0.875rem;color:oklch(0.52 0.008 286)}.ds-pill{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 24px;border-radius:9999px;background:oklch(0.218 0.004 286);color:oklch(0.99 0 0);font-size:0.9375rem;font-weight:500;text-decoration:none;transition:background-color 150ms}.ds-pill:hover{background:oklch(0.218 0.004 286 / 0.85)}.ds-pill:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-full{height:56px;width:100%;box-sizing:border-box}.ds-vc{display:flex;align-items:center;justify-content:center;height:44px;font-size:0.875rem;color:oklch(0.52 0.008 286);text-decoration:none}.ds-vc:hover{color:oklch(0.218 0.004 286);text-decoration:underline}"
+    },
+    {
+      "name": "Photo Viewer",
+      "kind": "custom",
+      "refersTo": "photo-viewer",
+      "description": "Full-screen Paper dialog from any gallery photo: N of M counter and close, whole photos in a snap track; 48px Panel Grey arrows and 48px 4:5 thumbnails from 768px, a segment indicator on phones.",
+      "html": "<div class=\"ds-viewer\" role=\"dialog\" aria-label=\"Photos\"><div class=\"ds-vtop\"><p>2 of 10</p><button class=\"ds-ib\" aria-label=\"Close photos\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/></svg></button></div><div class=\"ds-vstage\"><button class=\"ds-arrow\" aria-label=\"Previous photo\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m15 18-6-6 6-6\"/></svg></button><span class=\"ds-vphoto\"></span><button class=\"ds-arrow\" aria-label=\"Next photo\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></button></div><div class=\"ds-thumbs\"><button aria-label=\"Show photo 1\"></button><button aria-label=\"Show photo 2\" aria-current=\"true\"></button><button aria-label=\"Show photo 3\"></button></div></div>",
+      "css": ".ds-viewer{display:flex;flex-direction:column;width:560px;height:420px;background:#fff;font-family:Geist,system-ui,sans-serif;color:oklch(0.218 0.004 286)}.ds-vtop{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 32px}.ds-vtop p{margin:0;font-size:0.875rem;color:oklch(0.52 0.008 286);font-variant-numeric:tabular-nums}.ds-ib{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-8px;border:0;border-radius:9999px;background:none;color:inherit;cursor:pointer;transition:background-color 150ms}.ds-ib:hover{background:oklch(0.95 0.002 286)}.ds-ib:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-vstage{display:flex;flex:1;align-items:center;justify-content:space-between;gap:16px;padding:0 24px;min-height:0}.ds-vphoto{height:100%;aspect-ratio:4/5;background:linear-gradient(160deg,#5a3a2c,#2a1a14)}.ds-arrow{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border:0;border-radius:9999px;background:oklch(0.97 0.0016 286);color:inherit;cursor:pointer;transition:background-color 150ms,opacity 150ms}.ds-arrow:hover{background:oklch(0.95 0.002 286)}.ds-arrow:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-arrow:first-child{opacity:0.3}.ds-thumbs{display:flex;justify-content:center;gap:8px;padding:16px 32px 24px}.ds-thumbs button{width:48px;aspect-ratio:4/5;padding:0;border:0;border-radius:0.75rem;background:linear-gradient(160deg,#5a3a2c,#2a1a14);cursor:pointer;transition:box-shadow 150ms}.ds-thumbs button[aria-current]{box-shadow:0 0 0 2px #fff,0 0 0 4px oklch(0.218 0.004 286)}.ds-thumbs button:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}"
     }
   ],
   "narrative": {
     "northStar": "The Quiet Counter",
-    "overview": "Klaev is the category standard executed at Apple Store craft: a white room with a well lit counter, where one product is laid out, its price is stated once and clearly, and every choice is made in order. The system is deliberately colourless. White ground, soft grey panels and near-black ink are the whole palette; the leather photography supplies every warm tone on the screen, so nothing in the interface competes with the hide.\n\nDensity is calm and single-column on the phone (390px first). Content stacks in one column with generous 32px gaps between blocks; on wide screens the same column sits beside the photos as a sticky buy column. Form is soft and rounded: pill actions, rounded selection cards, rounded grey panels, with hairlines used to rule lists and to seat fixed chrome. Depth is flat. Motion is functional only: the product photo morphs from its card into the product page, chevrons turn, buttons settle under the finger.\n\nThe interface earns trust with exact information rather than decoration. Money is always tabular, sizes are named by chest measurement, and payment is broken into what you send now and what you pay on delivery. The user rejected loud streetwear urgency, generic template looks, and dark, moody \"leather brand\" styling; the white ground is the answer to all three.",
+    "overview": "Klaev is the category standard executed at Apple Store craft: a white room with a well lit counter, where one product is laid out, its price is stated once and clearly, and every choice is made in order. The system is deliberately colourless. White ground, soft grey panels and near-black ink are the whole palette; the leather photography supplies every warm tone on the screen, so nothing in the interface competes with the hide.\n\nDensity is calm and single-column on the phone (390px first). Content stacks in one column with generous 32px gaps between blocks; on wide screens the same column sits beside the photos as a sticky buy column. Form is soft and rounded: pill actions, rounded selection cards, rounded grey panels, with hairlines used to rule lists and to seat fixed chrome. Depth is flat, with exactly two pieces of frosted glass: the header and the hero's colour picker, both of which float over photography. Motion is functional only: the product photo morphs from its card into the product page, accordions slide open as their chevrons turn, the cart drawer slides in, buttons settle under the finger.\n\nThe interface earns trust with exact information rather than decoration. Money is always tabular, sizes are named by chest measurement, and payment is broken into what you send now and what you pay on delivery. The user rejected loud streetwear urgency, generic template looks, and dark, moody \"leather brand\" styling; the white ground is the answer to all three.",
     "keyCharacteristics": [
       "White ground, grey panels, near-black ink; the photography is the only colour.",
       "One typeface, Geist Sans, with large tight semibold headings and tabular numerals for money.",
       "Black pill for the one primary action per view.",
       "Rounded panels and selection cards; hairlines rule lists and seat fixed bars.",
-      "No shadows. Depth comes from grey panels against white.",
+      "No shadows. Depth comes from grey panels against white; glass is reserved for the header and the hero colour picker.",
       "Motion serves navigation and state, never ornament."
     ],
     "rules": [
       {
         "name": "The Leather Is the Colour Rule",
-        "body": "The interface carries no hue. Warmth on screen comes from the product photographs alone; no brand tint, gradient or coloured badge is added.",
+        "body": "The interface carries no hue. Warmth on screen comes from the product photographs alone; no brand tint, gradient or coloured badge is added. Even a colour swatch is cut from the leather photo, never painted.",
         "section": "colors"
       },
       {
@@ -447,7 +513,7 @@
       },
       {
         "name": "The Flat Counter Rule",
-        "body": "No box-shadow, no backdrop blur, no hover lift. If something needs to stand apart, it gets a grey panel or a hairline.",
+        "body": "No box-shadow, no hover lift, and no backdrop blur except the shared glass on the header and the hero colour picker. Everything else stays flat: if something needs to stand apart, it gets a grey panel or a hairline.",
         "section": "elevation"
       }
     ],
@@ -458,13 +524,15 @@
       "**Do** keep sold-out options visible and disabled on a Panel Grey ground, never hidden.",
       "**Do** separate blocks with space (32px) and group related facts in a Panel Grey panel at 2xl radius.",
       "**Do** keep touch targets at 44px or larger and size cards at 64px or taller.",
-      "**Do** honour reduced motion: view-transition animations drop to zero duration, and the checkout bar's crossfade is off.",
+      "**Do** honour reduced motion: view-transition animations drop to zero duration, and the checkout bar's crossfade, the hero's photo fade, accordion slides, the drawer slide and the viewer fade are all off.",
       "**Do** build forms from 48px xl-radius fields with the label above, and choices from whole-card radios in the size card language.",
       "**Do** state what to send now in the fixed bar of any page that takes an order, and change it the moment the choice changes.",
-      "**Do** give any page with a fixed bottom bar the `data-fixed-bar` mark so focused fields scroll clear of it."
+      "**Do** give any phone bar fixed to the bottom the `data-fixed-bar` mark, so focused fields scroll clear of it and the footer holds the bar's room; never pad the page itself for it.",
+      "**Do** open overlays (cart drawer, photo viewer) as native modal dialogs focused on their title, and return focus to what opened them.",
+      "**Do** keep glass to the shared material (Paper at 78%, blur 20px, saturate 1.8, Ink 8% edge) with its solid Paper fallback."
     ],
     "donts": [
-      "**Don't** add box-shadows, blurs or hover lift to any surface.",
+      "**Don't** add box-shadows or hover lift to any surface, or backdrop blur to anything but the header and the hero colour picker.",
       "**Don't** introduce a brand hue, gradient, coloured badge or marquee; Signal Red is for validation messages only.",
       "**Don't** use a dark, moody ground for the store; the user rejected it.",
       "**Don't** set headings, labels or buttons in letterspaced uppercase; that treatment belongs to the wordmark.",

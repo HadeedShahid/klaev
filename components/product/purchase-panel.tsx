@@ -14,7 +14,8 @@ import {
 } from "react";
 
 import { addToCart, type AddToCartState } from "@/app/actions/cart";
-import { notifyCartChanged } from "@/components/site/cart-link";
+import { notifyCartChanged, openCartDrawer } from "@/components/site/cart-link";
+import { FLAGS } from "@/lib/flags";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -46,8 +47,11 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
     latest.current = state;
   });
   useLayoutEffect(() => () => setDismissed(latest.current), []);
+  const buyRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    if (state.status === "added") notifyCartChanged();
+    if (state.status !== "added") return;
+    notifyCartChanged();
+    if (FLAGS.cartDrawer) openCartDrawer(buyRef.current);
   }, [state]);
   const added = state.status === "added" && state !== dismissed;
 
@@ -131,6 +135,7 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
 
       <div
         data-testid="buy-bar"
+        data-fixed-bar
         className={cn(
           "fixed inset-x-0 bottom-0 z-30 border-t border-hairline bg-background px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]",
           "md:static md:border-0 md:bg-transparent md:p-0",
@@ -141,9 +146,12 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
             {added ? (
               <span className="flex flex-col md:flex-row md:gap-2">
                 <span className="font-medium">Added to cart</span>
-                <Link href="/cart" className="text-muted-foreground underline hover:text-foreground">
-                  View cart
-                </Link>
+                {/* With the drawer on, the drawer has the way on. */}
+                {FLAGS.cartDrawer ? null : (
+                  <Link href="/cart" className="text-muted-foreground underline hover:text-foreground">
+                    View cart
+                  </Link>
+                )}
               </span>
             ) : (
               <span className="flex flex-col whitespace-nowrap md:hidden">
@@ -153,6 +161,7 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
             )}
           </div>
           <button
+            ref={buyRef}
             type="submit"
             data-testid="buy-button"
             disabled={soldOut || pending}

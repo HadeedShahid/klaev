@@ -17,7 +17,7 @@ OWN-WORLD: White ground, soft grey panels, near-black ink, one grey for secondar
 
 STORY: The visitor sees the jacket full width, reads the name and price at once, picks a size by chest measurement, sees exactly what cash on delivery costs (total, PKR 2,000 advance, amount on delivery) or that bank transfer delivers free, adds to cart, and finds leather, fit, care and exchanges in plain panels below.
 
-FIRST VIEWPORT: 390 by 844. Slim top bar, wordmark left, cart right. Full-width 4:5 photo, swiped sideways, with a thin position indicator. Under it, the product name and the price. A sticky bottom bar with the price and the primary action is visible from first paint, and it says "Choose a size" until one is chosen.
+FIRST VIEWPORT: 390 by 844. Slim glass top bar, 48px: Shop left, wordmark centred, cart right. Full-width 4:5 photo, swiped sideways, with a thin position indicator. Under it, the product name and the price. A sticky bottom bar with the price and the primary action is visible from first paint, and it says "Choose a size" until one is chosen.
 
 FORM: canon, chosen by the user, quality bar the Apple Store. Seed key 4dd00c55. Signature interaction: the size step. Each size is a card naming its chest range, sold-out sizes stay visible but disabled, and choosing one turns the sticky bar into "Add to cart" with the size named.
 

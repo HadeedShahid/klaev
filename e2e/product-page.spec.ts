@@ -15,11 +15,12 @@ test.describe("product page", () => {
   });
 
   test("keeps the search title and description the Shopify store ranked with", async ({ page }) => {
-    await page.goto("/products/burgundy-cropped-leather-jacket");
-    await expect(page).toHaveTitle("Men’s Burgundy Cropped Leather Jacket | Klaev Pakistan");
+    // Not a page whose stock the checkout tests change (they sell burgundy S and suede XL).
+    await page.goto("/products/black-cropped-leather-jacket");
+    await expect(page).toHaveTitle("Men’s Black Cropped Leather Jacket | Klaev Pakistan");
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       "content",
-      /^Shop Klaev’s men’s burgundy cropped leather jacket, crafted from full-grain sheepskin/,
+      /^Shop Klaev’s men’s black cropped leather jacket, crafted from full-grain sheepskin/,
     );
   });
 
@@ -41,6 +42,14 @@ test.describe("product page", () => {
     await page.goto(LAMBSKIN);
     const sizes = page.getByRole("radiogroup", { name: "Size" });
     await expect(sizes.getByText("Fits chest 38 to 40 in")).toBeVisible();
+  });
+
+  test("the details accordion slides open", async ({ page }) => {
+    await page.goto(CROPPED);
+    const section = page.locator("details").filter({ hasText: "Key features" });
+    await section.getByText("Key features").click();
+    expect(await section.evaluate((element) => element.getAnimations().length)).toBeGreaterThan(0);
+    await expect(section.getByText("Full-grain sheepskin", { exact: false }).first()).toBeVisible();
   });
 
   test("the size guide opens a measurement table", async ({ page }) => {
@@ -107,7 +116,11 @@ test.describe("product page", () => {
     await page.getByRole("radio", { name: /^M\b/ }).check();
     await page.getByTestId("buy-button").filter({ visible: true }).click();
 
-    await expect(page.getByRole("status").filter({ hasText: "Added to cart" })).toBeVisible();
+    // The cart drawer confirms it, with the jacket and its size.
+    await expect(
+      page.getByRole("dialog", { name: "Cart" }).getByRole("listitem").filter({ hasText: "Size M" }),
+    ).toBeVisible();
+    await page.keyboard.press("Escape");
     await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
   });
 

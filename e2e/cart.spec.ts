@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { addToCart } from "./helpers";
+
 const CROPPED = "/products/dark-brown-cropped-sheepskin-leather-jacket";
 const TITLE = "Dark Brown Cropped Sheepskin Leather Jacket";
 
@@ -29,8 +31,7 @@ test.describe("cart", () => {
 
   test("checkout is the way on, and the order can still go on WhatsApp with its contents", async ({ page }) => {
     await page.goto(CROPPED);
-    await page.getByRole("radio", { name: /^M\b/ }).check();
-    await page.getByTestId("buy-button").filter({ visible: true }).click();
+    await addToCart(page, "M");
     await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
 
     await page.goto("/cart");
@@ -46,11 +47,9 @@ test.describe("cart", () => {
 
   test("adding the same size twice raises the quantity", async ({ page }) => {
     await page.goto(CROPPED);
-    await page.getByRole("radio", { name: /^S\b/ }).check();
-    const buy = page.getByTestId("buy-button").filter({ visible: true });
-    await buy.click();
+    await addToCart(page, "S");
     await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
-    await buy.click();
+    await addToCart(page);
     await expect(page.getByRole("link", { name: "Cart, 2 items" })).toBeVisible();
 
     await page.goto("/cart");
@@ -59,8 +58,7 @@ test.describe("cart", () => {
 
   test("removing the last line empties the cart", async ({ page }) => {
     await page.goto(CROPPED);
-    await page.getByRole("radio", { name: /^M\b/ }).check();
-    await page.getByTestId("buy-button").filter({ visible: true }).click();
+    await addToCart(page, "M");
     await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
 
     await page.goto("/cart");
@@ -71,8 +69,7 @@ test.describe("cart", () => {
 
   test("the cart count follows the shopper onto static pages", async ({ page }) => {
     await page.goto(CROPPED);
-    await page.getByRole("radio", { name: /^M\b/ }).check();
-    await page.getByTestId("buy-button").filter({ visible: true }).click();
+    await addToCart(page, "M");
     await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
 
     await page.goto("/");

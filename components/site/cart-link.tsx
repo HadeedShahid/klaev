@@ -5,12 +5,19 @@ import Link from "next/link";
 import { useEffect, useSyncExternalStore } from "react";
 
 import { readCartCount } from "@/lib/cart-codec";
+import { FLAGS } from "@/lib/flags";
 
 const CART_EVENT = "klaev:cart";
+export const OPEN_CART_EVENT = "klaev:open-cart";
 
 // Tells the header to re-read the count cookie after the cart changes.
 export function notifyCartChanged() {
   window.dispatchEvent(new Event(CART_EVENT));
+}
+
+// Opens the cart drawer (components/site/cart-drawer.tsx). Focus returns to `trigger` when it closes.
+export function openCartDrawer(trigger: HTMLElement | null) {
+  window.dispatchEvent(new CustomEvent(OPEN_CART_EVENT, { detail: { trigger } }));
 }
 
 function subscribe(onChange: () => void) {
@@ -38,6 +45,11 @@ export function CartLink() {
   return (
     <Link
       href="/cart"
+      onClick={(event) => {
+        if (!FLAGS.cartDrawer) return;
+        event.preventDefault();
+        openCartDrawer(event.currentTarget);
+      }}
       aria-label={count === null ? "Cart" : itemsLabel(count)}
       className="relative -mr-2 flex size-11 items-center justify-center rounded-full transition-colors hover:bg-accent"
     >

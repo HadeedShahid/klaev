@@ -1,14 +1,20 @@
 import { ChevronDown } from "lucide-react";
 
+import { Disclosure } from "@/components/ui/disclosure";
 import { jacketChest, type SizeGuide as Guide } from "@/lib/sizing";
 
 export function SizeGuide({ guide }: { guide: Guide }) {
   return (
-    <details className="group rounded-xl bg-muted">
-      <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-4 text-sm font-medium">
-        Size guide
-        <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
-      </summary>
+    <Disclosure
+      className="rounded-xl bg-muted"
+      summaryClassName="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-4 text-sm font-medium"
+      summary={
+        <>
+          Size guide
+          <ChevronDown className="disclosure-chevron size-4" aria-hidden />
+        </>
+      }
+    >
       <div className="flex flex-col gap-3 px-4 pb-4">
         <table className="w-full text-left text-sm tabular-nums">
           <thead className="text-muted-foreground">
@@ -57,6 +63,6 @@ export function SizeGuide({ guide }: { guide: Guide }) {
         </table>
         <p className="text-xs text-muted-foreground">{guide.note}</p>
       </div>
-    </details>
+    </Disclosure>
   );
 }

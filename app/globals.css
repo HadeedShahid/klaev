@@ -67,14 +67,26 @@
     @apply font-sans;
     -webkit-tap-highlight-color: transparent;
     text-size-adjust: 100%;
-    /* The sticky header covers the top 56px; focus and anchor jumps stop below it. */
+    /* The sticky header covers the top 48px (52px from tablets); focus and anchor jumps stop below it. */
     scroll-padding-top: 4.5rem;
   }
-  /* A page with a bar fixed to the bottom on phones (checkout) tells the browser the bar covers
-     that strip, so a field focused by keyboard or by script scrolls clear of it. */
+  /* In-page links (See the colours) glide. Next.js still jumps instantly between pages, because the
+     root layout sets data-scroll-behavior="smooth". */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  /* A page with a bar fixed to the bottom on phones (checkout, Add to cart) tells the browser the
+     bar covers that strip, so a field focused by keyboard or by script scrolls clear of it. The
+     footer carries the room for the bar below its last line, so the page itself ends where its
+     content does and no empty strip opens above the footer. */
   @media (width < 48rem) {
     html:has([data-fixed-bar]) {
       scroll-padding-bottom: 7rem;
+    }
+    html:has([data-fixed-bar]) [data-site-footer] {
+      padding-bottom: 7rem;
     }
   }
   body {
@@ -99,8 +111,98 @@
   summary {
     list-style: none;
   }
+  /* The photo viewer fades in and out over the page, which cannot scroll behind it. */
+  .viewer {
+    opacity: 0;
+    transition:
+      opacity 220ms ease,
+      display 220ms allow-discrete,
+      overlay 220ms allow-discrete;
+  }
+  .viewer[open] {
+    opacity: 1;
+  }
+  @starting-style {
+    .viewer[open] {
+      opacity: 0;
+    }
+  }
+  .viewer::backdrop {
+    background-color: var(--background);
+  }
+  html:has(.viewer[open]) {
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .viewer {
+      transition: none;
+    }
+  }
+  /* The cart drawer slides in from the right over a dimmed page. */
+  .cart-drawer {
+    translate: 100% 0;
+    transition:
+      translate 320ms cubic-bezier(0.32, 0.72, 0, 1),
+      display 320ms allow-discrete,
+      overlay 320ms allow-discrete;
+  }
+  .cart-drawer[open] {
+    translate: 0 0;
+  }
+  @starting-style {
+    .cart-drawer[open] {
+      translate: 100% 0;
+    }
+  }
+  .cart-drawer::backdrop {
+    background-color: oklch(0.218 0.004 286 / 0);
+    transition:
+      background-color 320ms ease,
+      display 320ms allow-discrete,
+      overlay 320ms allow-discrete;
+  }
+  .cart-drawer[open]::backdrop {
+    background-color: oklch(0.218 0.004 286 / 0.3);
+  }
+  @starting-style {
+    .cart-drawer[open]::backdrop {
+      background-color: oklch(0.218 0.004 286 / 0);
+    }
+  }
+  html:has(.cart-drawer[open]) {
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cart-drawer,
+    .cart-drawer::backdrop {
+      transition: none;
+    }
+  }
+  .disclosure-chevron {
+    transition: rotate 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  details[open]:not([data-closing]) > summary .disclosure-chevron {
+    rotate: 180deg;
+  }
   summary::-webkit-details-marker {
     display: none;
+  }
+}
+
+/* Frosted glass, for the header and the hero's colour picker: Paper at 78% with a blur, so what
+   passes beneath shows through softly. Solid Paper where the browser can't blur, and for visitors
+   who ask for less transparency. */
+@utility glass {
+  background-color: color-mix(in oklab, var(--background) 78%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  backdrop-filter: blur(20px) saturate(1.8);
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background-color: var(--background);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--background);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 

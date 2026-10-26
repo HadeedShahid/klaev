@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Checkout", robots: { index: false } 
 // bottom always says what to send now, and changes with the way to pay.
 export default function CheckoutPage() {
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-8 px-5 pt-8 pb-36 md:px-8 md:pb-16">
+    <div className="mx-auto flex max-w-xl flex-col gap-8 px-5 pt-8 pb-16 md:px-8">
       <h1 className="text-[2rem] leading-tight font-semibold tracking-tight">Checkout</h1>
       <Suspense fallback={<CheckoutSkeleton />}>
         <CheckoutContents />

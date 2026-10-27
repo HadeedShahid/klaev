@@ -8,8 +8,7 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from
 import { loadCart, removeFromCart } from "@/app/actions/cart";
 import type { CartView } from "@/lib/cart";
 import { formatPKR } from "@/lib/money";
-import { codSummary } from "@/lib/payment";
-import { STORE } from "@/lib/store";
+import { codSummary, type CodTerms } from "@/lib/payment";
 import { pill } from "@/lib/styles";
 
 import { notifyCartChanged, OPEN_CART_EVENT } from "./cart-link";
@@ -18,7 +17,7 @@ import { notifyCartChanged, OPEN_CART_EVENT } from "./cart-link";
 // after Add to cart, loads the cart from the server each time, and closes on Esc, the close button,
 // a tap outside it, or any link inside it. A native modal <dialog>, so focus stays inside. It opens
 // on its title rather than the close button, so a tap doesn't greet the shopper with a focus ring.
-export function CartDrawer() {
+export function CartDrawer({ terms }: { terms: CodTerms }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLElement | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -150,8 +149,8 @@ export function CartDrawer() {
                   </p>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Cash on delivery: send {formatPKR(codSummary(cart.subtotal).advance)} now and pay the rest at the door,
-                  plus {formatPKR(STORE.codDeliveryFee)} delivery. Bank transfer delivers free.
+                  Cash on delivery: send {formatPKR(codSummary(cart.subtotal, { advance: terms.codAdvance, deliveryFee: terms.codDeliveryFee }).advance)} now and pay the
+                  rest at the door, plus {formatPKR(terms.codDeliveryFee)} delivery. Bank transfer delivers free.
                 </p>
                 <Link href="/checkout" onClick={close} className={`${pill} h-14 w-full`}>
                   Checkout

@@ -13,12 +13,12 @@ Klaev sells premium leather jackets and belts in Pakistan. This repo replaces th
 | Advance destination | Your bank account, the same one shown for bank transfers. You'll give the details when checkout is built |
 | COD delivery fee | PKR 900, added at checkout. Free with bank transfer |
 | Courier | PostEx, with no API integration. Tracking numbers are entered by hand. Named only inside the admin, never on the storefront or in customer emails |
-| PostEx fees | About PKR 1,100 per COD parcel and PKR 310 per prepaid (bank transfer) parcel. Klaev pays the 310 because bank transfer delivery is free to the customer |
+| PostEx fees | Paid upfront when a parcel is booked: about PKR 310 for a prepaid (bank transfer) parcel, and about PKR 590 for a COD parcel (delivery plus cash handling). Rates vary with weight and city, so each order's charge starts from a default in Settings and can be changed. When PostEx pays an order's COD cash out, it deducts 4% of the COD amount as tax. Payouts come per order (settled 27 October 2026) |
 | Refunds | Not offered, including for defects |
 | Exchanges | Size exchanges within 7 days of delivery. The customer pays delivery both ways |
 | WhatsApp | +92 323 1483650 |
 | Ads | Meta Pixel and Conversions API built in, switched off until ads run |
-| Admin login | Clerk. One account for now: yours. Staff accounts later |
+| Admin login | A password for the one admin, set with `pnpm admin:password`. Clerk was dropped on 26 October 2026: with one admin it added a dependency and nothing else. Staff accounts later |
 | Custom jackets | In v1 as a WhatsApp or contact-form enquiry. A jacket designer comes later |
 
 ## Stack
@@ -29,7 +29,7 @@ Klaev sells premium leather jackets and belts in Pakistan. This repo replaces th
 | Plan | Workers Paid, $5 a month | The free plan allows 10 ms of CPU per request, which is too little for server rendering |
 | Database | D1 (SQLite) with Drizzle ORM | Included in Workers Paid: 25 billion row reads and 50 million row writes a month |
 | Images and uploads | R2. Product photos are stored ready-sized as WebP, one copy per width the site asks for, so nothing resizes on request | Product photos and bank transfer receipts |
-| Admin login | Clerk, free plan | Prebuilt sign-in and user management, and ready for customer accounts later |
+| Admin login | A password and a signed session cookie, built in | One admin needs nothing more, and nothing extra loads or can break on OpenNext |
 | Email | Resend, templates in React Email | Cloudflare's own sending is still in beta. All mail goes through one `sendEmail()` so switching later is a one-file change |
 | Scheduled jobs | Cron Triggers | Abandoned checkout reminders, daily summary email, nightly analytics rollups |
 | Analytics | Built in: a tiny tracker plus server-side events, stored in D1 | See below |
@@ -42,13 +42,12 @@ Klaev sells premium leather jackets and belts in Pakistan. This repo replaces th
 - It lives inside Cloudflare: no second bill, no connection pooling, no cold connections.
 - Limits to know: 10 GB per database and one write at a time. Neither matters at Klaev's size.
 
-### Clerk
+### Admin sign-in
 
-- Runs only on `/admin`. Storefront pages never load Clerk, so it adds nothing to what shoppers download.
-- The free plan covers 50,000 monthly users, sign-in by emailed code and Google, and up to 3 dashboard seats.
-- What the free plan leaves out: two-factor sign-in (Pro, $25 a month) and removing the "Secured by Clerk" badge from its sign-in screens. Sessions last a fixed 7 days.
-- Users live in Clerk, not D1. Orders and logs store the Clerk user ID.
-- Earlier Clerk problems on OpenNext are fixed. One thing to check on the first deploy: Next 16 runs Clerk's request check in `proxy.ts`, and OpenNext still has open bugs about bundle size there.
+- One password, stored only as a PBKDF2 hash in the `ADMIN_PASSWORD_HASH` Worker secret. `pnpm admin:password` asks for it twice and sets the secret, along with a new `ADMIN_SESSION_SECRET`, which signs everyone out.
+- Signing in sets a signed, HTTP-only cookie for `/admin` that lasts 30 days. Every admin page, action and the receipts route checks it.
+- Five tries a minute per address, through Cloudflare's rate limiting binding.
+- Staff accounts, when they come, need a users table and per-person sessions.
 
 ### Why build analytics in
 
@@ -71,7 +70,7 @@ What the Shopify theme has today, and what the new site does.
 | Cart | Slide-out drawer | Same, and the cart survives a closed tab | v1 |
 | Search | Predictive search in the header, results page with filters | Same, using SQLite full-text search in D1 | v1 |
 | Checkout | Shopify checkout with COD and bank transfer | Our own one-page checkout (see below) | v1 |
-| Order tracking | Shopify customer accounts | Track-your-order page using order number and phone. Shows our own status steps and never names the courier | v1 |
+| Order tracking | Shopify customer accounts | Track-your-order page (`/track`) using order number and phone. Shows our own status steps (placed, confirmed, packed, shipped, delivered) with where the parcel is (booked, in transit, out for delivery, a failed attempt, coming back), and never names the courier | v1, built |
 | Customer accounts | Account menu in the header | Sign in with an emailed code to see past orders. No passwords | Later |
 | Journal | Blog with articles, three shown on home | Same URLs, existing posts carried over, new posts written in admin | v1 |
 | Pages | About, contact form, policies | Same, plus a WhatsApp link on the contact page and in the footer. Contact messages are emailed to you and kept in an admin inbox | v1 |
@@ -126,49 +125,69 @@ The order total never changes, only the split between advance and cash on delive
 
 ## Admin
 
-Lives at `/admin`, with sign-in through Clerk. One account for now: yours. Staff accounts come later.
+Lives at `/admin`, behind the admin password. One account for now: yours. Staff accounts come later.
 
-### Home
+A toned-down Shopify admin, laid out the way Shopify's is so it feels familiar: a sidebar with Home, Orders (Orders, Manual orders, Abandoned checkouts), Products (Products, Collections, Inventory), Customers, Discounts, Content (Journal, FAQ), Analytics, and Settings. Researched against Shopify's admin on 27 October 2026; what was left out, and why, is under "Left out on purpose" below.
 
-- Today at a glance: sales, orders, visitors, conversion rate, each compared with the same day last week.
-- To-do counts: orders to confirm, orders to ship, bank transfers to verify, COD cash still with the courier, low-stock variants.
-- Latest orders.
+### Home (built)
+
+- Sales, orders, cash with the courier and profit for 7, 30 or 90 days, against the period before. A sales chart.
+- Needs action: orders to confirm (with receipts in), to ship, out for over 5 days, courier payouts to record. Recent orders. Sizes on their last piece.
 
 ### Orders
 
-- List with filters: status, payment method, payment status, city, date. Search by order number, name or phone.
-- Order page: items, customer, address, notes, payment ledger, balance due, and a timeline of every change and who made it.
-- Actions: confirm (with a one-tap WhatsApp message to the customer), edit the advance, mark packed, add the PostEx tracking number, mark delivered, cancel, record a payment, start a size exchange, edit items before shipping, print packing slip and invoice.
-- **Manual orders:** enter sales from Instagram or WhatsApp DMs so every sale is in one place.
-- **Abandoned checkouts:** everyone who entered a phone or email and didn't finish, with a one-tap WhatsApp follow-up.
-- CSV export.
+- **List (built):** tabs for All, To confirm, To ship, Shipped, Payout due, Delivered, Cancelled, with counts; search by number, name or phone; paging; CSV export of the tab and search on screen; packing slips for everything waiting to ship, one per page. Bulk "mark packed" is left for later.
+- **Order page (built):** a stepper (placed, advance in or paid, packed, shipped, delivered, paid out), one Update status menu, and Overview, Payments and History tabs. Confirm records the advance or transfer; shipping takes the tracking number and the courier's upfront charge; the courier's payout records what it kept as tax. The advance, contact details, tracking number, courier charge and payments can all be changed or corrected afterwards, and receipts uploaded from the admin.
+- **On the order page (built):**
+  - **Edit items** before it ships: change a size or quantity, add or remove an item. Stock moves by the difference; lines keep their price, added ones take today's, and a percentage code is worked out again.
+  - **Size exchange** after delivery: a linked exchange order ships the new size at no charge for the jacket, for the delivery charge the customer pays (collected at the door). The old jacket goes back into stock when it arrives ("It's back" on the exchange order). No refunds.
+  - **Courier status** while shipped: booked (set on shipping), in transit, out for delivery, delivery attempted, coming back, set by hand from the Update status menu. A parcel that comes back is then marked refused. The customer's order page and the tracking page (`/track`, order number and phone, rate limited) say where it is in their words.
+  - **Packing slip and invoice** to print or save as PDF.
+  - The customer's other orders, and a warning if they refused a delivery before.
+- **Manual orders (built):** sales from WhatsApp, Instagram or in person, entered by hand at the agreed price with any discount and delivery fee. Cash on delivery with its advance, bank transfer, or in person. Money already in confirms it; paid in person is delivered on the spot. Stock is taken, and the customer is matched by phone.
+- **Abandoned checkouts (built):** saved once the phone number is typed at checkout, and listed when no order followed within 10 minutes, with the cart and a one-tap WhatsApp follow-up that's noted as sent. An order from the same phone later takes it off the list. Kept for 30 days.
 
 ### Products
 
-- Products with size and colour variants, SKU (`BELT-{STYLE}-{COLOR}` pattern), price, compare-at price, **cost price**, stock per variant, images, description, SEO title and description, draft or active.
-- Collections, chosen by hand.
-- Stock history: every change and why (sale, return, manual adjustment).
-- Low-stock threshold per variant.
+- **Products:** list with Active, Draft and Archived tabs. The product page holds the title, description sections, photos (uploaded, resized in the browser into the stored WebP widths), price and compare-at (sale) price, cost per item with profit and margin, sizes with SKU and stock, colour, collection, tags, search listing (title, description, a preview), and status. New products can be created and go live without a deploy.
+- **Collections:** chosen by hand, with a title, description and order.
+- **Inventory:** every size's stock. "Restock" asks how many came in and adds them; a count can be corrected by hand. Each product keeps a history of every change and why: restock, correction, sale, cancelled or refused order, exchange.
 
-### Customers
+### Customers (built)
 
-- List: name, phone, email, city, order count, total spent, last order.
-- Customer page: order history, notes, tags, and a flag for refused deliveries (COD risk).
-- Segments: new, repeat, lapsed (no order in a set number of days), refused delivery.
+- List with name, phone, city, segment, orders, total spent and last order. Search by name, phone or email. Tabs for the segments: first-time, repeat, lapsed (no order in 90 days), refused a delivery.
+- Customer page: orders, spend, average order and since when; contact details and notes and tags, each editable; WhatsApp. A refused delivery shows as a flag here, and on every later order's page ("Refused a delivery before"), so a risky COD order gets a call first.
+- A returning customer is matched by email, or else by phone, however it was typed, so a new email doesn't make a new customer. Orders keep the details they were placed with. Migration 0007 linked past orders that had no customer (Shopify guest checkouts) the same way, making a customer from the latest order where none existed.
 
-### Discounts
+### Discounts (built)
 
-- Codes: percentage off, fixed PKR off, free delivery. Minimum order, usage limits, start and end dates, one use per customer.
-- Automatic discounts: later.
+- **Codes** typed at checkout: a percentage or fixed amount off the items, or free delivery. Optional minimum order, start and end dates (whole days, Pakistan time), total uses, and one use per customer (by phone). Checkout has a discount code field with Apply; placing the order checks the code again. Cancelled orders give their use back. A code that orders used keeps its name and can only be turned off, not removed. The list shows each code's status (Active, Scheduled, Ended, Used up, Off), uses, and how much it gave off.
+- **Sale prices:** a compare-at price on a product shows the old price crossed out across the store.
+- Automatic discounts and buy-X-get-Y: later.
 
-### Content
+### Content (built)
 
-- Editable in admin: announcement bar, FAQ, policy pages, journal posts, featured products on home.
-- The home page layout itself stays in code.
+- **Journal:** articles with a title, summary, body, cover photo, publish date (a later date waits until then) and search listing, at `/blogs/blog/<address>`, the Shopify journal's address. The body is plain text: a blank line starts a paragraph, `## ` a heading, `- ` a list. The store has the journal page, each article (with BlogPosting structured data), and a footer link. Not yet: the Shopify articles themselves (the export was deleted after the import, so they need exporting again or copying across), a journal strip on the home page, and a sitemap.
+- **FAQ:** the home page questions, edited, reordered, added or removed in the admin. `{advance}`, `{cod_fee}` and `{exchange_days}` show the current terms, so answers never disagree with checkout.
+
+### Analytics
+
+- A link in the sidebar now; the screens below come later.
 
 ### Settings
 
-- Store details, bank account shown at checkout, COD delivery fee (PKR 900), default COD advance (PKR 2,000), exchange delivery fee, PostEx fees per parcel, WhatsApp number (+92 323 1483650), Meta Pixel on or off, email sender.
+- **Courier (built):** upfront charge per prepaid and per COD parcel, and the tax kept from COD cash.
+- **Checkout (built):** the COD delivery fee and the default advance. Product pages, the cart, checkout, the FAQ and new orders use them.
+- **Bank account (built):** shown to customers on their order page.
+- **Password (built):** changed from Settings, which signs out every other device. `pnpm admin:password` still sets one from the terminal and clears the one set in Settings, so it's the way back in if the password is lost.
+- **Store details:** shown read-only. The WhatsApp number, email and Instagram are on every page and in client code, so they change in `lib/store.ts` with a deploy.
+
+### Left out on purpose
+
+- Purchase orders and transfers: stock arrives as a restock, and there is one location.
+- Gift cards, refunds, markets and multiple currencies, sales channels, B2B, POS.
+- Order tags and staff comments on the timeline (the note covers it), archiving, fraud analysis.
+- Barcodes, weights, vendors and smart (rule-based) collections.
 
 ## Analytics screens
 
@@ -204,7 +223,7 @@ Each step shows its count and the drop-off. The last two steps matter most for C
 - **Customers:** new against returning, repeat purchase rate, time between orders, lapsed customers (churn), and monthly cohorts (of people who first bought in a month, how many came back).
 - **Behaviour:** top landing pages, exit pages, products viewed often but rarely bought, searches with no results.
 - **Operations:** cancellation rate, refused-delivery rate by city, average days to deliver, COD cash pending with the courier.
-- **Profit:** revenue minus product cost and PostEx fees, per order and per month. Replaces the Google Sheet. Each order's PostEx fee starts from the default in Settings (about PKR 1,100 for COD, PKR 310 for prepaid) and can be edited, since the real charge varies by parcel.
+- **Profit:** revenue minus product cost, the PostEx charge and the 4% COD tax, per order and per month. Replaces the Google Sheet. Each order's PostEx charge starts from the default in Settings (about PKR 590 for COD, PKR 310 for prepaid) and can be edited, since the real charge varies by parcel.
 - Every report exports to CSV.
 
 Raw events are stored as they happen and rolled up nightly into daily summary tables, so the screens stay fast as data grows.
@@ -276,7 +295,7 @@ Many customers in Pakistan don't read email, so confirming by WhatsApp is a one-
 - Automated WhatsApp or SMS (one-tap manual messages first).
 - A PostEx integration. Book parcels in the PostEx portal and enter the tracking number on the order. The customer's tracking page shows the statuses you set.
 - Staff accounts.
-- Two-factor sign-in for the admin. It needs Clerk Pro.
+- Two-factor sign-in for the admin.
 
 ## Moving off Shopify
 
@@ -294,5 +313,5 @@ Settled while building checkout (25 October 2026):
 - The bank account shown for transfers and the COD advance is HBL, in the database's settings, not in the code.
 - Checkout is one scrolling page with the place-order bar fixed at the bottom, saying what to send now.
 - The receipt screenshot is uploaded after the order is placed, from the order page, with WhatsApp as the other way. Receipts are kept in a private R2 bucket.
-- No discount code field until the admin can create codes.
+- The discount code field came once the admin could create codes (27 October 2026).
 - An order takes its stock when it is placed. When that sells out a size, every cached page refreshes.

@@ -93,8 +93,12 @@ export const DEV_SETTINGS = {
 };
 
 export function devSettingsStatements(): string[] {
-  return Object.entries(DEV_SETTINGS).map(
-    ([key, value]) =>
-      `INSERT INTO settings (key, value) VALUES (${literal(key)}, ${literal(value)}) ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
-  );
+  return [
+    ...Object.entries(DEV_SETTINGS).map(
+      ([key, value]) =>
+        `INSERT INTO settings (key, value) VALUES (${literal(key)}, ${literal(value)}) ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+    ),
+    // A discount code to try at checkout. The end-to-end tests use it, one order per phone.
+    "INSERT INTO discounts (code, kind, value, once_per_customer) VALUES ('WELCOME10', 'percent', 10, 1) ON CONFLICT(code) DO NOTHING",
+  ];
 }

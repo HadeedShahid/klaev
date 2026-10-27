@@ -8,22 +8,14 @@ import { ReceiptUpload } from "@/components/orders/receipt-upload";
 import { CartCountSync } from "@/components/site/cart-link";
 import { getDb } from "@/lib/db";
 import { formatPKR } from "@/lib/money";
-import { getOrderByToken, type OrderView } from "@/lib/orders";
+import { getOrderByToken } from "@/lib/orders";
+import { statusLine } from "@/lib/order-status";
 import { formatPhone } from "@/lib/phone";
 import { getBankAccount, type BankAccount } from "@/lib/settings";
 import { STORE, whatsappLink } from "@/lib/store";
 
 // The link is the customer's key to the order, so the page is never cached or indexed.
 export const metadata: Metadata = { title: "Your order", robots: { index: false, follow: false } };
-
-const STATUS_LINES: Record<Exclude<OrderView["status"], "pending">, string> = {
-  confirmed: "Confirmed. We're getting it ready to send.",
-  packed: "Confirmed and packed. It goes out with the next pickup.",
-  shipped: `On its way. Most orders arrive in ${STORE.deliveryDays} days.`,
-  delivered: "Delivered. Thank you for buying from Klaev.",
-  cancelled: "This order was cancelled.",
-  refused: "This order came back to us undelivered.",
-};
 
 export default async function OrderPage({ params }: PageProps<"/orders/[token]">) {
   await connection();
@@ -34,8 +26,7 @@ export default async function OrderPage({ params }: PageProps<"/orders/[token]">
 
   const cod = order.paymentMethod === "cod";
   const sendNow = cod ? order.advance : order.total;
-  const statusLine = order.status === "pending" ? null : STATUS_LINES[order.status];
-  const waiting = statusLine === null;
+  const waiting = order.status === "pending";
   const received = order.receipts.length > 0;
   const whatsappHref = whatsappLink(`Hi Klaev, here is the payment screenshot for order #${order.number}.`);
 
@@ -80,7 +71,14 @@ export default async function OrderPage({ params }: PageProps<"/orders/[token]">
             </p>
           </div>
         ) : (
-          <p className="text-lg text-muted-foreground text-balance">{statusLine}</p>
+          <div data-testid="order-lead" className="flex flex-col gap-1 text-lg text-muted-foreground text-balance">
+            <p>{statusLine(order)}</p>
+            {order.status === "shipped" && order.trackingNumber ? (
+              <p className="text-sm">
+                Tracking number <span className="font-medium text-foreground tabular-nums">{order.trackingNumber}</span>
+              </p>
+            ) : null}
+          </div>
         )}
       </div>
 
@@ -106,7 +104,7 @@ export default async function OrderPage({ params }: PageProps<"/orders/[token]">
           {order.discountTotal > 0 ? (
             <>
               <dt className="text-muted-foreground">Discount{order.discountCode ? ` (${order.discountCode})` : ""}</dt>
-              <dd className="text-right">-{formatPKR(order.discountTotal)}</dd>
+              <dd className="text-right">−{formatPKR(order.discountTotal)}</dd>
             </>
           ) : null}
           <dt className="text-muted-foreground">Delivery{cod ? ", cash on delivery" : ", bank transfer"}</dt>

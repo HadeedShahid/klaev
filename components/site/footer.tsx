@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { STORE, whatsappLink } from "@/lib/store";
 
 export function SiteFooter() {
@@ -10,6 +12,12 @@ export function SiteFooter() {
         </div>
         <div className="flex flex-col gap-2">
           <p className="font-medium text-foreground">Help</p>
+          <Link className="hover:text-foreground hover:underline" href="/track">
+            Track your order
+          </Link>
+          <Link className="hover:text-foreground hover:underline" href="/blogs/blog">
+            Journal
+          </Link>
           <a className="hover:text-foreground hover:underline" href={whatsappLink()}>
             WhatsApp {STORE.whatsappDisplay}
           </a>

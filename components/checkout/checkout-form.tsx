@@ -3,19 +3,20 @@
 import Link from "next/link";
 import { startTransition, useActionState, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 
-import { checkout, type CheckoutState } from "@/app/actions/checkout";
+import { applyDiscount, checkout, saveCheckoutDraft, type AppliedDiscount, type CheckoutState } from "@/app/actions/checkout";
 import { ExchangeTerms } from "@/components/site/exchange-terms";
 import type { CheckoutField, PaymentChoice } from "@/lib/checkout";
 import { CITIES } from "@/lib/cities";
 import { formatPKR } from "@/lib/money";
-import { bankTransferSummary, codSummary } from "@/lib/payment";
+import { bankTransferSummary, codSummary, type CodTerms } from "@/lib/payment";
 import { STORE } from "@/lib/store";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
-export function CheckoutForm({ subtotal }: { subtotal: number }) {
+export function CheckoutForm({ subtotal, terms }: { subtotal: number; terms: CodTerms }) {
   const [state, formAction, pending] = useActionState<CheckoutState, FormData>(checkout, {});
   const [payment, setPayment] = useState<PaymentChoice>("cod");
+  const [discount, setDiscount] = useState<AppliedDiscount | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const id = useId();
 
@@ -24,6 +25,22 @@ export function CheckoutForm({ subtotal }: { subtotal: number }) {
     formRef.current?.querySelector<HTMLElement>("[aria-invalid='true'], [role='alert']")?.focus();
   }, [state]);
 
+  // Once the phone number is in, what's typed is saved as the shopper leaves each field, so Klaev
+  // can follow up on WhatsApp if the order isn't placed. Only changes are sent.
+  const saved = useRef("");
+  function saveDraft(form: HTMLFormElement) {
+    const data = new FormData(form);
+    const fields = { name: "", email: "", phone: "", city: "", address: "" };
+    for (const key of Object.keys(fields) as (keyof typeof fields)[]) fields[key] = String(data.get(key) ?? "");
+    if (fields.phone.replace(/\D/g, "").length < 10) return;
+    const snapshot = JSON.stringify(fields);
+    if (snapshot === saved.current) return;
+    saved.current = snapshot;
+    saveCheckoutDraft(fields).catch(() => {
+      saved.current = "";
+    });
+  }
+
   // Submitted through a transition rather than the form's action, so React keeps what was typed.
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,12 +48,13 @@ export function CheckoutForm({ subtotal }: { subtotal: number }) {
     startTransition(() => formAction(data));
   }
 
-  const cod = codSummary(subtotal);
-  const bank = bankTransferSummary(subtotal);
+  const off = discount?.amount ?? 0;
+  const cod = codSummary(subtotal, { discount: off, advance: terms.codAdvance, deliveryFee: discount?.freeDelivery ? 0 : terms.codDeliveryFee });
+  const bank = bankTransferSummary(subtotal, off);
   const field = (name: CheckoutField) => ({ name, id: `${id}-${name}`, error: state.errors?.[name], value: state.fields?.[name] });
 
   return (
-    <form ref={formRef} action={formAction} onSubmit={submit} noValidate className="flex flex-col gap-10">
+    <form ref={formRef} action={formAction} onSubmit={submit} onBlur={(event) => saveDraft(event.currentTarget)} noValidate className="flex flex-col gap-10">
       {state.message ? (
         <div role="alert" tabIndex={-1} className="flex flex-col gap-2 rounded-2xl bg-muted p-4 text-sm outline-none">
           <p className="font-medium">{state.message}</p>
@@ -83,7 +101,7 @@ export function CheckoutForm({ subtotal }: { subtotal: number }) {
             checked={payment === "cod"}
             onChange={setPayment}
             title="Cash on delivery"
-            note={`${formatPKR(cod.deliveryFee)} delivery`}
+            note={cod.deliveryFee ? `${formatPKR(cod.deliveryFee)} delivery` : "Free delivery"}
             total={cod.total}
           />
           <PaymentCard
@@ -97,11 +115,21 @@ export function CheckoutForm({ subtotal }: { subtotal: number }) {
         </div>
         {state.errors?.payment ? <p className="text-sm text-destructive">{state.errors.payment}</p> : null}
 
+        <DiscountCode id={`${id}-discount`} applied={discount} onChange={setDiscount} />
+
         <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 rounded-2xl bg-muted p-4 text-sm tabular-nums">
           <dt className="text-muted-foreground">Subtotal</dt>
           <dd className="text-right">{formatPKR(subtotal)}</dd>
+          {off > 0 ? (
+            <>
+              <dt className="text-muted-foreground">Discount ({discount?.code})</dt>
+              <dd data-testid="checkout-discount" className="text-right">
+                −{formatPKR(off)}
+              </dd>
+            </>
+          ) : null}
           <dt className="text-muted-foreground">Delivery</dt>
-          <dd className="text-right">{payment === "cod" ? formatPKR(cod.deliveryFee) : "Free"}</dd>
+          <dd className="text-right">{payment === "cod" && cod.deliveryFee ? formatPKR(cod.deliveryFee) : "Free"}</dd>
           <dt className="font-medium">Total</dt>
           <dd className="text-right font-medium">{formatPKR(payment === "cod" ? cod.total : bank.total)}</dd>
           <div className="col-span-2 my-1 h-px bg-hairline" />
@@ -144,6 +172,83 @@ export function CheckoutForm({ subtotal }: { subtotal: number }) {
         </div>
       </div>
     </form>
+  );
+}
+
+// A code typed and applied here; only an applied code goes with the order. The field is read when
+// Apply is pressed, so a code typed while the page was still loading counts too.
+function DiscountCode({ id, applied, onChange }: { id: string; applied: AppliedDiscount | null; onChange: (discount: AppliedDiscount | null) => void }) {
+  const input = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
+
+  async function apply() {
+    const typed = input.current?.value ?? "";
+    if (!typed.trim()) return setError("Enter a code.");
+    setChecking(true);
+    const result = await applyDiscount(typed);
+    setChecking(false);
+    if (result.ok) {
+      onChange(result.discount);
+      setError(null);
+    } else {
+      setError(result.message);
+    }
+  }
+
+  if (applied) {
+    return (
+      <div className="flex min-h-12 items-center justify-between gap-4 rounded-xl border border-border px-4 py-2">
+        <input type="hidden" name="discountCode" value={applied.code} />
+        <p className="flex flex-col text-sm">
+          <span className="font-medium tracking-wide">{applied.code}</span>
+          <span className="text-xs text-muted-foreground">{applied.label}</span>
+        </p>
+        <button type="button" onClick={() => onChange(null)} className="text-sm underline underline-offset-[0.2em] hover:no-underline">
+          Remove
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-[0.9375rem] font-medium">
+        Discount code
+      </label>
+      <div className="flex gap-2">
+        <input
+          ref={input}
+          id={id}
+          // Enter applies the code here; it never places the order.
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              void apply();
+            }
+          }}
+          autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className={cn(control, "h-12 min-w-0 flex-1 uppercase placeholder:normal-case")}
+        />
+        <button
+          type="button"
+          onClick={() => void apply()}
+          disabled={checking}
+          className="h-12 shrink-0 rounded-full border border-border px-5 text-sm font-medium transition-colors hover:bg-muted disabled:text-muted-foreground"
+        >
+          {checking ? "Checking" : "Apply"}
+        </button>
+      </div>
+      {error ? (
+        <p id={`${id}-error`} role="status" className="text-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

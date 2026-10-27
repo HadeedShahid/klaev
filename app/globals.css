@@ -26,6 +26,17 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -57,6 +68,57 @@
   --input: oklch(0.87 0.0056 286);
   --ring: oklch(0.218 0.004 286);
   --radius: 0.75rem;
+  /* The admin: a Panel Grey sidebar holding the work area as a Paper sheet, and charts in Ink
+     and two greys. */
+  --sidebar: oklch(0.97 0.0016 286);
+  --sidebar-foreground: oklch(0.218 0.004 286);
+  --sidebar-primary: oklch(0.218 0.004 286);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.93 0.003 286);
+  --sidebar-accent-foreground: oklch(0.218 0.004 286);
+  --sidebar-border: oklch(0.925 0.003 286);
+  --sidebar-ring: oklch(0.218 0.004 286);
+  --chart-1: oklch(0.218 0.004 286);
+  --chart-2: oklch(0.52 0.008 286);
+  --chart-3: oklch(0.87 0.0056 286);
+}
+
+/* The admin at night (it alone ever carries .dark; the storefront stays white). The same cool
+   near-neutral greys with the steps turned over: a darker ground holds a lifted work sheet, menus
+   and dialogs sit a step above it, and Ink becomes the light pill, still the one primary and still
+   what needs you. Text holds at least 6:1 on every surface. */
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.185 0.004 286);
+  --foreground: oklch(0.955 0.002 286);
+  --card: oklch(0.185 0.004 286);
+  --card-foreground: oklch(0.955 0.002 286);
+  --popover: oklch(0.215 0.004 286);
+  --popover-foreground: oklch(0.955 0.002 286);
+  --primary: oklch(0.955 0.002 286);
+  --primary-foreground: oklch(0.2 0.004 286);
+  --secondary: oklch(0.245 0.004 286);
+  --secondary-foreground: oklch(0.955 0.002 286);
+  --muted: oklch(0.245 0.004 286);
+  --muted-foreground: oklch(0.71 0.008 286);
+  --accent: oklch(0.285 0.005 286);
+  --accent-foreground: oklch(0.955 0.002 286);
+  --destructive: oklch(0.7 0.18 25);
+  --border: oklch(0.38 0.006 286);
+  --hairline: oklch(0.275 0.005 286);
+  --input: oklch(0.38 0.006 286);
+  --ring: oklch(0.955 0.002 286);
+  --sidebar: oklch(0.145 0.003 286);
+  --sidebar-foreground: oklch(0.955 0.002 286);
+  --sidebar-primary: oklch(0.955 0.002 286);
+  --sidebar-primary-foreground: oklch(0.2 0.004 286);
+  --sidebar-accent: oklch(0.255 0.004 286);
+  --sidebar-accent-foreground: oklch(0.955 0.002 286);
+  --sidebar-border: oklch(0.255 0.004 286);
+  --sidebar-ring: oklch(0.955 0.002 286);
+  --chart-1: oklch(0.955 0.002 286);
+  --chart-2: oklch(0.71 0.008 286);
+  --chart-3: oklch(0.38 0.006 286);
 }
 
 @layer base {
@@ -69,6 +131,10 @@
     text-size-adjust: 100%;
     /* The sticky header covers the top 48px (52px from tablets); focus and anchor jumps stop below it. */
     scroll-padding-top: 4.5rem;
+  }
+  /* Nothing in the admin sticks to the top, so its jumps need no room cleared above them. */
+  html:has([data-admin]) {
+    scroll-padding-top: 0;
   }
   /* In-page links (See the colours) glide. Next.js still jumps instantly between pages, because the
      root layout sets data-scroll-behavior="smooth". */

@@ -1,10 +1,10 @@
 import { formatPKR } from "@/lib/money";
-import { bankTransferSummary, codSummary } from "@/lib/payment";
+import { bankTransferSummary, codSummary, type CodTerms } from "@/lib/payment";
 import { cn } from "@/lib/utils";
 
 // The two ways to pay, with the real numbers for this amount. Shared by the product page and the cart.
 // `id` must be unique per page: Next.js keeps recently visited pages mounted, hidden, in the same document.
-export function PaymentOptions({ id, subtotal }: { id: string; subtotal: number }) {
+export function PaymentOptions({ id, subtotal, terms }: { id: string; subtotal: number; terms: CodTerms }) {
   const headingId = `how-you-pay-${id}`;
 
   return (
@@ -12,14 +12,14 @@ export function PaymentOptions({ id, subtotal }: { id: string; subtotal: number 
       <h2 id={headingId} className="text-[0.9375rem] font-medium">
         How you pay
       </h2>
-      <PaymentBreakdown subtotal={subtotal} />
+      <PaymentBreakdown subtotal={subtotal} terms={terms} />
     </section>
   );
 }
 
 // The panel on its own, for pages that give it their own heading (the landing page).
-export function PaymentBreakdown({ subtotal, className }: { subtotal: number; className?: string }) {
-  const cod = codSummary(subtotal);
+export function PaymentBreakdown({ subtotal, terms, className }: { subtotal: number; terms: CodTerms; className?: string }) {
+  const cod = codSummary(subtotal, { advance: terms.codAdvance, deliveryFee: terms.codDeliveryFee });
   const bank = bankTransferSummary(subtotal);
 
   return (

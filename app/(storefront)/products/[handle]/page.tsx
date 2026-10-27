@@ -11,14 +11,18 @@ import { PurchasePanel } from "@/components/product/purchase-panel";
 import { SizeGuide } from "@/components/product/size-guide";
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
 import { getCollection, getProduct, getProducts, getRelatedProducts, type Product } from "@/lib/catalog";
+import { Price } from "@/components/product/price";
 import { formatPKR } from "@/lib/money";
 import { codSummary } from "@/lib/payment";
+import { getCodTerms } from "@/lib/settings";
 import { sizeMeasurement } from "@/lib/sizing";
 
 // Live handles are listed at build so their pages never expire. Deploys don't upload the built
 // pages (AGENTS.md), so each one renders on the Worker from the database on its first visit after
-// a deploy and is served from the R2 cache after that. Any other handle is a real 404.
-export const dynamicParams = false;
+// a deploy and is served from the R2 cache after that. A product created in the admin since the
+// last deploy isn't in that list, so its page renders on request until the next deploy lists it.
+// Unknown and draft handles are a real 404 either way: the page checks the handle first.
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const products = await getProducts();
@@ -51,6 +55,7 @@ export default async function ProductPage({ params }: PageProps<"/products/[hand
 }
 
 async function ProductView({ product }: { product: Product }) {
+  const terms = await getCodTerms();
   const [related, collection] = await Promise.all([getRelatedProducts(product.handle), getCollection(product.collection)]);
   const trail = [
     { name: "Home", href: "/" },
@@ -78,21 +83,21 @@ async function ProductView({ product }: { product: Product }) {
             <h1 className="text-[1.75rem] leading-[1.15] font-semibold tracking-tight text-balance md:text-4xl">
               {product.title}
             </h1>
-            <p data-testid="product-price" className="text-xl font-medium tabular-nums">
-              {formatPKR(product.price)}
+            <p data-testid="product-price" className="text-xl font-medium">
+              <Price price={product.price} compareAt={product.compareAtPrice} />
             </p>
             {product.tagline ? <p className="text-muted-foreground">{product.tagline}</p> : null}
           </div>
 
           <PurchasePanel
             price={formatPKR(product.price)}
-            confirmNow={formatPKR(codSummary(product.price).advance)}
+            confirmNow={formatPKR(codSummary(product.price, { advance: terms.codAdvance, deliveryFee: terms.codDeliveryFee }).advance)}
             sizes={sizes}
             singleVariant={single ? { variantId: single.id, available: single.available } : null}
             sizeGuide={product.sizeGuide ? <SizeGuide guide={product.sizeGuide} /> : null}
           />
 
-          <PaymentOptions id={product.handle} subtotal={product.price} />
+          <PaymentOptions id={product.handle} subtotal={product.price} terms={terms} />
           <Assurances productTitle={product.title} />
           <ProductDetails intro={product.intro} sections={product.sections} />
         </div>

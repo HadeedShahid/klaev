@@ -6,6 +6,7 @@ import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { OrderLines } from "@/components/checkout/order-lines";
 import { CartCountSync } from "@/components/site/cart-link";
 import { getCartView } from "@/lib/cart";
+import { getCodTerms } from "@/lib/settings";
 import { pill } from "@/lib/styles";
 
 export const metadata: Metadata = { title: "Checkout", robots: { index: false } };
@@ -50,7 +51,7 @@ async function CheckoutContents() {
           image: line.image,
         }))}
       />
-      <CheckoutForm subtotal={cart.subtotal} />
+      <CheckoutForm subtotal={cart.subtotal} terms={await getCodTerms()} />
     </>
   );
 }

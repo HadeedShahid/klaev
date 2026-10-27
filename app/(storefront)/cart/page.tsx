@@ -6,6 +6,7 @@ import { Suspense } from "react";
 
 import { removeFromCart } from "@/app/actions/cart";
 import { PaymentOptions } from "@/components/product/payment-options";
+import { getCodTerms } from "@/lib/settings";
 import { CartCountSync } from "@/components/site/cart-link";
 import { ExchangeTerms } from "@/components/site/exchange-terms";
 import { getCartView } from "@/lib/cart";
@@ -95,7 +96,7 @@ async function CartContents() {
         </p>
       </div>
 
-      <PaymentOptions id="cart" subtotal={cart.subtotal} />
+      <PaymentOptions id="cart" subtotal={cart.subtotal} terms={await getCodTerms()} />
       <ExchangeTerms />
 
       <div className="flex flex-col items-center gap-2">

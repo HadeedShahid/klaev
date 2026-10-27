@@ -43,6 +43,26 @@
 			// Bank transfer receipts customers upload. Private: no public URL.
 			"binding": "RECEIPTS",
 			"bucket_name": "klaev-receipts"
+		},
+		{
+			// Product photos (lib/media.ts). The store reads them from the bucket's public address;
+			// the admin writes new ones through this binding.
+			"binding": "MEDIA",
+			"bucket_name": "klaev-media"
+		}
+	],
+	// Sign-in tries per address on /admin/login (lib/admin/auth.ts). The period is 10 or 60 seconds.
+	"ratelimits": [
+		{
+			"name": "ADMIN_SIGN_IN_LIMITER",
+			"namespace_id": "1001",
+			"simple": { "limit": 5, "period": 60 }
+		},
+		// Order lookups on /track: enough for a customer, too few to guess numbers and phones.
+		{
+			"name": "TRACK_LIMITER",
+			"namespace_id": "1002",
+			"simple": { "limit": 10, "period": 60 }
 		}
 	],
 	"observability": {

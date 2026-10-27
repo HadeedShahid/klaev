@@ -8,14 +8,16 @@ export type Crumb = { name: string; href: string };
 
 // Where the page sits in the shop. From tablets up the trail leads the page, top left; on phones it
 // closes the page, above the footer, so the first screen stays the product's. Render it once with
-// each placement; only one shows at a time. The last crumb is the page itself.
-export function Breadcrumbs({ trail, placement }: { trail: Crumb[]; placement: "top" | "bottom" }) {
+// each placement; only one shows at a time. The last crumb is the page itself. Inside a column that
+// has its own padding (a journal article), `className` drops the trail's.
+export function Breadcrumbs({ trail, placement, className }: { trail: Crumb[]; placement: "top" | "bottom"; className?: string }) {
   return (
     <nav
       aria-label="Breadcrumb"
       className={cn(
         "mx-auto w-full max-w-6xl text-sm",
         placement === "top" ? "hidden px-8 pt-6 md:block" : "border-t border-hairline px-5 py-5 md:hidden",
+        className,
       )}
     >
       <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1">

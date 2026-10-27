@@ -23,7 +23,7 @@ export type Variant = {
 export type Product = {
   handle: string;
   // Drafts stay in the database but are never shown or sold. Belts are drafts until they launch.
-  status: "active" | "draft";
+  status: "active" | "draft" | "archived";
   title: string;
   collection: string;
   price: number;

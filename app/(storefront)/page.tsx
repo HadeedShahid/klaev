@@ -7,7 +7,8 @@ import { Hero } from "@/components/home/hero";
 import { StorySection } from "@/components/home/story";
 import { ExchangeTerms } from "@/components/site/exchange-terms";
 import { PaymentBreakdown } from "@/components/product/payment-options";
-import { HOME_FAQ } from "@/data/home-faq";
+import { fillFaq, getFaq } from "@/lib/faq";
+import { getCodTerms } from "@/lib/settings";
 import { getCollection, getProduct, type Product } from "@/lib/catalog";
 import { formatPKR } from "@/lib/money";
 import { jacketChest } from "@/lib/sizing";
@@ -23,11 +24,13 @@ function priceLabel(products: Product[]) {
 // The landing page tells the cropped jacket's story: what it is, then the four doubts a
 // cash-on-delivery buyer has, one section each. Everything here is cached, so it is all static shell.
 export default async function HomePage() {
-  const [cropped, lambskin, suede, darkBrown] = await Promise.all([
+  const [cropped, lambskin, suede, darkBrown, terms, faq] = await Promise.all([
     getCollection("cropped-leather-jackets"),
     getCollection("leather-jackets"),
     getProduct("black-suede-jacket"),
     getProduct("dark-brown-cropped-sheepskin-leather-jacket"),
+    getCodTerms(),
+    getFaq(),
   ]);
   // The hero wears the black jacket, so black leads the colour cards.
   const croppedItems = [...(cropped?.items ?? [])].sort(
@@ -105,7 +108,7 @@ export default async function HomePage() {
       <StorySection id="pay" title="How you pay.">
         <p>For a {formatPKR(croppedPrice)} cropped jacket:</p>
         <div className="flex w-full max-w-md flex-col gap-3">
-          <PaymentBreakdown subtotal={croppedPrice} className="text-[0.9375rem]" />
+          <PaymentBreakdown subtotal={croppedPrice} terms={terms} className="text-[0.9375rem]" />
           <ExchangeTerms />
         </div>
       </StorySection>
@@ -146,7 +149,7 @@ export default async function HomePage() {
         </a>
       </section>
 
-      <Faq items={HOME_FAQ} />
+      <Faq items={fillFaq(faq, terms)} />
     </div>
   );
 }

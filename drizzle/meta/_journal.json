@@ -22,6 +22,55 @@
       "when": 1792926350656,
       "tag": "0002_page_revalidations",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1793028008558,
+      "tag": "0003_order_milestones",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1793086079699,
+      "tag": "0004_courier_payouts",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1793089363345,
+      "tag": "0005_stock_history",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1793091904114,
+      "tag": "0006_discounts",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1793092886501,
+      "tag": "0007_link_orders_to_customers",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1793093189128,
+      "tag": "0008_order_extras",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1793094926500,
+      "tag": "0009_journal",
+      "breakpoints": true
     }
   ]
 }

@@ -20,7 +20,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-PK" data-scroll-behavior="smooth" className={`${geist.variable} h-full antialiased`}>
+    // The admin's theme script may add "dark" before React hydrates (app/admin/layout.tsx).
+    <html lang="en-PK" data-scroll-behavior="smooth" className={`${geist.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );

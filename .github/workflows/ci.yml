@@ -43,6 +43,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium webkit
+      # The admin tests sign in with the local test password (.dev.vars.example).
+      - run: cp .dev.vars.example .dev.vars
       - run: pnpm db:setup
       - run: pnpm test:e2e
       - uses: actions/upload-artifact@v7

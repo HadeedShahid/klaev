@@ -1,0 +1,5 @@
+# Local development and end-to-end tests only. Copy to .dev.vars (git ignores it).
+# The admin password here is "local-admin-password" (e2e/admin.spec.ts signs in with it).
+# The live store's password is set with `pnpm admin:password` and never written to a file.
+ADMIN_PASSWORD_HASH='pbkdf2-sha256$100000$QIImdXir-6ggwWm_cdn3Gw$mybLWuqbYBe9WvreogMJ6EJvAj0qvyWgB-eEhi3PaPU'
+ADMIN_SESSION_SECRET='local-session-secret-for-development-only'

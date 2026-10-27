@@ -1,9 +1,10 @@
 import "server-only";
 
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 
 import { getVariant } from "./catalog";
 import { CART_COOKIE, CART_COUNT_COOKIE, cartCount, decodeCart, encodeCart, type CartLine } from "./cart-codec";
+import { isLocalRequest } from "./request";
 
 export type CartView = {
   lines: {
@@ -24,13 +25,6 @@ const THIRTY_DAYS = 60 * 60 * 24 * 30;
 
 export async function readCart(): Promise<CartLine[]> {
   return decodeCart((await cookies()).get(CART_COOKIE)?.value);
-}
-
-// Secure everywhere except plain-http local addresses, where Safari would drop a Secure cookie
-// (the dev server and the local Cloudflare preview both run on http://localhost).
-async function isLocalRequest() {
-  const host = (await headers()).get("host") ?? "";
-  return /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host);
 }
 
 export async function writeCart(lines: CartLine[]) {

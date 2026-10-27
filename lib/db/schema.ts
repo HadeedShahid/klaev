@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { check, index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { check, index, integer, sqliteTable, text, type AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 
 import type { SizeGuide } from "../sizing";
 
@@ -31,8 +31,9 @@ export const products = sqliteTable(
   {
     id: integer().primaryKey({ autoIncrement: true }),
     handle: text().notNull().unique(),
-    // Drafts are kept but never shown or sold. Belts are drafts until they launch.
-    status: text({ enum: ["active", "draft"] }).notNull().default("draft"),
+    // Drafts are kept but never shown or sold (belts are drafts until they launch). Archived products
+    // are retired: hidden from the store and from the admin's working lists.
+    status: text({ enum: ["active", "draft", "archived"] }).notNull().default("draft"),
     title: text().notNull(),
     collectionHandle: text()
       .notNull()
@@ -121,6 +122,8 @@ export const customers = sqliteTable(
 
 // pending: placed, waiting for the advance or transfer. refused: turned away at the door (returned to origin).
 export const ORDER_STATUSES = ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled", "refused"] as const;
+// Where a shipped parcel is, as the courier's tracking shows it. Set by hand from the admin.
+export const COURIER_STATUSES = ["booked", "in_transit", "out_for_delivery", "attempted", "returning"] as const;
 export const PAYMENT_METHODS = ["cod", "bank_transfer", "in_person"] as const;
 
 export const orders = sqliteTable(
@@ -152,18 +155,33 @@ export const orders = sqliteTable(
     total: integer().notNull(),
     // Cash on delivery: the advance sent to confirm the order. The courier collects the rest.
     advance: integer().notNull().default(0),
-    // What the courier charged Klaev for this parcel, for profit reports.
+    // What the courier charged Klaev upfront for this parcel (delivery, plus cash handling on COD).
     courierFee: integer(),
+    // What the courier kept when paying a COD order's cash out: 4% of the COD amount as tax, and
+    // anything else it deducted. Set with the payout.
+    codTax: integer().notNull().default(0),
     trackingNumber: text(),
+    // While shipped: booked, in transit, out for delivery, a failed attempt, or on its way back.
+    courierStatus: text({ enum: COURIER_STATUSES }),
+    courierStatusAt: integer({ mode: "timestamp" }),
     note: text(),
-    // web: placed on the site. manual: entered by Klaev (WhatsApp, in person).
-    source: text({ enum: ["web", "manual"] }).notNull().default("web"),
+    // web: placed on the site. manual: entered by Klaev (WhatsApp, in person). exchange: a size
+    // exchange, sent out against the order it replaces.
+    source: text({ enum: ["web", "manual", "exchange"] }).notNull().default("web"),
+    // An exchange: the order it replaces, the size coming back, and when that arrived and went back in stock.
+    exchangeOf: integer().references((): AnySQLiteColumn => orders.id, { onDelete: "set null" }),
+    returnVariantId: integer().references(() => variants.id, { onDelete: "set null" }),
+    returnedAt: integer({ mode: "timestamp" }),
     shopifyId: text().unique(),
     createdAt,
     confirmedAt: integer({ mode: "timestamp" }),
+    packedAt: integer({ mode: "timestamp" }),
     shippedAt: integer({ mode: "timestamp" }),
     deliveredAt: integer({ mode: "timestamp" }),
     cancelledAt: integer({ mode: "timestamp" }),
+    refusedAt: integer({ mode: "timestamp" }),
+    // When the courier paid this COD order's cash out to Klaev.
+    paidOutAt: integer({ mode: "timestamp" }),
     updatedAt,
   },
   (t) => [
@@ -195,6 +213,49 @@ export const orderLines = sqliteTable(
     index("order_lines_variant_idx").on(t.variantId),
     check("order_lines_quantity_check", sql`${t.quantity} > 0`),
   ],
+);
+
+// Discount codes customers type at checkout: a percentage or a fixed amount off the order, or free
+// delivery. Every limit is optional. Uses are counted from the orders that carry the code.
+export const DISCOUNT_KINDS = ["percent", "fixed", "free_delivery"] as const;
+
+export const discounts = sqliteTable("discounts", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  // Stored in capitals; customers can type it any way.
+  code: text().notNull().unique(),
+  kind: text({ enum: DISCOUNT_KINDS }).notNull(),
+  // Percent off (1 to 100) or rupees off; unused for free delivery.
+  value: integer().notNull().default(0),
+  minSubtotal: integer(),
+  startsAt: integer({ mode: "timestamp" }),
+  endsAt: integer({ mode: "timestamp" }),
+  usageLimit: integer(),
+  // One use per phone number.
+  oncePerCustomer: integer({ mode: "boolean" }).notNull().default(false),
+  active: integer({ mode: "boolean" }).notNull().default(true),
+  createdAt,
+  updatedAt,
+});
+
+// Every change to a size's stock and why, newest last: a restock, a count corrected by hand, a sale,
+// or pieces back from a cancelled or refused order. `stockAfter` is what was left after it.
+export const STOCK_REASONS = ["restock", "correction", "sale", "cancelled", "refused", "edit", "exchange"] as const;
+
+export const stockChanges = sqliteTable(
+  "stock_changes",
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    variantId: integer()
+      .notNull()
+      .references(() => variants.id, { onDelete: "cascade" }),
+    change: integer().notNull(),
+    stockAfter: integer().notNull(),
+    reason: text({ enum: STOCK_REASONS }).notNull(),
+    orderId: integer().references(() => orders.id, { onDelete: "set null" }),
+    note: text(),
+    createdAt,
+  },
+  (t) => [index("stock_changes_variant_idx").on(t.variantId)],
 );
 
 // The payment ledger: every rupee received against an order. Paid so far is the sum of its rows.
@@ -234,6 +295,52 @@ export const receipts = sqliteTable(
 );
 
 // Store settings the admin will edit, one JSON value per key (lib/settings.ts).
+// A checkout someone started: what they'd typed and what was in the cart, saved once the phone
+// number is in. It's abandoned if no order follows; `orderId` is set when one does.
+export const checkouts = sqliteTable(
+  "checkouts",
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    // The browser's key to its own checkout (the klaev_checkout cookie).
+    token: text().notNull().unique(),
+    name: text(),
+    email: text(),
+    phone: text().notNull(),
+    city: text(),
+    address: text(),
+    lines: text({ mode: "json" }).$type<{ variantId: number; title: string; size: string | null; quantity: number; price: number }[]>().notNull(),
+    subtotal: integer().notNull(),
+    orderId: integer().references(() => orders.id, { onDelete: "set null" }),
+    // When Klaev followed up on WhatsApp.
+    contactedAt: integer({ mode: "timestamp" }),
+    createdAt,
+    updatedAt,
+  },
+  (t) => [index("checkouts_phone_idx").on(t.phone), index("checkouts_updated_idx").on(t.updatedAt)],
+);
+
+// The journal: articles at /blogs/blog/<handle>, the address Shopify gave them. The body is plain
+// text: a blank line starts a paragraph, "## " a heading, "- " a list item (lib/journal.ts).
+export const POST_STATUSES = ["draft", "published"] as const;
+
+export const posts = sqliteTable("posts", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  handle: text().notNull().unique(),
+  title: text().notNull(),
+  excerpt: text(),
+  body: text().notNull().default(""),
+  coverSrc: text(),
+  coverWidth: integer(),
+  coverHeight: integer(),
+  coverAlt: text(),
+  status: text({ enum: POST_STATUSES }).notNull().default("draft"),
+  publishedAt: integer({ mode: "timestamp" }),
+  seoTitle: text(),
+  seoDescription: text(),
+  createdAt,
+  updatedAt,
+});
+
 export const settings = sqliteTable("settings", {
   key: text().primaryKey(),
   value: text({ mode: "json" }).notNull(),
@@ -276,6 +383,11 @@ export const orderLinesRelations = relations(orderLines, ({ one }) => ({
 
 export const paymentsRelations = relations(payments, ({ one }) => ({
   order: one(orders, { fields: [payments.orderId], references: [orders.id] }),
+}));
+
+export const stockChangesRelations = relations(stockChanges, ({ one }) => ({
+  variant: one(variants, { fields: [stockChanges.variantId], references: [variants.id] }),
+  order: one(orders, { fields: [stockChanges.orderId], references: [orders.id] }),
 }));
 
 export const receiptsRelations = relations(receipts, ({ one }) => ({

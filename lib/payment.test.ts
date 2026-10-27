@@ -6,6 +6,7 @@ describe("codSummary", () => {
   test("adds the delivery fee and splits the default advance from the cash on delivery", () => {
     expect(codSummary(17999)).toEqual({
       subtotal: 17999,
+      discount: 0,
       deliveryFee: 900,
       total: 18899,
       advance: 2000,
@@ -31,10 +32,16 @@ describe("codSummary", () => {
   test("rejects a negative advance", () => {
     expect(() => codSummary(17999, { advance: -1 })).toThrow();
   });
+
+  test("a discount comes off the items, never below nothing", () => {
+    expect(codSummary(17999, { discount: 1800 })).toMatchObject({ discount: 1800, total: 17099, advance: 2000, onDelivery: 15099 });
+    expect(codSummary(2500, { discount: 9000, deliveryFee: 0 })).toMatchObject({ discount: 2500, total: 0, advance: 0, onDelivery: 0 });
+  });
 });
 
 describe("bankTransferSummary", () => {
   test("delivers free and is paid in full up front", () => {
-    expect(bankTransferSummary(17999)).toEqual({ subtotal: 17999, deliveryFee: 0, total: 17999 });
+    expect(bankTransferSummary(17999)).toEqual({ subtotal: 17999, discount: 0, deliveryFee: 0, total: 17999 });
+    expect(bankTransferSummary(17999, 1000)).toEqual({ subtotal: 17999, discount: 1000, deliveryFee: 0, total: 16999 });
   });
 });

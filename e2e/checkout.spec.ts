@@ -65,6 +65,28 @@ test.describe("checkout", () => {
     await expect(bar(page)).not.toContainText("PKR 2,000");
   });
 
+  test("a discount code comes off the total before the order is placed, and a wrong one says why", async ({ page }) => {
+    await addToCart(page, "/products/dark-brown-cropped-sheepskin-leather-jacket", "M");
+    await page.goto("/checkout");
+    const code = page.getByLabel("Discount code");
+
+    await code.fill("nope");
+    await page.getByRole("button", { name: "Apply" }).click();
+    await expect(page.getByText("That code isn't valid.")).toBeVisible();
+
+    // Enter applies the code; it doesn't place the order.
+    await code.fill("welcome10");
+    await code.press("Enter");
+    await expect(page.getByTestId("checkout-discount")).toHaveText("−PKR 1,800");
+    await expect(page).toHaveURL("/checkout");
+    await expect(bar(page)).toContainText("PKR 17,099");
+    await expect(page.getByTestId("checkout-on-delivery")).toHaveText("PKR 15,099");
+
+    await page.getByRole("button", { name: "Remove", exact: true }).click();
+    await expect(page.getByTestId("checkout-discount")).toBeHidden();
+    await expect(bar(page)).toContainText("PKR 18,899");
+  });
+
   test("missing details are pointed out field by field", async ({ page }) => {
     await addToCart(page, "/products/dark-brown-cropped-sheepskin-leather-jacket", "M");
     await page.goto("/checkout");
@@ -114,6 +136,16 @@ test.describe("checkout", () => {
     const whatsapp = page.getByRole("link", { name: "Send it on WhatsApp" });
     const message = new URL((await whatsapp.getAttribute("href")) ?? "").searchParams.get("text") ?? "";
     expect(message).toContain(`#${number}`);
+
+    // The tracking page finds it by its number and the phone it was placed with, and nothing else.
+    await page.goto("/track");
+    await page.getByLabel("Order number").fill(number ?? "");
+    await page.getByLabel("Mobile number").fill("0300 9999999");
+    await page.getByRole("button", { name: "Track order" }).click();
+    await expect(page.getByText(/^We couldn't find that order/)).toBeVisible();
+    await page.getByLabel("Mobile number").fill("0300 1234567");
+    await page.getByRole("button", { name: "Track order" }).click();
+    await expect(page.getByTestId("track-status")).toHaveText("Placed. We confirm it on WhatsApp once the payment is in.");
   });
 
   test("a bank transfer order asks for the full amount, and the receipt uploads from the order page", async ({ page }, testInfo) => {

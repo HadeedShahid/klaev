@@ -14,11 +14,13 @@ export function Disclosure({
   children,
   className,
   summaryClassName,
+  defaultOpen,
 }: {
   summary: ReactNode;
   children: ReactNode;
   className?: string;
   summaryClassName?: string;
+  defaultOpen?: boolean;
 }) {
   const ref = useRef<HTMLDetailsElement>(null);
   const running = useRef<Animation | null>(null);
@@ -56,7 +58,7 @@ export function Disclosure({
   }
 
   return (
-    <details ref={ref} className={cn("group", className)}>
+    <details ref={ref} open={defaultOpen} className={cn("group", className)}>
       <summary onClick={toggle} className={summaryClassName}>
         {summary}
       </summary>

@@ -12,8 +12,14 @@ export default defineConfig({
   testDir: "e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // Wrangler's local database now and then fails a query with "internal error" when five browsers
+  // hit the dev server at once (D1_ERROR: Failed to get session commit token). One retry absorbs that
+  // locally; Playwright still lists the test as flaky. The real database doesn't do this.
+  retries: process.env.CI ? 2 : 1,
   reporter: process.env.CI ? "github" : "list",
+  // The dev server compiles each page and server action the first time it's used, which with five
+  // workers at once can outlast the default 5 seconds.
+  expect: { timeout: 15_000 },
   use: {
     baseURL,
     trace: "retain-on-failure",

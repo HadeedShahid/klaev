@@ -5,8 +5,9 @@ import { ProductCard } from "@/components/product/product-card";
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
 import { getCollection, getCollections } from "@/lib/catalog";
 
-// Listed at build and rendered on first visit, like the product pages.
-export const dynamicParams = false;
+// Listed at build and rendered on first visit, like the product pages. A collection added in the
+// admin since the last deploy renders on request; unknown handles are still a real 404.
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const collections = await getCollections();

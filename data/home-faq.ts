@@ -1,9 +1,8 @@
-import { formatPKR } from "@/lib/money";
-import { STORE } from "@/lib/store";
-
 // The Shopify home page FAQ, rewritten in the brand voice with the facts kept. Answers now state
 // the real policies (size exchanges, no refunds, the cash-on-delivery advance); the belt sizing
 // question is left out while belts are hidden. Before and after: docs/copy-rewrite.md.
+// It's the starting FAQ until one is saved in the admin (lib/faq.ts). {advance}, {cod_fee} and
+// {exchange_days} show the store's current terms.
 export const HOME_FAQ: { question: string; answer: string }[] = [
   {
     question: "How do I know my Klaev jacket is real, full-grain leather?",
@@ -31,10 +30,12 @@ export const HOME_FAQ: { question: string; answer: string }[] = [
   },
   {
     question: "Do you offer Cash on Delivery?",
-    answer: `Yes, anywhere in Pakistan. Send a ${formatPKR(STORE.codAdvance)} advance to confirm your order, then pay the rest when it arrives. Cash on delivery adds ${formatPKR(STORE.codDeliveryFee)} delivery. Bank transfer delivers free.`,
+    answer:
+      "Yes, anywhere in Pakistan. Send a {advance} advance to confirm your order, then pay the rest when it arrives. Cash on delivery adds {cod_fee} delivery. Bank transfer delivers free.",
   },
   {
     question: "What if it does not fit?",
-    answer: `Message us on WhatsApp within ${STORE.exchangeDays} days of delivery with your order number. If it is unworn with the tags on, we exchange the size. You cover delivery both ways. No refunds.`,
+    answer:
+      "Message us on WhatsApp within {exchange_days} days of delivery with your order number. If it is unworn with the tags on, we exchange the size. You cover delivery both ways. No refunds.",
   },
 ];

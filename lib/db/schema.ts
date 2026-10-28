@@ -341,6 +341,66 @@ export const posts = sqliteTable("posts", {
   updatedAt,
 });
 
+// What happens on the store, for Analytics: page views from the tracker, and carts and orders
+// recorded by the server. A visitor is a random id kept a year in a cookie, a session one kept for
+// 30 minutes after the last page. The first event of a session carries where the visit came from.
+export const EVENT_TYPES = ["view", "cart", "order"] as const;
+
+export const events = sqliteTable(
+  "events",
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    type: text({ enum: EVENT_TYPES }).notNull(),
+    visitorId: text().notNull(),
+    sessionId: text().notNull(),
+    // The session's first page: its source, referrer and campaign are set here only.
+    entry: integer({ mode: "boolean" }).notNull().default(false),
+    path: text().notNull().default(""),
+    productHandle: text(),
+    source: text(),
+    referrer: text(),
+    campaign: text(),
+    device: text({ enum: ["phone", "tablet", "desktop"] }),
+    country: text(),
+    city: text(),
+    orderNumber: integer(),
+    createdAt,
+  },
+  (t) => [
+    index("events_created_idx").on(t.createdAt),
+    index("events_type_created_idx").on(t.type, t.createdAt),
+    index("events_session_idx").on(t.sessionId),
+  ],
+);
+
+// The store's pages and policies as edited in the admin. A page with no row here shows its
+// starting text from data/pages.ts.
+export const pages = sqliteTable("pages", {
+  handle: text().primaryKey(),
+  title: text().notNull(),
+  description: text().notNull(),
+  body: text().notNull(),
+  updatedAt,
+});
+
+// Messages from the contact form, newest first in the admin's inbox until handled.
+export const MESSAGE_SUBJECTS = ["general", "order", "custom", "exchange"] as const;
+
+export const messages = sqliteTable(
+  "messages",
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    name: text().notNull(),
+    email: text(),
+    phone: text(),
+    subject: text({ enum: MESSAGE_SUBJECTS }).notNull().default("general"),
+    body: text().notNull(),
+    handledAt: integer({ mode: "timestamp" }),
+    createdAt,
+  },
+  (t) => [index("messages_created_idx").on(t.createdAt)],
+);
+
 export const settings = sqliteTable("settings", {
   key: text().primaryKey(),
   value: text({ mode: "json" }).notNull(),

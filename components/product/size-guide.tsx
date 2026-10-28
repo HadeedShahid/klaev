@@ -16,53 +16,60 @@ export function SizeGuide({ guide }: { guide: Guide }) {
       }
     >
       <div className="flex flex-col gap-3 px-4 pb-4">
-        <table className="w-full text-left text-sm tabular-nums">
-          <thead className="text-muted-foreground">
-            <tr className="border-b border-border">
-              <th scope="col" className="py-2 font-normal">
-                Size
-              </th>
-              {guide.kind === "garment" ? (
-                <>
-                  <th scope="col" className="py-2 font-normal">
-                    Jacket chest
-                  </th>
-                  <th scope="col" className="py-2 font-normal">
-                    Length
-                  </th>
-                </>
-              ) : (
-                <th scope="col" className="py-2 font-normal">
-                  Fits chest
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {guide.kind === "garment"
-              ? guide.rows.map((row) => (
-                  <tr key={row.size} className="border-b border-hairline last:border-0">
-                    <th scope="row" className="py-2 font-medium">
-                      {row.size}
-                    </th>
-                    <td className="py-2">{jacketChest(row.chestFlat)} in</td>
-                    <td className="py-2">{row.length} in</td>
-                  </tr>
-                ))
-              : guide.rows.map((row) => (
-                  <tr key={row.size} className="border-b border-hairline last:border-0">
-                    <th scope="row" className="py-2 font-medium">
-                      {row.size}
-                    </th>
-                    <td className="py-2">
-                      {row.chest[0]} to {row.chest[1]} in
-                    </td>
-                  </tr>
-                ))}
-          </tbody>
-        </table>
+        <SizeTable guide={guide} />
         <p className="text-xs text-muted-foreground">{guide.note}</p>
       </div>
     </Disclosure>
+  );
+}
+
+// The measurements alone, for the product page's size guide and the size chart page.
+export function SizeTable({ guide }: { guide: Guide }) {
+  return (
+    <table className="w-full text-left text-sm tabular-nums">
+      <thead className="text-muted-foreground">
+        <tr className="border-b border-border">
+          <th scope="col" className="py-2 font-normal">
+            Size
+          </th>
+          {guide.kind === "garment" ? (
+            <>
+              <th scope="col" className="py-2 font-normal">
+                Jacket chest
+              </th>
+              <th scope="col" className="py-2 font-normal">
+                Length
+              </th>
+            </>
+          ) : (
+            <th scope="col" className="py-2 font-normal">
+              Fits chest
+            </th>
+          )}
+        </tr>
+      </thead>
+      <tbody>
+        {guide.kind === "garment"
+          ? guide.rows.map((row) => (
+              <tr key={row.size} className="border-b border-hairline last:border-0">
+                <th scope="row" className="py-2 font-medium">
+                  {row.size}
+                </th>
+                <td className="py-2">{jacketChest(row.chestFlat)} in</td>
+                <td className="py-2">{row.length} in</td>
+              </tr>
+            ))
+          : guide.rows.map((row) => (
+              <tr key={row.size} className="border-b border-hairline last:border-0">
+                <th scope="row" className="py-2 font-medium">
+                  {row.size}
+                </th>
+                <td className="py-2">
+                  {row.chest[0]} to {row.chest[1]} in
+                </td>
+              </tr>
+            ))}
+      </tbody>
+    </table>
   );
 }

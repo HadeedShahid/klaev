@@ -35,7 +35,27 @@ export function parseBody(body: string): BodyBlock[] {
   return blocks;
 }
 
+// A line's text with its links: [words](/path), [words](https://...) or [words](mailto:...). Any
+// other target stays as plain text, so nothing written there can run script.
+export type InlinePart = { text: string; href?: string };
+const LINK = /\[([^\]]+)\]\(((?:\/(?!\/)|https:\/\/|mailto:)[^)\s]*)\)/g;
+
+export function inlineParts(text: string): InlinePart[] {
+  const parts: InlinePart[] = [];
+  let last = 0;
+  for (const match of text.matchAll(LINK)) {
+    if (match.index > last) parts.push({ text: text.slice(last, match.index) });
+    parts.push({ text: match[1], href: match[2] });
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) parts.push({ text: text.slice(last) });
+  return parts;
+}
+
+// The body's words without link targets, for counting and for search descriptions.
+export const plainText = (text: string) => text.replace(LINK, "$1");
+
 // About how long it takes to read, at 220 words a minute.
 export function readingMinutes(body: string) {
-  return Math.max(1, Math.round(body.split(/\s+/).filter(Boolean).length / 220));
+  return Math.max(1, Math.round(plainText(body).split(/\s+/).filter(Boolean).length / 220));
 }

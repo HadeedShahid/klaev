@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { getCartView, readCart, writeCart } from "@/lib/cart";
 import { parseCheckout, type CheckoutField } from "@/lib/checkout";
 import { getDb } from "@/lib/db";
+import { recordServerEvent } from "@/lib/analytics";
 import { checkoutOrdered, saveCheckout } from "@/lib/checkouts";
 import { checkDiscount, type DiscountKind } from "@/lib/discounts";
 import { placeOrder } from "@/lib/orders";
@@ -84,6 +85,7 @@ export async function checkout(_prev: CheckoutState, formData: FormData): Promis
     store.delete(CHECKOUT_COOKIE);
   }
   await writeCart([]);
+  await recordServerEvent("order", { orderNumber: result.number, path: "/checkout" });
   // Cached pages show which sizes are in stock, so a size that just sold out refreshes them all.
   if (result.soldOut) revalidatePath("/", "layout");
   redirect(`/orders/${result.token}`);

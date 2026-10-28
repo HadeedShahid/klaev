@@ -65,6 +65,74 @@ test.describe("admin", () => {
     await expect(page).toHaveURL(/\/admin\/login/);
   });
 
+  test("a message from the contact form waits in Messages until it's handled", async ({ page }, testInfo) => {
+    const name = `Contact ${testInfo.project.name} ${Date.now().toString(36)}`;
+    await page.goto("/pages/contact");
+    await page.getByLabel("Name").fill(name);
+    await page.getByLabel("Mobile number").fill("0321 9998887");
+    await page.locator("label").filter({ hasText: "A custom jacket" }).click();
+    await page.getByLabel("Message").fill("A tan cropped jacket, please.");
+    await page.getByRole("button", { name: "Send message" }).click();
+    await expect(page.getByRole("status")).toContainText("Your message is with us.");
+
+    await signIn(page);
+    await page.getByRole("link", { name: "Messages" }).click();
+    const message = page.locator("[data-testid^=message-]").filter({ hasText: name });
+    await expect(message).toContainText("A custom jacket");
+    await expect(message.getByRole("link", { name: /^WhatsApp/ })).toHaveAttribute("href", /wa\.me\/923219998887/);
+    await message.getByRole("button", { name: "Mark handled" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Mark handled" }).click();
+    await expect(message).toBeHidden();
+    await page.getByRole("link", { name: "Handled" }).click();
+    await expect(page.locator("[data-testid^=message-]").filter({ hasText: name })).toBeVisible();
+  });
+
+  test("an edited policy shows on the store until put back", async ({ page }, testInfo) => {
+    // Pages are one set for the whole store, so only one phone edits one.
+    test.skip(testInfo.project.name !== "iphone", "one phone edits the shared page");
+    await signIn(page);
+    await page.goto("/admin/content/pages");
+    await page.getByRole("link", { name: "About Klaev" }).click();
+    await page.getByLabel("Page", { exact: true }).fill("We make jackets.\n\n## Visit\nSee the [size chart](/pages/jackets-size-chart).");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Saved." })).toBeVisible();
+    await page.goto("/pages/about");
+    await expect(page.getByRole("heading", { name: "Visit", level: 2 })).toBeVisible();
+    await expect(page.getByRole("link", { name: "size chart", exact: true })).toHaveAttribute("href", "/pages/jackets-size-chart");
+
+    await page.goto("/admin/content/pages");
+    await page.getByRole("link", { name: "About Klaev" }).click();
+    await page.getByRole("button", { name: "Put back the original" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Put it back" }).click();
+    await expect(page.getByRole("dialog")).toBeHidden();
+    await expect(page.getByRole("button", { name: "Put back the original" })).toBeHidden();
+    await page.goto("/pages/about");
+    await expect(page.getByRole("heading", { name: "Where it comes from", level: 2 })).toBeVisible();
+  });
+
+  test("a visit from a tagged Instagram link shows in the live view, the overview and the funnel", async ({ page }, testInfo) => {
+    const campaign = `e2e-${testInfo.project.name}-${Date.now().toString(36)}`;
+    await page.goto(`/?utm_source=instagram&utm_campaign=${campaign}`);
+    await expect.poll(async () => (await page.context().cookies()).some((cookie) => cookie.name === "klaev_sid")).toBe(true);
+    await page.goto("/pages/jackets-size-chart");
+    // The tracker sends each page as it shows; give the last one a moment to land.
+    await page.waitForTimeout(500);
+
+    await signIn(page);
+    await page.goto("/admin/analytics/live");
+    await expect(page.getByRole("link", { name: "/pages/jackets-size-chart" }).first()).toBeVisible();
+    await page.goto("/admin/analytics?days=7");
+    await expect(page.getByText(campaign)).toBeVisible();
+    await expect(page.getByRole("cell", { name: "Instagram" })).toBeVisible();
+    await page.goto("/admin/analytics/funnel?days=7");
+    await expect(page.getByText("Visited the store")).toBeVisible();
+    await page.goto("/admin/analytics/reports?tab=behaviour&days=7");
+    await expect(page.getByText("Landing pages", { exact: true })).toBeVisible();
+    const csv = await page.request.get("/admin/export/report?tab=sales&table=by-product&days=30");
+    expect(csv.status()).toBe(200);
+    expect(await csv.text()).toContain("Product");
+  });
+
   test("the admin follows the computer's dark setting, a choice of light sticks, and the store stays light", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "dark" });
     const dark = () => page.evaluate(() => document.documentElement.classList.contains("dark"));

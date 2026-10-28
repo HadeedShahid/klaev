@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgePercent, BarChart3, ExternalLink, FileText, Home, LogOut, Package, Settings, ShoppingBag, Users, type LucideIcon } from "lucide-react";
+import { BadgePercent, BarChart3, ExternalLink, FileText, Home, Inbox, LogOut, Package, Settings, ShoppingBag, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -46,6 +46,7 @@ const NAV: Section[] = [
     ],
   },
   { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/messages", label: "Messages", icon: Inbox },
   { href: "/admin/discounts", label: "Discounts", icon: BadgePercent },
   {
     href: "/admin/content/journal",
@@ -53,16 +54,26 @@ const NAV: Section[] = [
     icon: FileText,
     sub: [
       { href: "/admin/content/journal", label: "Journal" },
+      { href: "/admin/content/pages", label: "Pages" },
       { href: "/admin/content/faq", label: "FAQ" },
     ],
   },
-  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  {
+    href: "/admin/analytics",
+    label: "Analytics",
+    icon: BarChart3,
+    sub: [
+      { href: "/admin/analytics/live", label: "Live view" },
+      { href: "/admin/analytics/funnel", label: "Funnel" },
+      { href: "/admin/analytics/reports", label: "Reports" },
+    ],
+  },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 const within = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
-export function AdminSidebar({ waiting }: { waiting: number }) {
+export function AdminSidebar({ waiting, messages }: { waiting: number; messages: number }) {
   const pathname = usePathname();
   return (
     <Sidebar variant="inset" collapsible="offcanvas">
@@ -90,6 +101,11 @@ export function AdminSidebar({ waiting }: { waiting: number }) {
                     {section.href === "/admin/orders" && waiting > 0 ? (
                       <SidebarMenuBadge className="tabular-nums" aria-label={`${waiting} waiting`}>
                         {waiting}
+                      </SidebarMenuBadge>
+                    ) : null}
+                    {section.href === "/admin/messages" && messages > 0 ? (
+                      <SidebarMenuBadge className="tabular-nums" aria-label={`${messages} waiting`}>
+                        {messages}
                       </SidebarMenuBadge>
                     ) : null}
                     {section.sub && inSection ? (

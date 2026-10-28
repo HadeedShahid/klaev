@@ -17,6 +17,12 @@ const karachi = new Intl.DateTimeFormat("en-GB", {
   minute: "2-digit",
 });
 
+// "just now", or "5m ago": how long since, as a line under a row reads it.
+export const ago = (since: Date, now = new Date()) => {
+  const span = age(since, now);
+  return span === "just now" ? span : `${span} ago`;
+};
+
 // "26 Oct, 14:05", in Pakistan time wherever the page renders.
 export const dateTime = (date: Date) => karachi.format(date);
 

@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireAdmin } from "@/lib/admin/auth";
-import { age, localPhone, whatsappTo } from "@/lib/admin/format";
+import { ago, localPhone, whatsappTo } from "@/lib/admin/format";
 import { ABANDONED_AFTER_MINUTES, listAbandoned, type AbandonedCheckout } from "@/lib/checkouts";
 import { getDb } from "@/lib/db";
+import { forgetOldData } from "@/lib/retention";
 import { formatPKR } from "@/lib/money";
 
 export const metadata: Metadata = { title: "Abandoned checkouts" };
@@ -25,7 +26,9 @@ function followUp(checkout: AbandonedCheckout) {
 // Checkouts that got as far as a phone number but no order, newest first, for a WhatsApp follow-up.
 export default async function AbandonedCheckoutsPage() {
   await requireAdmin();
-  const rows = await listAbandoned(await getDb());
+  const db = await getDb();
+  await forgetOldData(db);
+  const rows = await listAbandoned(db);
   return (
     <>
       <PageHeader title="Abandoned checkouts" />
@@ -61,7 +64,7 @@ export default async function AbandonedCheckoutsPage() {
                       </p>
                       <p className="mt-1 text-xs whitespace-normal text-muted-foreground md:hidden">
                         {items(checkout)}, {formatPKR(checkout.subtotal)}
-                        <span className="sm:hidden">, {age(checkout.updatedAt)} ago</span>
+                        <span className="sm:hidden">, {ago(checkout.updatedAt)}</span>
                       </p>
                       {checkout.contactedAt ? (
                         <Badge variant="outline" className="mt-1.5 sm:hidden">
@@ -73,7 +76,7 @@ export default async function AbandonedCheckoutsPage() {
                     <TableCell className="hidden text-right tabular-nums sm:table-cell">{formatPKR(checkout.subtotal)}</TableCell>
                     <TableCell className="hidden text-muted-foreground sm:table-cell">
                       <div className="flex flex-col items-start gap-1">
-                        <span className="tabular-nums">{age(checkout.updatedAt)} ago</span>
+                        <span className="tabular-nums">{ago(checkout.updatedAt)}</span>
                         {checkout.contactedAt ? <Badge variant="outline">Messaged</Badge> : null}
                       </div>
                     </TableCell>

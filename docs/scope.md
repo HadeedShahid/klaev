@@ -73,7 +73,7 @@ What the Shopify theme has today, and what the new site does.
 | Order tracking | Shopify customer accounts | Track-your-order page (`/track`) using order number and phone. Shows our own status steps (placed, confirmed, packed, shipped, delivered) with where the parcel is (booked, in transit, out for delivery, a failed attempt, coming back), and never names the courier | v1, built |
 | Customer accounts | Account menu in the header | Sign in with an emailed code to see past orders. No passwords | Later |
 | Journal | Blog with articles, three shown on home | Same URLs, existing posts carried over, new posts written in admin | v1 |
-| Pages | About, contact form, policies | Same, plus a WhatsApp link on the contact page and in the footer. Contact messages are emailed to you and kept in an admin inbox | v1 |
+| Pages | About, contact form, policies | Built 27 October 2026 at Shopify's addresses: About, Contact, the jackets size chart (from the products' size guides), and Delivery, Exchanges and refunds, Privacy and Terms, rewritten from Shopify's templates to say what this store actually does. Editable under Content, Pages. Contact messages land in the admin's Messages inbox (email once Resend is set up) | v1, built |
 | Exchange policy | Marquee says "30-day returns". FAQ offers exchanges within 7 days and full refunds for defective pieces. Google structured data says 30-day returns | Rewritten everywhere to match the real policy: size exchanges within 7 days of delivery, unworn with tags intact, customer pays delivery both ways, no refunds | v1 |
 | Newsletter signup | Only on the password page | Footer signup, stored in D1 | v1 |
 | Custom jackets | "Design yours" banner, button not linked yet | "Design yours" opens WhatsApp (+92 323 1483650) with a prefilled message, or the contact form with "Custom jacket" as the subject | v1 |
@@ -170,9 +170,9 @@ A toned-down Shopify admin, laid out the way Shopify's is so it feels familiar: 
 - **Journal:** articles with a title, summary, body, cover photo, publish date (a later date waits until then) and search listing, at `/blogs/blog/<address>`, the Shopify journal's address. The body is plain text: a blank line starts a paragraph, `## ` a heading, `- ` a list. The store has the journal page, each article (with BlogPosting structured data), and a footer link. Not yet: the Shopify articles themselves (the export was deleted after the import, so they need exporting again or copying across), a journal strip on the home page, and a sitemap.
 - **FAQ:** the home page questions, edited, reordered, added or removed in the admin. `{advance}`, `{cod_fee}` and `{exchange_days}` show the current terms, so answers never disagree with checkout.
 
-### Analytics
+### Analytics (built)
 
-- A link in the sidebar now; the screens below come later.
+- Overview, Live view, Funnel and Reports, below. Visits are counted from the day the store runs on its own address; until klaev.com points here only order figures fill in.
 
 ### Settings
 
@@ -226,7 +226,7 @@ Each step shows its count and the drop-off. The last two steps matter most for C
 - **Profit:** revenue minus product cost, the PostEx charge and the 4% COD tax, per order and per month. Replaces the Google Sheet. Each order's PostEx charge starts from the default in Settings (about PKR 590 for COD, PKR 310 for prepaid) and can be edited, since the real charge varies by parcel.
 - Every report exports to CSV.
 
-Raw events are stored as they happen and rolled up nightly into daily summary tables, so the screens stay fast as data grows.
+Built 27 October 2026. A tracker of a few lines (`components/site/tracker.tsx`, no library) sends each page view to `/api/e`; carts and orders are recorded by the server actions that make them. A visitor is a random id in a first-party cookie kept a year, a session one kept 30 minutes after the last page. The session's first page records where it came from (a utm_source tag, an ad click id, the Instagram or Facebook in-app browser, or the referrer) and any utm_campaign; Cloudflare supplies the city and country. Crawlers and link previews aren't counted. Not built yet: searches with no results (there's no search yet), and the nightly rollups: the screens read raw events, which is fast at this size; add daily summary tables when visits reach the tens of thousands a month.
 
 ## Ads tracking (built, switched off)
 

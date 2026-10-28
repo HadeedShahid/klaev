@@ -1,48 +1,23 @@
-import { ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { OrdersTable } from "@/components/admin/orders-table";
 import { PageHeader } from "@/components/admin/page-header";
-import { SalesChart } from "@/components/admin/sales-chart";
-import { Badge } from "@/components/ui/badge";
+import { change, Kpi } from "@/components/admin/kpi";
+import { PeriodControl } from "@/components/admin/period-control";
+import { TrendChart } from "@/components/admin/trend-chart";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAdmin } from "@/lib/admin/auth";
 import { expectedPayout, getCourierSettings } from "@/lib/admin/courier";
 import { dashboardSummary, needsAction, salesByDay } from "@/lib/admin/dashboard";
 import { listOrders } from "@/lib/admin/orders";
+import { periodFrom } from "@/lib/admin/period";
 import { getDb } from "@/lib/db";
 import { formatPKR } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Dashboard" };
-
-const PERIODS = [7, 30, 90] as const;
-
-function change(current: number, previous: number) {
-  return previous > 0 ? Math.round(((current - previous) / previous) * 100) : null;
-}
-
-function Kpi({ label, value, delta, note }: { label: string; value: string; delta?: number | null; note: string }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardDescription>{label}</CardDescription>
-        <CardTitle className="text-2xl font-semibold tabular-nums">{value}</CardTitle>
-        {delta !== undefined && delta !== null ? (
-          <CardAction>
-            <Badge variant="outline" className="tabular-nums">
-              {delta >= 0 ? <TrendingUp strokeWidth={2} aria-hidden /> : <TrendingDown strokeWidth={2} aria-hidden />}
-              {delta > 0 ? "+" : ""}
-              {delta}%
-            </Badge>
-          </CardAction>
-        ) : null}
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">{note}</CardContent>
-    </Card>
-  );
-}
 
 function ActionRow({ href, count, label, detail }: { href: string; count: number; label: string; detail?: string }) {
   return (
@@ -64,8 +39,7 @@ function ActionRow({ href, count, label, detail }: { href: string; count: number
 
 export default async function DashboardPage({ searchParams }: PageProps<"/admin">) {
   await requireAdmin();
-  const requested = Number((await searchParams).days);
-  const days = PERIODS.find((period) => period === requested) ?? 30;
+  const days = periodFrom((await searchParams).days);
   const db = await getDb();
   const courier = await getCourierSettings(db);
   const [summary, series, action, recent] = await Promise.all([
@@ -81,21 +55,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/admin"
   return (
     <>
       <PageHeader title="Dashboard">
-        <nav aria-label="Period" className="inline-flex rounded-lg bg-muted p-0.5 text-sm">
-          {PERIODS.map((period) => (
-            <Link
-              key={period}
-              href={`/admin?days=${period}`}
-              aria-current={period === days ? "page" : undefined}
-              className={cn(
-                "rounded-md px-3 py-1 text-muted-foreground transition-colors hover:text-foreground",
-                period === days && "bg-background font-medium text-foreground ring-1 ring-foreground/10",
-              )}
-            >
-              {period} days
-            </Link>
-          ))}
-        </nav>
+        <PeriodControl days={days} href={(period) => `/admin?days=${period}`} />
       </PageHeader>
       <div className="flex flex-col gap-4 p-4 md:p-6">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -140,7 +100,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/admin"
               <CardDescription>Per day, last {days} days</CardDescription>
             </CardHeader>
             <CardContent>
-              <SalesChart data={series} />
+              <TrendChart label="Sales" money data={series.map((day) => ({ date: day.date, value: day.sales, detail: `${day.orders} ${day.orders === 1 ? "order" : "orders"}` }))} />
             </CardContent>
           </Card>
           <Card>

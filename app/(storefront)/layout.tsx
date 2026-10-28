@@ -1,6 +1,7 @@
 import { CartDrawer } from "@/components/site/cart-drawer";
 import { SiteFooter } from "@/components/site/footer";
 import { SiteHeader } from "@/components/site/header";
+import { Tracker } from "@/components/site/tracker";
 import { FLAGS } from "@/lib/flags";
 import { getCodTerms } from "@/lib/settings";
 
@@ -11,6 +12,7 @@ export default async function StorefrontLayout({ children }: LayoutProps<"/">) {
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />
+      <Tracker />
       {FLAGS.cartDrawer ? <CartDrawer terms={await getCodTerms()} /> : null}
     </>
   );

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-27T18:00:00.000Z",
+  "generatedAt": "2026-10-27T20:00:00.000Z",
   "title": "Design System: Klaev",
   "extensions": {
     "colorMeta": {
@@ -326,6 +326,11 @@
         "name": "overlay-pop",
         "value": "fade and zoom from 95%, 100ms",
         "purpose": "The Update status menu and admin dialogs open and close."
+      },
+      {
+        "name": "live-refresh",
+        "value": "router.refresh() every 10s while visible, and on return to the tab",
+        "purpose": "Keeps Live view current; nothing on screen animates when it reloads."
       }
     ],
     "breakpoints": [
@@ -340,6 +345,10 @@
       {
         "name": "lg",
         "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
       }
     ],
     "layout": {
@@ -376,12 +385,31 @@
         "createOrder": "1fr plus a 22rem side column from 1024px: Items and Payment beside Customer, Note and Create order",
         "articleEditor": "1fr plus a 20rem side column from 1024px; fields save together from the header",
         "discountsAndCheckouts": "intro line in Small Quiet Grey capped at 70ch above one table card",
-        "subPageHeader": "back link (section name in Quiet Grey behind a 16px ChevronLeft, Ink on hover) leads the title"
+        "subPageHeader": "back link (section name in Quiet Grey behind a 16px ChevronLeft, Ink on hover) leads the title",
+        "analytics": "overview: six KPI cards (1, 2 from 640px, 3 from 1280px), then pairs from 1280px: Sales and Visitors trend charts; Where visits come from beside Top products; By city beside Devices and Campaigns at 2fr/1fr. Live view: four KPI cards (2 from 640px, 4 from 1280px), then On the store now beside Today's orders and Cities now at 2fr/1fr. Funnel: one card. Reports: tabs, then report cards two per row from 1280px, tables over five columns spanning both",
+        "messages": "Waiting and Handled tabs above a column of message cards 12px apart",
+        "pages": "intro line in Small Quiet Grey capped at 70ch above one table card; a page's editor is 1fr plus a 20rem side column from 1024px"
       },
       "journalIndex": "48rem column, 32px top (48px from 768px), 64px bottom; Hairline-ruled list, rows 24px vertical; 4:3 xl covers 240px beside the text from 640px",
       "article": "42rem column, 24px top (40px from 768px), 64px bottom, parts 32px apart, body blocks 20px apart; breadcrumbs drop their padding to align with the column",
       "track": "36rem column, 32px top, 64px bottom; result 40px below the form; steps 20px apart",
-      "print": "max 180mm column, 40px vertical padding on screen and none on paper, one order per page (break-after-page); sticky on-screen print bar ruled by Hairline, hidden in print"
+      "print": "max 180mm column, 40px vertical padding on screen and none on paper, one order per page (break-after-page); sticky on-screen print bar ruled by Hairline, hidden in print",
+      "storePage": {
+        "maxWidth": "42rem",
+        "gutter": "20px, 32px from 768px",
+        "top": "24px below the header, 40px from 768px",
+        "gap": "32px",
+        "bottom": "64px",
+        "sizeChartSectionGap": "40px",
+        "source": "components/site/store-page.tsx"
+      },
+      "footer": {
+        "columns": "2 on phones (brand across both), 4 from 768px: brand with About, Help, Policies, More",
+        "maxWidth": "72rem",
+        "padding": "40px vertical",
+        "gap": "24px columns, 32px rows, 8px between links",
+        "source": "components/site/footer.tsx"
+      }
     },
     "glass": {
       "background": "color-mix(in oklab, var(--background) 78%, transparent)",
@@ -403,7 +431,7 @@
     "chartTokens": {
       "--chart-1": {
         "token": "ink",
-        "use": "The sales line and its 6% wash; the first series of any admin chart."
+        "use": "The trend line (sales, visitors) and its 6% wash; the first series of any admin chart."
       },
       "--chart-2": {
         "token": "quiet-grey",
@@ -428,7 +456,8 @@
       "flatOverrides": "The work sheet drops the inset sidebar's default shadow for a Hairline ring; the period control rings its chosen segment in Ink 10% instead of a shadow.",
       "notCanonized": "shadcn defaults still carrying shadow or blur in the admin: the order tabs' active trigger (shadow-sm), the dropdown menu (shadow-md), the chart tooltip (shadow-xl), the mobile sidebar sheet (shadow-lg), and the dialog backdrop (black at 10% with a blur). They break the Flat Counter Rule and are recorded as drift, not as the system. Also drift from this round, recorded and not made system: the printed document's uppercase, letter-spaced labels and column heads (Ship to, Payment, Item, Size, Qty), which break the Wordmark Is the Only Spaced Caps Rule; the shadcn ghost and outline sm buttons' 0.8rem label, off the ramp; the Items card header carrying up to four ghost actions side by side; the article editor's search preview title in Google's link blue (#1a0dab), the admin's only hue.",
       "rowActions": "One action stays in place; more than one go in a single MoreHorizontal (1.8) ghost icon-sm trigger (28px) at the row's end, menu aligned end, min 10rem; dialog items end in an ellipsis; removal last under a separator, shown only while allowed; ActionDialog opens controlled from the menu and closes itself once done.",
-      "sidebarHighlight": "One highlight per page: the matching sub page, else the section; never both."
+      "sidebarHighlight": "One highlight per page: the matching sub page, else the section; never both.",
+      "analytics": "Share bars: 6px full-round Panel Grey track, Ink fill to the percent. Funnel bars: 10px, at least 1% when the step has any. Report tables: first column the name (500, max 18rem), every other column a right-aligned tabular figure, empty cells 'None' in Quiet Grey, CSV as a ghost sm button with Download at 1.8. Report and inbox tabs are status tabs without count chips."
     },
     "typeRamp": {
       "steps": [
@@ -667,7 +696,7 @@
       "name": "KPI Card",
       "kind": "card",
       "refersTo": "admin-card",
-      "description": "Paper card ringed in Ink 10%: label, 2xl tabular figure, outline trend badge, note line.",
+      "description": "Paper card ringed in Ink 10%, shared by the dashboard and Analytics: label, 1.5rem tabular figure, outline trend badge where the period before had any, note line.",
       "html": "<div class=\"ds-kpi\"><p class=\"ds-kl\">Sales</p><p class=\"ds-kf\">PKR 412,000</p><span class=\"ds-kt\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16 7h6v6\"/><path d=\"m22 7-8.5 8.5-5-5L2 17\"/></svg>+12%</span><p class=\"ds-kn\">PKR 368,000 in the 30 days before</p></div>",
       "css": ".ds-kpi{font-family:Geist,system-ui,sans-serif;position:relative;width:16rem;padding:16px;border-radius:1.05rem;background:oklch(1 0 0);color:oklch(0.218 0.004 286);box-shadow:0 0 0 1px oklch(0.218 0.004 286 / 0.1);font-size:0.875rem}.ds-kpi p{margin:0}.ds-kl,.ds-kn{color:oklch(0.52 0.008 286)}.ds-kf{margin-top:4px!important;font-size:1.5rem;font-weight:600;font-variant-numeric:tabular-nums}.ds-kn{margin-top:16px!important}.ds-kt{position:absolute;top:16px;right:16px;display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 8px;border:1px solid oklch(0.87 0.0056 286);border-radius:9999px;font-size:0.75rem;font-weight:500;font-variant-numeric:tabular-nums}"
     },
@@ -734,11 +763,43 @@
       "description": "Packing slip or invoice: black on white, square, Small text with Caption heads, 1px black and neutral-300 rules, tabular figures; a slip states in 600 what the rider collects. (The source's uppercase spaced heads are drift and are not reproduced.)",
       "html": "<article class=\"ds-print\"><header><div><p class=\"wm\">Klaev</p><p class=\"mute\">hello@klaev.com · WhatsApp 0300 1234567</p></div><div class=\"r\"><p class=\"doc\">Packing slip</p><p>Order #1042</p></div></header><section><div><p class=\"cap\">Ship to</p><p><b>Ayesha Khan</b></p><p>Gulberg III, Lahore</p></div><div class=\"r\"><p class=\"cap\">Payment</p><p>Cash on delivery</p><p class=\"collect\">Collect PKR 16,899</p></div></section><table><thead><tr><th></th><th>Item</th><th>Size</th><th class=\"r\">Qty</th></tr></thead><tbody><tr><td><span class=\"box\"></span></td><td>Biker jacket, black</td><td>M</td><td class=\"r\">1</td></tr></tbody></table></article>",
       "css": ".ds-print{display:flex;flex-direction:column;gap:32px;max-width:180mm;padding:24px;background:#fff;color:#000;font-family:Geist,system-ui,sans-serif;font-size:0.875rem;line-height:1.625;font-variant-numeric:tabular-nums}.ds-print p{margin:0}.ds-print header{display:flex;justify-content:space-between;gap:24px;padding-bottom:16px;border-bottom:1px solid #000}.ds-print .wm{font-size:17px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase}.ds-print .doc{font-size:17px;font-weight:600}.ds-print .mute{color:oklch(0.439 0 0)}.ds-print .r{text-align:right}.ds-print section{display:grid;grid-template-columns:1fr 1fr;gap:24px}.ds-print .cap{font-size:0.75rem;font-weight:600;color:oklch(0.439 0 0)}.ds-print .collect{font-size:15px;font-weight:600}.ds-print table{width:100%;border-collapse:collapse}.ds-print th{padding:8px 0;font-size:0.75rem;font-weight:600;color:oklch(0.439 0 0);text-align:left;border-bottom:1px solid #000}.ds-print td{padding:10px 16px 10px 0;border-bottom:1px solid oklch(0.87 0 0)}.ds-print .box{display:block;width:14px;height:14px;border:1px solid #000}"
+    },
+    {
+      "name": "Share and Funnel Bars",
+      "kind": "custom",
+      "refersTo": "share-bar",
+      "description": "A share or funnel step: Ink on a Panel Grey full-round track, no hue. 6px for shares, 10px for funnel steps.",
+      "html": "<div class=\"ds-shares\"><div class=\"ds-sh-row\"><span>Instagram</span><span class=\"ds-sh-fig\">412 <em>(48%)</em></span></div><span class=\"ds-sh-track\"><span class=\"ds-sh-fill\" style=\"width:48%\"></span></span><div class=\"ds-sh-row\"><span>Checkout started</span><span class=\"ds-sh-fig\"><b>38</b></span></div><span class=\"ds-sh-track ds-sh-funnel\"><span class=\"ds-sh-fill\" style=\"width:9%\"></span></span></div>",
+      "css": ".ds-shares{font-family:Geist,system-ui,sans-serif;width:18rem;display:flex;flex-direction:column;gap:6px;font-size:0.875rem;color:var(--foreground,oklch(0.218 0.004 286))}.ds-sh-row{display:flex;justify-content:space-between;gap:12px;font-weight:500}.ds-sh-fig{font-variant-numeric:tabular-nums;font-weight:400}.ds-sh-fig em{font-style:normal;color:var(--muted-foreground,oklch(0.52 0.008 286))}.ds-sh-fig b{font-weight:600}.ds-sh-track{display:block;height:6px;border-radius:9999px;overflow:hidden;background:var(--muted,oklch(0.97 0.0016 286));margin-bottom:10px}.ds-sh-funnel{height:10px}.ds-sh-fill{display:block;height:100%;border-radius:9999px;background:var(--primary,oklch(0.218 0.004 286))}"
+    },
+    {
+      "name": "Report Table Card",
+      "kind": "card",
+      "refersTo": "report-table-head",
+      "description": "A report in a card: Hairline-ruled header with a CSV ghost button; names left, figures right-aligned and tabular.",
+      "html": "<div class=\"ds-rep\"><div class=\"ds-rep-h\"><div><p class=\"ds-rep-t\">Sales by product</p><p class=\"ds-rep-n\">Orders not cancelled or refused</p></div><a class=\"ds-rep-csv\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 15V3\"/><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><path d=\"m7 10 5 5 5-5\"/></svg>CSV</a></div><table><thead><tr><th>Product</th><th>Units</th><th>Sales</th></tr></thead><tbody><tr><td>Biker jacket, black</td><td>14</td><td>PKR 251,860</td></tr><tr><td>Bomber, brown</td><td>9</td><td>PKR 161,910</td></tr></tbody></table></div>",
+      "css": ".ds-rep{font-family:Geist,system-ui,sans-serif;width:26rem;border-radius:1.05rem;background:var(--card,oklch(1 0 0));box-shadow:0 0 0 1px oklch(0.218 0.004 286 / 0.1);font-size:0.875rem;color:oklch(0.218 0.004 286);overflow:hidden}.ds-rep-h{display:flex;justify-content:space-between;align-items:flex-start;padding:16px;border-bottom:1px solid oklch(0.925 0.003 286)}.ds-rep p{margin:0}.ds-rep-t{font-size:1rem;font-weight:500}.ds-rep-n{color:oklch(0.52 0.008 286)}.ds-rep-csv{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 10px;border-radius:0.6rem;color:inherit;text-decoration:none}.ds-rep-csv:hover{background:oklch(0.97 0.0016 286)}.ds-rep-csv:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}.ds-rep table{width:100%;border-collapse:collapse}.ds-rep th{height:40px;font-weight:500;text-align:right;padding:0 8px}.ds-rep td{padding:8px;text-align:right;font-variant-numeric:tabular-nums;border-top:1px solid oklch(0.925 0.003 286)}.ds-rep th:first-child,.ds-rep td:first-child{text-align:left;padding-left:16px;font-weight:500}.ds-rep th:last-child,.ds-rep td:last-child{padding-right:16px}"
+    },
+    {
+      "name": "Message Card",
+      "kind": "card",
+      "refersTo": "message-card",
+      "description": "An inbox message: name with an outline subject badge, contact line, the message, quiet-pill replies and a ghost Mark handled.",
+      "html": "<div class=\"ds-msg\"><div class=\"ds-msg-top\"><p><b>Ali Raza</b> <span class=\"ds-msg-badge\">A custom jacket</span></p><p class=\"ds-msg-q\">2 hours ago</p></div><p class=\"ds-msg-q\">0300 1234567 · ali@example.com</p><p class=\"ds-msg-body\">Can you make the biker in a 46 chest with a longer sleeve?</p><div class=\"ds-msg-act\"><a class=\"ds-msg-pill\" href=\"#\">WhatsApp Ali</a><a class=\"ds-msg-pill\" href=\"#\">Email Ali</a><button class=\"ds-msg-ghost\">Mark handled</button></div></div>",
+      "css": ".ds-msg{font-family:Geist,system-ui,sans-serif;width:30rem;display:flex;flex-direction:column;gap:12px;padding:16px 24px;border-radius:1.05rem;background:oklch(1 0 0);box-shadow:0 0 0 1px oklch(0.218 0.004 286 / 0.1);color:oklch(0.218 0.004 286);font-size:0.875rem}.ds-msg p{margin:0}.ds-msg b{font-weight:500;font-size:1rem}.ds-msg-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px}.ds-msg-q{color:oklch(0.52 0.008 286);font-variant-numeric:tabular-nums}.ds-msg-badge{display:inline-flex;align-items:center;height:20px;padding:0 8px;border:1px solid oklch(0.87 0.0056 286);border-radius:9999px;font-size:0.75rem;font-weight:500}.ds-msg-body{font-size:0.9375rem;line-height:1.625;max-width:70ch}.ds-msg-act{display:flex;flex-wrap:wrap;gap:8px;padding-top:4px}.ds-msg-pill{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:9999px;background:oklch(0.97 0.0016 286);color:inherit;font-weight:500;text-decoration:none}.ds-msg-pill:hover{background:oklch(0.95 0.002 286)}.ds-msg-pill:active{transform:scale(0.98)}.ds-msg-ghost{height:28px;padding:0 10px;border:0;border-radius:0.6rem;background:none;font:inherit;color:inherit}.ds-msg-ghost:hover{background:oklch(0.97 0.0016 286)}.ds-msg-pill:focus-visible,.ds-msg-ghost:focus-visible{outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}"
+    },
+    {
+      "name": "Subject Chips (contact)",
+      "kind": "chip",
+      "refersTo": "subject-chip",
+      "description": "A radio group as 44px pills; the chosen one takes the size card's Ink border and ring.",
+      "html": "<div class=\"ds-chips\"><label class=\"ds-chip ds-chip-on\"><input type=\"radio\" name=\"s\" checked>A question</label><label class=\"ds-chip\"><input type=\"radio\" name=\"s\">An order</label><label class=\"ds-chip\"><input type=\"radio\" name=\"s\">A custom jacket</label></div>",
+      "css": ".ds-chips{font-family:Geist,system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:8px}.ds-chip{display:inline-flex;align-items:center;height:44px;padding:0 16px;border:1px solid oklch(0.87 0.0056 286);border-radius:9999px;background:oklch(1 0 0);color:oklch(0.218 0.004 286);font-size:0.875rem;cursor:pointer}.ds-chip input{position:absolute;opacity:0;width:1px;height:1px}.ds-chip-on,.ds-chip:has(input:checked){border-color:oklch(0.218 0.004 286);box-shadow:0 0 0 1px oklch(0.218 0.004 286)}.ds-chip:has(input:focus-visible){outline:2px solid oklch(0.218 0.004 286);outline-offset:2px}"
     }
   ],
   "narrative": {
     "northStar": "The Quiet Counter",
-    "overview": "Klaev is the category standard executed at Apple Store craft: a white room with a well lit counter, where one product is laid out, its price is stated once and clearly, and every choice is made in order. The system is deliberately colourless. White ground, soft grey panels and near-black ink are the whole palette; the leather photography supplies every warm tone on the screen, so nothing in the interface competes with the hide.\n\nDensity is calm and single-column on the phone (390px first). Content stacks in one column with generous 32px gaps between blocks; on wide screens the same column sits beside the photos as a sticky buy column. Form is soft and rounded: pill actions, rounded selection cards, rounded grey panels, with hairlines used to rule lists and to seat fixed chrome. Depth is flat, with exactly two pieces of frosted glass: the header and the hero's colour picker, both of which float over photography. Motion is functional only: the product photo morphs from its card into the product page, accordions slide open as their chevrons turn, the cart drawer slides in, buttons settle under the finger.\n\nThe interface earns trust with exact information rather than decoration. Money is always tabular, sizes are named by chest measurement, and payment is broken into what you send now and what you pay on delivery. The user rejected loud streetwear urgency, generic template looks, and dark, moody \"leather brand\" styling; the white ground is the answer to all three. The admin at /admin is the same counter seen from behind it, built in the shadcn dashboard canon the owner pinned: a Panel Grey inset sidebar holding the work as one Paper sheet, KPI cards, a sales chart, data tables and tabs, all in Klaev's palette and Geist with no hue added. Its signature is the money bar, which draws every order's money as one split bar, so what came in, the cash still at the door and the courier's tax share read at a glance.",
+    "overview": "Klaev is the category standard executed at Apple Store craft: a white room with a well lit counter, where one product is laid out, its price is stated once and clearly, and every choice is made in order. The system is deliberately colourless. White ground, soft grey panels and near-black ink are the whole palette; the leather photography supplies every warm tone on the screen, so nothing in the interface competes with the hide.\n\nDensity is calm and single-column on the phone (390px first). Content stacks in one column with generous 32px gaps between blocks; on wide screens the same column sits beside the photos as a sticky buy column. Form is soft and rounded: pill actions, rounded selection cards, rounded grey panels, with hairlines used to rule lists and to seat fixed chrome. Depth is flat, with exactly two pieces of frosted glass: the header and the hero's colour picker, both of which float over photography. Motion is functional only: the product photo morphs from its card into the product page, accordions slide open as their chevrons turn, the cart drawer slides in, buttons settle under the finger.\n\nThe interface earns trust with exact information rather than decoration. Money is always tabular, sizes are named by chest measurement, and payment is broken into what you send now and what you pay on delivery. The user rejected loud streetwear urgency, generic template looks, and dark, moody \"leather brand\" styling; the white ground is the answer to all three. The admin at /admin is the same counter seen from behind it, built in the shadcn dashboard canon the owner pinned: a Panel Grey inset sidebar holding the work as one Paper sheet, KPI cards, trend charts, data tables and tabs, all in Klaev's palette and Geist with no hue added. Its signature is the money bar, which draws every order's money as one split bar, so what came in, the cash still at the door and the courier's tax share read at a glance.",
     "keyCharacteristics": [
       "White ground, grey panels, near-black ink; the photography is the only colour.",
       "One typeface, Geist Sans, with large tight semibold headings and tabular numerals for money.",
@@ -806,7 +867,7 @@
       },
       {
         "name": "The Ink Is Attention Rule",
-        "body": "State in the admin is drawn without hue, in three tones: Ink, Panel Grey and outline. Ink is spent on a state only when it waits on the owner: an order to confirm, a receipt in, a delivery attempted, a parcel coming back, a customer who has refused a delivery (their badge, and the warning on their next order). What is moving takes Panel Grey; what is elsewhere or over takes the outline, its label in Quiet Grey once it is finished. Beyond state, Ink fills only the one primary button and the figures.",
+        "body": "State in the admin is drawn without hue, in three tones: Ink, Panel Grey and outline. Ink is spent on a state only when it waits on the owner: an order to confirm, a receipt in, a delivery attempted, a parcel coming back, a customer who has refused a delivery (their badge, and the warning on their next order). What is moving takes Panel Grey; what is elsewhere or over takes the outline, its label in Quiet Grey once it is finished. Beyond state, Ink fills only the one primary button, the figures and the measure in a chart or bar. A label that only sorts (a message's subject) is an outline badge, not Ink.",
         "section": "colors"
       },
       {
@@ -827,6 +888,16 @@
       {
         "name": "The Paper Copy Rule",
         "body": "A printed document is black on white with no fill, no badge, no money bar and no radius. Hierarchy comes from weight and 1px rules alone, secondary text takes one grey, sizes come from the ramp, every figure is tabular, and each order starts a new page. A slip always states, in 600, what the rider collects.",
+        "section": "components"
+      },
+      {
+        "name": "The Grey Measure Rule",
+        "body": "A share or a step in the admin (where visits come from, devices, the funnel) is a full-round Ink bar on a Panel Grey track, as wide as its percent. No series takes a hue, and length alone carries the comparison.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Sideways Table Rule",
+        "body": "A report table fits a phone by dropping its secondary columns below 640px (or 768px), never by scrolling sideways: the name and the one figure that answers the question stay, the rest come back with the room. Figures are always right-aligned and tabular, so a column of money reads down.",
         "section": "components"
       }
     ],
@@ -851,7 +922,10 @@
       "**Do** put a table row's actions in one \"⋯\" menu at its end once there is more than one, ending the items that open a dialog in an ellipsis.",
       "**Do** highlight exactly one place in the admin sidebar: the current sub page, or else its section.",
       "**Do** set every size from the ramp; the journal's long reading is Article (1.0625rem, line-height 1.625) in a 42rem column.",
-      "**Do** print black on white: Small text, Caption heads, 1px black and neutral 300 rules, tabular figures, one order per page."
+      "**Do** print black on white: Small text, Caption heads, 1px black and neutral 300 rules, tabular figures, one order per page.",
+      "Do right-align every figure in a report table, and drop its secondary columns on phones rather than let it scroll sideways.",
+      "Do draw a share or a funnel step as an Ink bar on a Panel Grey track, and give each trend chart one series in Chart One.",
+      "Do set a store page (About, a policy, Contact) as a 42rem Read-mode column: Title, optional Lead, Article body through the shared renderer."
     ],
     "donts": [
       "**Don't** add box-shadows or hover lift to any surface, or backdrop blur to anything but the header and the hero colour picker.",
@@ -864,7 +938,8 @@
       "**Don't** add shadows to admin surfaces: ring the sheet in Hairline, and cards, menus and dialogs in Ink at 10%.",
       "**Don't** hatch anything but cash still to collect at the door, or give a badge or chart a hue the store doesn't have.",
       "**Don't** spend Ink on a state that is merely moving or finished, or show two action buttons side by side in a table row.",
-      "**Don't** carry screen fills, badges, the money bar or rounded corners onto a printed document."
+      "**Don't** carry screen fills, badges, the money bar or rounded corners onto a printed document.",
+      "Don't spend Ink on a label that only sorts: a message's subject is an outline badge."
     ]
   },
   "adminDark": {

@@ -417,9 +417,30 @@ components:
     backgroundColor: "{colors.panel-grey}"
   action-row-zero:
     textColor: "{colors.quiet-grey}"
-  sales-chart:
+  trend-chart:
     height: "256px"
     width: "100%"
+  share-bar:
+    backgroundColor: "{colors.panel-grey}"
+    rounded: "{rounded.full}"
+    height: "6px"
+  share-bar-fill:
+    backgroundColor: "{colors.ink}"
+    rounded: "{rounded.full}"
+  funnel-bar:
+    backgroundColor: "{colors.panel-grey}"
+    rounded: "{rounded.full}"
+    height: "10px"
+  report-table-head:
+    textColor: "{colors.ink}"
+    typography: "{typography.small}"
+    height: "40px"
+  message-card:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    typography: "{typography.small}"
+    rounded: "{rounded.xl}"
+    padding: "16px 24px"
   money-bar:
     backgroundColor: "{colors.panel-grey}"
     rounded: "{rounded.full}"
@@ -490,6 +511,22 @@ components:
     textColor: "{colors.ink}"
     typography: "{typography.article}"
     width: "42rem"
+  store-page-column:
+    textColor: "{colors.ink}"
+    typography: "{typography.article}"
+    width: "42rem"
+  subject-chip:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    typography: "{typography.small}"
+    rounded: "{rounded.full}"
+    padding: "0 16px"
+    height: "44px"
+  sent-panel:
+    backgroundColor: "{colors.panel-grey}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.2xl}"
+    padding: "24px"
   journal-cover:
     backgroundColor: "{colors.panel-grey}"
     rounded: "{rounded.2xl}"
@@ -557,7 +594,7 @@ Klaev is the category standard executed at Apple Store craft: a white room with 
 
 Density is calm and single-column on the phone (390px first). Content stacks in one column with generous 32px gaps between blocks; on wide screens the same column sits beside the photos as a sticky buy column. Form is soft and rounded: pill actions, rounded selection cards, rounded grey panels, with hairlines used to rule lists and to seat fixed chrome. Depth is flat, with exactly two pieces of frosted glass: the header and the hero's colour picker, both of which float over photography. Motion is functional only: the product photo morphs from its card into the product page, accordions slide open as their chevrons turn, the cart drawer slides in, buttons settle under the finger.
 
-The admin at /admin is the same counter seen from behind it, built in the shadcn dashboard canon the owner pinned: a Panel Grey inset sidebar holding the work as one Paper sheet, KPI cards, a sales chart, data tables and tabs, all in Klaev's palette and Geist with no hue added. Its signature is the money bar, which draws every order's money as one split bar, so what came in, the cash still at the door and the courier's tax share read at a glance.
+The admin at /admin is the same counter seen from behind it, built in the shadcn dashboard canon the owner pinned: a Panel Grey inset sidebar holding the work as one Paper sheet, KPI cards, trend charts, data tables and tabs, all in Klaev's palette and Geist with no hue added. Its signature is the money bar, which draws every order's money as one split bar, so what came in, the cash still at the door and the courier's tax share read at a glance.
 
 The interface earns trust with exact information rather than decoration. Money is always tabular, sizes are named by chest measurement, and payment is broken into what you send now and what you pay on delivery. The user rejected loud streetwear urgency, generic template looks, and dark, moody "leather brand" styling; the white ground is the answer to all three.
 
@@ -593,13 +630,13 @@ A neutral, faintly cool grey family (hue 286, near-zero chroma) around a pure wh
 The admin adds no hue, and one grey.
 - **Selected Grey** (oklch 0.93 0.003 286): the sidebar's current place and its hover wash. One step darker than Press Grey, because Press Grey barely reads on the Panel Grey sidebar.
 
-Panel Grey grounds the sidebar around the Paper work sheet, fills the "moving" badges, the period and status tab tracks, the Needs action hover and the money bar's open track. Ink fills the one primary button, the "needs you" badges, the refusal warning on an order's Customer card, done steps in the stepper, the sales line and the received share of the money bar. Outline Grey draws outline badges, waiting steps and the dialog footer's rule; Hairline rings the work sheet and rules the page header, table rows and lists. Quiet Grey draws the money bar's door hatching (at 60%), the courier's estimated tax (at 30%) and its recorded tax (solid). Signal Red keeps its one job: the error line under an action.
+Panel Grey grounds the sidebar around the Paper work sheet, fills the "moving" badges, the period and status tab tracks, the Needs action hover, the money bar's open track and the tracks of Analytics' share and funnel bars. Ink fills the one primary button, the "needs you" badges, the refusal warning on an order's Customer card, done steps in the stepper, the trend line, the measure in a share or funnel bar and the received share of the money bar. Outline Grey draws outline badges, waiting steps and the dialog footer's rule; Hairline rings the work sheet and rules the page header, table rows and lists. Quiet Grey draws the money bar's door hatching (at 60%), the courier's estimated tax (at 30%) and its recorded tax (solid). Signal Red keeps its one job: the error line under an action.
 
-**Chart tokens.** Chart One is Ink, Chart Two Quiet Grey, Chart Three Outline Grey. The sales chart uses Chart One alone; the other two are the only colours a second or third series may take.
+**Chart tokens.** Chart One is Ink, Chart Two Quiet Grey, Chart Three Outline Grey. Every trend chart (sales, visitors) uses Chart One alone; the other two are the only colours a second or third series may take.
 
 **Sidebar tokens.** The sidebar's ground is Panel Grey; its text, primary and focus ring are Ink; text on its primary is Paper on Ink; its accent is Selected Grey; its border is Hairline.
 
-**The Ink Is Attention Rule.** State in the admin is drawn without hue, in three tones: Ink, Panel Grey and outline. Ink is spent on a state only when it waits on the owner: an order to confirm, a receipt in, a delivery attempted, a parcel coming back, a customer who has refused a delivery (their badge, and the warning on their next order). What is moving takes Panel Grey; what is elsewhere or over takes the outline, its label in Quiet Grey once it is finished. Beyond state, Ink fills only the one primary button and the figures.
+**The Ink Is Attention Rule.** State in the admin is drawn without hue, in three tones: Ink, Panel Grey and outline. Ink is spent on a state only when it waits on the owner: an order to confirm, a receipt in, a delivery attempted, a parcel coming back, a customer who has refused a delivery (their badge, and the warning on their next order). What is moving takes Panel Grey; what is elsewhere or over takes the outline, its label in Quiet Grey once it is finished. Beyond state, Ink fills only the one primary button, the figures and the measure in a chart or bar. A label that only sorts (a message's subject) is an outline badge, not Ink.
 
 ### The admin at night
 The admin has a dark theme; the storefront never does. It follows the computer's light or dark setting unless the owner picks Light or Dark under Appearance at the sidebar's foot (kept in that browser). A script at the top of every admin page sets it before the first paint, so a dark admin never flashes white, and leaving the admin for the store hands the page back light.
@@ -612,6 +649,8 @@ Dark is the same cool near-neutral family (hue 286) with the steps turned over, 
 - **Night Ink** (oklch 0.955 0.002 286): text, figures, the one primary button and the "needs you" badges. Ink's job is unchanged; only its tone inverts, so the primary is a light pill with Night Sheet text.
 - **Night Quiet** (oklch 0.71 0.008 286): secondary text, at least 6:1 on every night surface. **Night Red** (oklch 0.7 0.18 25) keeps the error line's one job.
 - Charts run Night Ink, Night Quiet and Night Outline. Overlays behind dialogs and the phone sidebar deepen from Ink at 10% to black at 50%. Native controls (selects, date fields, scrollbars) follow through `color-scheme: dark`.
+
+**The Grey Measure Rule.** A share or a step in the admin (where visits come from, devices, the funnel) is a full-round Ink bar on a Panel Grey track, as wide as its percent. No series takes a hue, and length alone carries the comparison.
 
 **The Night Inversion Rule.** Dark mode is a token swap, never a second design: no hue, no glow, no new surface. A colour written into a component instead of a token is the one thing that breaks it. The printed document is the exception on purpose: it stays white paper, shown on a dark screen as a sheet on the desk.
 
@@ -649,7 +688,7 @@ Printed documents leave the screen palette behind: black text on white paper, no
 - **Article** (400, 1.0625rem, line-height 1.625, Ink): a journal article's body, in Read mode. It is the one long-reading size; unlike Body Reading it stays Ink, because the article is the page's whole job. Paragraphs wrap pretty.
 - **Article Heading** (600, 1.5rem, tracking -0.025em, balanced): a section heading inside an article.
 
-Journal titles (the index's "Journal" and an article's title) take the Title (2rem rising to 3rem at 768px, line-height 1.25); on the index each article's name is a Headline. Codes are data, not headings: a discount code is set in 500 with tracking opened to 0.025em, like an account number, in the uppercase it is stored in.
+Journal titles (the index's "Journal" and an article's title) take the Title (2rem rising to 3rem at 768px, line-height 1.25); on the index each article's name is a Headline. Store pages (About, Contact, the size chart, the policies) take the same Title over an optional Lead, and their bodies are Article text. Codes are data, not headings: a discount code is set in 500 with tracking opened to 0.025em, like an account number, in the uppercase it is stored in.
 
 ### Admin (working density)
 The admin keeps Geist and the storefront's weights; Small (0.875rem) is its body: tables, cards, forms, menus.
@@ -689,9 +728,11 @@ The admin is a sidebar and a sheet. From 768px a 16rem Panel Grey sidebar holds 
 
 Every console page opens on its page header: at least 56px tall, 16px side padding (24px from 768px), ruled by a Hairline beneath. Left to right: the sidebar toggle, a 16px vertical rule centred on the title, the title, then the page's controls pushed right (the period control, the search, the Update status menu); on a narrow screen the controls wrap under the title. The header does not stick, so pages carrying the admin mark drop the storefront's top scroll padding to zero.
 
-Below the header each page is one column with 16px padding (24px from 768px) and 16px between blocks. There is no maximum width: the sheet is the container. The dashboard is four KPI cards (one column on phones, two from 640px, four from 1280px), then two rows split 2:1 from 1280px, Sales beside Needs action and Recent orders beside Running low. Orders is the status tabs, the table card and the pager. An order is its summary card, then its tabs: Overview splits into a main column and a 24rem side column from 1024px (Receipt and Items; Customer, Parcel details and Note), Payments into two columns (Money beside Profit, then Payments across both). Stock is an intro line capped at 65ch above one card of products. Settings is a column of cards, one per concern (Checkout, Bank account, Courier, Password, Store details). Discounts and Abandoned checkouts open on an intro line in Small Quiet Grey capped at 70ch above one table card. Customers is the header search (18rem, 36px), the segment tabs, the table card and a pager at 50. A customer's page is a card of four figures (two columns on phones, four from 768px, split by Hairline rules), then a main column and a 22rem side column from 1024px: Orders beside Contact and Notes, the side column first on phones because a call is usually why you came. Create order splits the same way, Items and Payment beside Customer, Note and the Create order button. A journal article's editor splits into a main column and a 20rem side column from 1024px (the article and its search listing; Status, Cover photo and Delete article). Pages below a section (an order, a customer, an article, Create order) lead their header title with a back link: the section's name in Quiet Grey behind a 16px ChevronLeft, turning Ink on hover.
+Below the header each page is one column with 16px padding (24px from 768px) and 16px between blocks. There is no maximum width: the sheet is the container. The dashboard is four KPI cards (one column on phones, two from 640px, four from 1280px), then two rows split 2:1 from 1280px, Sales beside Needs action and Recent orders beside Running low. Orders is the status tabs, the table card and the pager. An order is its summary card, then its tabs: Overview splits into a main column and a 24rem side column from 1024px (Receipt and Items; Customer, Parcel details and Note), Payments into two columns (Money beside Profit, then Payments across both). Stock is an intro line capped at 65ch above one card of products. Settings is a column of cards, one per concern (Checkout, Bank account, Courier, Password, Store details). Discounts and Abandoned checkouts open on an intro line in Small Quiet Grey capped at 70ch above one table card. Customers is the header search (18rem, 36px), the segment tabs, the table card and a pager at 50. A customer's page is a card of four figures (two columns on phones, four from 768px, split by Hairline rules), then a main column and a 22rem side column from 1024px: Orders beside Contact and Notes, the side column first on phones because a call is usually why you came. Create order splits the same way, Items and Payment beside Customer, Note and the Create order button. A journal article's editor splits into a main column and a 20rem side column from 1024px (the article and its search listing; Status, Cover photo and Delete article). A page's editor splits the same way, the page's words beside a 20rem Search engine listing card. Messages is the Waiting and Handled tabs above a column of message cards 12px apart; Pages is an intro line capped at 70ch above one table card.
 
-The journal index is a 48rem column, an article a 42rem column, and /track a 36rem column, each in the 20px gutter (32px from 768px) with 64px below. The index and /track start 32px below the header (the index 48px from 768px); an article starts 24px below (40px from 768px) and stacks its parts 32px apart. An article's breadcrumbs drop their own padding so the trail lines up with the column's edge, top left from 768px and closing the article on phones.
+Analytics works in the dashboard's grid. The overview is six KPI cards (one column on phones, two from 640px, three from 1280px), then pairs side by side from 1280px: the Sales and Visitors trend charts, then Where visits come from beside Top products, then By city beside a stacked Devices and Campaigns, split 2:1. A note on Panel Grey (xl radius, 12px by 16px, Small Quiet Grey) leads the page while no visits are counted. Live view is four KPI cards (two from 640px, four from 1280px), then On the store now beside Today's orders and Cities now, 2:1. Funnel is one card. Reports is its tabs, then report cards two to a row from 1280px, a table with more than five columns spanning both. Pages below a section (an order, a customer, an article, a page, Create order) lead their header title with a back link: the section's name in Quiet Grey behind a 16px ChevronLeft, turning Ink on hover.
+
+The journal index is a 48rem column, an article and a store page (/pages/..., /policies/...) a 42rem column, and /track a 36rem column, each in the 20px gutter (32px from 768px) with 64px below. The index and /track start 32px below the header (the index 48px from 768px); an article and a store page start 24px below (40px from 768px) and stack their parts 32px apart. On the size chart page each line's chart is a section 40px from the next. An article's breadcrumbs drop their own padding so the trail lines up with the column's edge, top left from 768px and closing the article on phones.
 
 Print pages are a column at most 180mm wide, 40px of padding above and below on screen and none on paper, one order per printed page. Above it, on screen only, a sticky print bar ruled by Hairline names what is about to print in Small Quiet Grey and holds the Ink "Print" button.
 
@@ -714,7 +755,7 @@ Soft, consistent rounding derived from a 0.75rem base radius. Actions and round 
 
 The glass colour picker is a full pill with 32px circular swatches; the photo viewer runs edge to edge with square corners, its thumbnails 48px wide at 4:5 and lg radius. The cart drawer is a full-height sheet with square corners; its line thumbnails are 64px at 4:5 and xl radius.
 
-In the admin the large forms take the xl radius (1.05rem): the work sheet, cards and dialogs. Buttons, menus, the period and status tab tracks, the status tab links and the Needs action rows take lg (0.75rem); the period segments, the tab count chips and the sidebar's items take md (0.6rem). Badges are full pills 20px tall. The quiet pill stays a full pill at 40px. The money bar is a full-round track, 6px in tables and 8px in an order's summary; the stepper's steps are 24px circles joined by 1px rules; product thumbnails are 48px at 4:5 and lg radius; the receipt preview rounds to 2xl; admin fields keep the xl radius.
+In the admin the large forms take the xl radius (1.05rem): the work sheet, cards and dialogs. Buttons, menus, the period and status tab tracks, the status tab links and the Needs action rows take lg (0.75rem); the period segments, the tab count chips and the sidebar's items take md (0.6rem). Badges are full pills 20px tall. The quiet pill stays a full pill at 40px. The money bar is a full-round track, 6px in tables and 8px in an order's summary; Analytics' share bars are full-round 6px tracks and its funnel bars 10px; the stepper's steps are 24px circles joined by 1px rules; product thumbnails are 48px at 4:5 and lg radius; the receipt preview rounds to 2xl; admin fields keep the xl radius.
 
 Journal covers are photographs of their own, not product imagery: 4:3 at xl radius in the index (240px wide from 640px, full width on phones), whole at their own ratio and 2xl radius in an article, on Panel Grey. In the admin the article list's thumbnails are 56px at 4:3 and md radius, and the editor's cover preview is 4:3 at lg radius. Repeated editable items (the FAQ's questions, an order's lines in Edit items and Create order) are boxes at xl radius with a 1px Hairline border and 12px padding, 12px apart. The refusal warning is an lg strip; a customer's tags are md chips. Print is square: no radius anywhere, 1px rules only, and the slip's pack box is a 14px square outlined in black.
 
@@ -787,7 +828,7 @@ A 36rem column: the Title "Track your order", a Body line in Quiet Grey with the
 ### Journal
 The articles at /blogs/blog, in Read mode.
 - **Index:** the Title "Journal" and a Body line in Quiet Grey (52ch), then the articles newest first as a list ruled by Hairline top, bottom and between. Each row is a whole link, 24px of vertical padding: the cover (see Shapes), then the date in Small Quiet Grey tabular, the title in Headline (balanced, underlined at 0.2em on the row's hover) and the summary in Body Quiet Grey. Beside the cover from 640px, 24px apart; stacked beneath it on phones. With no articles, a Panel Grey 2xl panel with 24px padding says so in Quiet Grey.
-- **Article:** a 42rem column. The breadcrumbs (Home, Journal, the article), the title in Title, balanced, and a Small Quiet Grey tabular line of the date and the reading time ("12 March 2026 · 4 min read"). The cover runs the column's width at 2xl radius. The body is Article text, its blocks 20px apart: paragraphs, Article Headings with 12px more space above, and lists with Quiet Grey disc markers, a 20px indent and 8px between items. The body is plain text parsed into these three blocks; there is no other formatting. The breadcrumbs close the article on phones.
+- **Article:** a 42rem column. The breadcrumbs (Home, Journal, the article), the title in Title, balanced, and a Small Quiet Grey tabular line of the date and the reading time ("12 March 2026 · 4 min read"). The cover runs the column's width at 2xl radius. The body is Article text, its blocks 20px apart: paragraphs, Article Headings with 12px more space above, and lists with Quiet Grey disc markers, a 20px indent and 8px between items. The body is plain text parsed into these three blocks, with `[words](/link)` links inside them (underlined at 0.2em offset, the underline dropping on hover; an outside https link opens a new tab); there is no other formatting. Store pages share the same renderer. The breadcrumbs close the article on phones.
 
 ### Cards / Containers
 - **Corner Style:** 2xl (1.35rem) for panels; xl for the size guide.
@@ -850,14 +891,20 @@ A 2px segmented bar along the photo's bottom edge on phones, one segment per pho
 ### Navigation
 A full-width sticky glass bar (the shared glass material), 48px tall on phones and 52px from 768px, seated by a 1px rule of Ink at 8%. Three columns: "Shop" on the left (Small, Ink, so it holds its contrast over dark leather passing beneath; 44px tall with a Press Grey pill bubble on hover), the KLAEV wordmark centred (with left padding equal to its tracking, so the word sits on the true centre), and the cart icon button on the right. The cart count is an 18px Ink pill with a white 0.6875rem semibold tabular figure at the bag's top right. The header is excluded from page transitions so it never flickers.
 
+### Store Pages
+The store's own words (About, Contact, the size chart, the policies), in Read mode like a journal article: a 42rem column with the breadcrumbs (Home, the page) top left from 768px and closing the page on phones, the title in Title (balanced), an optional Lead in Quiet Grey (pretty wrap, any link in it Ink and underlined), and on a policy a "Last updated 12 March 2026" line in Small Quiet Grey. The body is the journal's Article text through the shared renderer, links included.
+- **Contact:** the form beneath the Lead, its parts 20px apart: storefront fields at 48px with Labels (Name; Mobile number and Email side by side from 640px, then "One is enough" in Small Quiet Grey), the subject as chips, a five-row message field at least 128px tall that resizes vertically, then the shared black pill ("Send message", "Sending" on Panel Grey while it goes), full width on phones and its own width from 640px. Sent, the form gives way to a Panel Grey 2xl panel with 24px padding: the thanks in 1.125rem 500, then a Body Quiet Grey line with the WhatsApp link. The panel takes focus and is announced.
+- **Subject chips:** a radio group as 44px full pills, 1px Outline Grey border on Paper, 16px side padding, Small Ink. The chosen one takes an Ink border and a 1px Ink ring, as a size card does; keyboard focus draws the global Ink outline.
+- **Size chart:** one section per line, 40px apart: the line's name in Headline, its jackets as underlined links in a Small Quiet Grey line, the size table on a Panel Grey 2xl panel (16px by 8px), then the guide's note in Small Quiet Grey. The table is the size guide's: Small tabular, Quiet Grey heads over an Outline Grey rule, rows split by Hairline, the size in 500.
+
 ### Footer
-Panel Grey ground with a hairline top rule; three columns from 768px. Wordmark, then "Help" and "Follow" labels in 500 Ink over Quiet Grey links that turn Ink and underline on hover. On a phone page with a fixed bottom bar it holds a 7rem reserve below its last line, so the bar never covers the footer and the page ends on Panel Grey.
+Panel Grey ground with a Hairline top rule, Small Quiet Grey text, 40px of vertical padding inside the 72rem container. Four columns from 768px: the brand (the wordmark, the line "Real leather. Made in Pakistan, delivered across Pakistan." and an About Klaev link), Help (Track your order, Size chart, Contact, WhatsApp and the email address), Policies (Delivery, Exchanges and refunds, Privacy, Terms) and More (Journal, Instagram). On phones it is two columns, the brand across both above Help and Policies, then More; columns sit 24px apart and rows 32px. Column labels are 500 Ink over links 8px apart in Quiet Grey that turn Ink and underline on hover. On a phone page with a fixed bottom bar it holds a 7rem reserve below its last line, so the bar never covers the footer and the page ends on Panel Grey.
 
 ### Admin Sidebar
 The console's shell, from the shadcn sidebar in its inset form. Panel Grey, 16rem wide, holding the Paper work sheet beside it.
 - **Head:** the Admin Wordmark with "Admin" in Small Quiet Grey on its baseline, a link to the dashboard, 16px in from the sides.
-- **Places:** laid out like Shopify's admin, so it feels familiar: Home, Orders, Products, Customers, Discounts, Content, Analytics and Settings, each a 32px row at md radius with a 16px Lucide glyph at 1.8 (Home, ShoppingBag, Package, Users, BadgePercent, FileText, BarChart3, Settings) and a Small label. Hover washes the row Selected Grey; the current place keeps that wash and turns 500. Orders carries the count of orders waiting on you (to confirm and to ship together) at its right edge in Caption 500 tabular, no fill, hidden at zero.
-- **Sub pages:** a section's own pages show beneath it only while you are in it: Orders holds Create order and Abandoned checkouts; Products holds Collections and Inventory; Content holds Journal and FAQ. They are 28px rows at md radius in Small, no glyph, indented 14px behind a 1px Hairline rule, Selected Grey on hover.
+- **Places:** laid out like Shopify's admin, so it feels familiar: Home, Orders, Products, Customers, Messages, Discounts, Content, Analytics and Settings, each a 32px row at md radius with a 16px Lucide glyph at 1.8 (Home, ShoppingBag, Package, Users, Inbox, BadgePercent, FileText, BarChart3, Settings) and a Small label. Hover washes the row Selected Grey; the current place keeps that wash and turns 500. Orders carries the count of orders waiting on you (to confirm and to ship together) at its right edge in Caption 500 tabular, no fill, hidden at zero; Messages carries its count of messages waiting the same way.
+- **Sub pages:** a section's own pages show beneath it only while you are in it: Orders holds Create order and Abandoned checkouts; Products holds Collections and Inventory; Content holds Journal, Pages and FAQ; Analytics holds Live view, Funnel and Reports. They are 28px rows at md radius in Small, no glyph, indented 14px behind a 1px Hairline rule, Selected Grey on hover.
 
 **The One Highlight Rule.** The sidebar marks exactly one place per page: the sub page you are on, or else, when no sub page matches, the section itself. A section and its sub page are never washed together, and the highlighted row carries aria-current="page".
 - **Foot:** View store (opens the store in a new tab, ExternalLink glyph) and Sign out (LogOut glyph), in the same row style.
@@ -888,7 +935,7 @@ The storefront field at working density: 40px tall, xl radius, 1px Outline Grey 
 State without hue, from the shadcn badge: 20px full pills, Caption 500, 8px side padding, a 12px Lucide glyph at stroke 2 where one helps.
 - **Ink (needs you):** To confirm; Receipt in, with a FileCheck glyph, beside To confirm in the table once a receipt has come; a shipped order whose courier status is Delivery attempted or Coming back; a customer who has refused a delivery ("Refused a delivery", "Refused 2 deliveries"), with a TriangleAlert.
 - **Panel Grey (moving):** Confirmed, Packed, Delivered (with a Check), Paid (with a Check); a Repeat customer; an Active discount code; a Published article.
-- **Outline (out of your hands, or over):** a 1px Outline Grey border on Paper. In Ink text: the courier statuses of a shipped order on its way (Booked, In transit, Out for delivery), With courier (with a Truck), Advance in, Part paid, a First-time customer, a Scheduled code or article, a Draft article, and Messaged on an abandoned checkout. In Quiet Grey text, because it is over: Cancelled, Refused, Unpaid, a Lapsed customer, No orders, and a code that has Ended, is Used up or is Off.
+- **Outline (out of your hands, or over):** a 1px Outline Grey border on Paper. In Ink text: the courier statuses of a shipped order on its way (Booked, In transit, Out for delivery), With courier (with a Truck), Advance in, Part paid, a First-time customer, a Scheduled code or article, a Draft article, Messaged on an abandoned checkout, and a message's subject (A question, An order, A custom jacket, An exchange). In Quiet Grey text, because it is over: Cancelled, Refused, Unpaid, a Lapsed customer, No orders, a code that has Ended, is Used up or is Off, and a store page still Original.
 - **Status of a shipped order:** once shipped, the status badge names where the parcel is (the courier status set by hand) instead of "Shipped".
 - **Customer segments:** a customer's badges sit in a row 6px apart: the refusal first, then Repeat or First-time, then Lapsed or No orders.
 - **Trend:** on a KPI card, an outline badge with a TrendingUp or TrendingDown glyph and the change in tabular figures ("+12%").
@@ -900,13 +947,13 @@ State without hue, from the shadcn badge: 20px full pills, Caption 500, 8px side
 The shadcn card: Paper, xl radius, a 1px ring of Ink at 10%, no shadow, 16px padding and 16px between its parts, Small text. A header holds the Admin Card Title, a Small Quiet Grey description beneath, and an action at its top right (a text link or a badge). A card holding a table or a list runs it edge to edge, its rows padded 16px at either end.
 
 ### KPI Cards
-Four on the dashboard: Sales, Orders, Cash with the courier, and Profit. Each is the label in Small Quiet Grey, the figure in Admin Figure, an outline trend badge against the previous period at the top right (on Sales and Orders, when the previous period had any), and a note line in Small Quiet Grey (last period's figure, the average order, what the courier should pay out after its tax, or what the profit leaves out).
+One card, shared by the dashboard and Analytics. Four on the dashboard: Sales, Orders, Cash with the courier, and Profit. Each is the label in Small Quiet Grey, the figure in Admin Figure, an outline trend badge against the previous period at the top right (on Sales and Orders, when the previous period had any), and a note line in Small Quiet Grey (last period's figure, the average order, what the courier should pay out after its tax, or what the profit leaves out). Analytics' overview carries six (Sales, Orders, Average order, Visitors, Conversion rate, Returning customers), each noting the period before; a trend badge shows only where the period before had any, and rates carry none. Live view carries four with no trend: Visitors right now, Carts open, Checkouts in progress, Orders today.
 
 ### Period Control
-The dashboard header's 7, 30 and 90 days, as links in a segmented control: a Panel Grey track at lg radius with 2px padding; each segment Small Quiet Grey at md radius, 4px by 12px, turning Ink on hover; the chosen one Paper, 500 Ink, ringed 1px Ink at 10%. The period lives in the address, so a view can be shared.
+The 7, 30 and 90 days in a page header (the dashboard, the Analytics overview, Funnel, and Reports except Profit, which lists every month), as links in a segmented control: a Panel Grey track at lg radius with 2px padding; each segment Small Quiet Grey at md radius, 4px by 12px, turning Ink on hover; the chosen one Paper, 500 Ink, ringed 1px Ink at 10%. The period lives in the address, so a view can be shared.
 
-### Sales Chart
-An area chart, 256px tall, the full width of its card. The line is Chart One (Ink) at 1.5px over a wash of the same at 6%. Horizontal grid lines only, in Outline Grey at half strength; axes without lines, ticks in Caption Quiet Grey, the money axis in thousands ("12k"). Today is still going, so its stretch (from yesterday's point to today's) sits in a Panel Grey band and its tick reads "Today", so a low point there never reads as a collapse. The tooltip names the day ("Today so far" for today), the orders count in Quiet Grey and the figure in 500 tabular.
+### Trend Chart
+One figure per day in an area chart (Sales on the dashboard; Sales and Visitors in Analytics), 256px tall, the full width of its card, one series only. The line is Chart One (Ink) at 1.5px over a wash of the same at 6%. Horizontal grid lines only, in Outline Grey at half strength; axes without lines, ticks in Caption Quiet Grey, the value axis in thousands ("12k", "2.1M"). Today is still going, so its stretch (from yesterday's point to today's) sits in a solid Panel Grey band, drawn above the grid and beneath the line and its wash, and its tick reads "Today", so a low point there never reads as a collapse. The tooltip names the day ("Today so far" for today), the point's detail in Quiet Grey ("3 orders", "41 visits") and the figure in 500 tabular, in PKR for money.
 
 ### Needs Action
 The dashboard card of what waits on you, beside the chart. Its description says "Waiting on you", or "All caught up." when every count is zero. Rows link to the matching status tab: To confirm (with how many have a receipt in), To ship, Out for over 5 days, Payouts to record. Each row is lg radius, 10px by 8px, Panel Grey on hover: the count (600, 1.125rem, tabular, 2rem wide), the label in Small 500 with its detail in Caption Quiet Grey beneath, and a 16px ArrowRight in Quiet Grey. A row at zero dims to Quiet Grey and its count drops to 400, so what needs you stands out without a colour.
@@ -995,7 +1042,22 @@ A sale taken on WhatsApp, Instagram or in person. Items: repeated items with siz
 ### Settings and Content Editors
 - **Settings forms:** each card's fields in two or three columns from 640px, 16px apart, labels above and hints below; the Save row 20px beneath, the outcome said beside the button in a Small line (Quiet Grey for done, Signal Red for wrong). Store details is a read-only list, terms in a 10rem Quiet Grey column.
 - **FAQ editor:** the home page questions as repeated items in their order: the question field in 500, then ghost icon buttons to move it up or down (disabled at the ends) and to remove it; the answer as a three-row field beneath. Under the list, "Add a question" as an outline button with a Plus, then Save.
+- **Page editor:** the SaveForm pattern of the article editor: the header's back link to Pages, a Small Quiet Grey "View on the store" link and the Save beside it; the Title field, then the Page field at 24 rows, 0.9375rem and relaxed leading, resizing vertically, its Caption Quiet Grey hint naming the blocks, the link format and the term placeholders. The side column's Search engine listing card names the page's address and holds the description. An edited page offers "Put back the original" as a ghost button, through a dialog dismissed by "Keep my edits".
+- **Pages list:** one table card, each row a whole link: the title in 500, the address in Quiet Grey from 640px, and at the right "Edited 12 Mar 2026" in Small Quiet Grey tabular or an outline "Original" badge in Quiet Grey.
 - **Article editor:** the fields sit across the cards and save together from the header's Save; once live, a Small Quiet Grey "View on the store" link sits beside it. The Article field is 18 rows at 0.9375rem and relaxed leading, its hint naming the three blocks the body knows. The search listing card previews the result in an xl box with a Hairline border. A cover is replaced by upload and removed through a "Keep it" dialog; Delete article sits alone at the foot of the side column.
+
+### Analytics
+How the store did, in the dashboard's materials. Every table here is a report table and every share a bar.
+- **Report table:** the orders table's language in a card whose header is ruled by Hairline: Admin Card Title, a Small Quiet Grey note, and a "CSV" ghost button with a 16px Download glyph at the top right when there are rows. Heads are Small 500 Ink; the first column is the name in 500, truncated at 18rem; every other column is a figure, right-aligned and tabular, 16px in from the card's edges. A cell with nothing in it reads "None" in Quiet Grey. Rows ruled by Hairline; heads take no hover wash. An empty table is one centred Small Quiet Grey line, 32px tall either side.
+- **Share bar:** a 6px full-round Panel Grey track, the share in Ink from the left. Under each source's name in Where visits come from, and under each device's line (the share, then its visits in Quiet Grey) in Devices.
+- **Funnel:** the steps from a visit to a delivered order in one card, 16px apart. From 640px each step is a row: the label in Small 500 in a 14rem column, a 10px Ink bar on its Panel Grey track as wide as the step's share of visits (at least 1% when any), then a 9rem column, right-aligned: the count in 600 tabular over "62% of previous" in Caption Quiet Grey. On phones the bar drops under the label and figure, across the row.
+- **Report tabs and inbox tabs:** Reports' Sales, Customers, Behaviour, Operations and Profit, and Messages' Waiting and Handled, are status tabs without count chips: links, Small Quiet Grey at lg radius, 6px by 12px, the current one Panel Grey in 500 Ink. The report tabs scroll sideways on a phone.
+- **Live view:** the same page with "Updates every 10 seconds" in Small Quiet Grey at the header's right. It reloads its figures every 10 seconds while the tab is in view, and at once when the tab comes back; nothing on screen animates when it does. Today's orders are action rows (lg radius, Panel Grey on hover): the number in 500 tabular with the name in Quiet Grey, the city and how long ago in Caption Quiet Grey beneath, and the total over the status badge at the right. Cities now and Campaigns are Hairline-ruled two-column lists.
+
+**The No Sideways Table Rule.** A report table fits a phone by dropping its secondary columns below 640px (or 768px), never by scrolling sideways: the name and the one figure that answers the question stay, the rest come back with the room. Figures are always right-aligned and tabular, so a column of money reads down.
+
+### Messages
+The contact form's inbox, waiting first and newest first. Each message is an admin card (16px padding, 24px sides from 768px, 12px between its parts): the name in 500 with the subject as an outline badge beside it, how long ago at the right in Small Quiet Grey tabular; the phone and email in Small Quiet Grey tabular; the message at 0.9375rem and relaxed leading, its line breaks kept, capped at 70ch; then the replies as quiet pills at 36px with a 16px glyph ("WhatsApp Ali" with MessageCircle, "Email Ali" with Mail) and "Mark handled" (or "Move back to waiting") as a ghost button opening a dialog. No message is Ink: waiting is said by the tab and the sidebar's count. With none, a card holds a 500 line and a Small Quiet Grey line, 32px by 24px.
 
 ### Print Document
 A packing slip or an invoice for one order, at /admin/print/<number> (?doc=invoice for the invoice) and, for every order waiting to ship, oldest first, at /admin/print. Black on white, square, 32px between its parts:
@@ -1033,6 +1095,9 @@ The one admin page outside the console: no sidebar, a centred column at most 24r
 - **Do** highlight exactly one place in the admin sidebar: the current sub page, or else its section.
 - **Do** set every size from the ramp; the journal's long reading is Article (1.0625rem, line-height 1.625) in a 42rem column.
 - **Do** print black on white: Small text, Caption heads, 1px black and neutral 300 rules, tabular figures, one order per page.
+- **Do** right-align every figure in a report table, and drop its secondary columns on phones rather than let it scroll sideways.
+- **Do** draw a share or a funnel step as an Ink bar on a Panel Grey track, and give each trend chart one series in Chart One.
+- **Do** set a store page (About, a policy, Contact) as a 42rem Read-mode column: Title, optional Lead, Article body through the shared renderer.
 
 ### Don't:
 - **Don't** add box-shadows or hover lift to any surface, or backdrop blur to anything but the header and the hero colour picker.
@@ -1046,3 +1111,4 @@ The one admin page outside the console: no sidebar, a centred column at most 24r
 - **Don't** hatch anything but cash still to collect at the door, or give a badge or chart a hue the store doesn't have.
 - **Don't** spend Ink on a state that is merely moving or finished, or show two action buttons side by side in a table row.
 - **Don't** carry screen fills, badges, the money bar or rounded corners onto a printed document.
+- **Don't** spend Ink on a label that only sorts: a message's subject is an outline badge.

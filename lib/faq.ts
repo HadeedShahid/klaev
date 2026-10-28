@@ -6,22 +6,14 @@ import { HOME_FAQ } from "@/data/home-faq";
 
 import { getDb, type Db } from "./db";
 import { settings } from "./db/schema";
-import { formatPKR } from "./money";
 import type { CodTerms } from "./payment";
-import { STORE } from "./store";
+import { fillTerms } from "./store-terms";
 
 export type FaqItem = { question: string; answer: string };
 
-// Words in an answer that show the store's current terms, so the FAQ never contradicts checkout.
-export const FAQ_PLACEHOLDERS = ["{advance}", "{cod_fee}", "{exchange_days}"] as const;
-
+// The FAQ with the store's current terms written in (lib/store-terms.ts).
 export function fillFaq(items: FaqItem[], terms: CodTerms): FaqItem[] {
-  const fill = (text: string) =>
-    text
-      .replaceAll("{advance}", formatPKR(terms.codAdvance))
-      .replaceAll("{cod_fee}", formatPKR(terms.codDeliveryFee))
-      .replaceAll("{exchange_days}", String(STORE.exchangeDays));
-  return items.map((item) => ({ question: fill(item.question), answer: fill(item.answer) }));
+  return items.map((item) => ({ question: fillTerms(item.question, terms), answer: fillTerms(item.answer, terms) }));
 }
 
 function isFaq(value: unknown): value is FaqItem[] {

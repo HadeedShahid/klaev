@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
 import { getPublishedPost } from "@/lib/journal";
-import { parseBody, readingMinutes } from "@/lib/journal-body";
+import { RichText } from "@/components/site/rich-text";
+import { readingMinutes } from "@/lib/journal-body";
 import { STORE } from "@/lib/store";
 
 const day = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Karachi", day: "numeric", month: "long", year: "numeric" });
@@ -71,25 +72,7 @@ export default async function ArticlePage({ params }: PageProps<"/blogs/blog/[ha
           className="w-full rounded-2xl bg-muted object-cover"
         />
       ) : null}
-      <div className="flex flex-col gap-5 text-[1.0625rem] leading-relaxed">
-        {parseBody(post.body).map((block, index) =>
-          block.kind === "heading" ? (
-            <h2 key={index} className="pt-3 text-2xl font-semibold tracking-tight text-balance">
-              {block.text}
-            </h2>
-          ) : block.kind === "list" ? (
-            <ul key={index} className="flex list-disc flex-col gap-2 pl-5 marker:text-muted-foreground">
-              {block.items.map((item, itemIndex) => (
-                <li key={itemIndex}>{item}</li>
-              ))}
-            </ul>
-          ) : (
-            <p key={index} className="text-pretty">
-              {block.text}
-            </p>
-          ),
-        )}
-      </div>
+      <RichText body={post.body} />
       <Breadcrumbs trail={trail} placement="bottom" className="px-0" />
     </article>
   );

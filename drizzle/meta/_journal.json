@@ -71,6 +71,20 @@
       "when": 1793094926500,
       "tag": "0009_journal",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1793101079869,
+      "tag": "0010_pages_and_messages",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1793101456836,
+      "tag": "0011_analytics_events",
+      "breakpoints": true
     }
   ]
 }

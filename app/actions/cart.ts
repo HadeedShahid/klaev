@@ -3,6 +3,7 @@
 import { getVariant } from "@/lib/catalog";
 import { getCartView, readCart, writeCart, type CartView } from "@/lib/cart";
 import { addLine, removeLine } from "@/lib/cart-codec";
+import { recordServerEvent } from "@/lib/analytics";
 
 export type AddToCartState =
   | { status: "idle" }
@@ -21,6 +22,7 @@ export async function addToCart(_prev: AddToCartState, formData: FormData): Prom
 
   const lines = addLine(await readCart(), variantId);
   await writeCart(lines);
+  await recordServerEvent("cart", { productHandle: match.product.handle, path: `/products/${match.product.handle}` });
   return { status: "added", count: lines.reduce((sum, line) => sum + line.quantity, 0) };
 }
 

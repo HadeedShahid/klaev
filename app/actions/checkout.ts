@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -12,6 +11,7 @@ import { checkoutOrdered, saveCheckout } from "@/lib/checkouts";
 import { checkDiscount, type DiscountKind } from "@/lib/discounts";
 import { placeOrder } from "@/lib/orders";
 import { normalizePhone } from "@/lib/phone";
+import { refreshStore } from "@/lib/refresh-store";
 import { isLocalRequest } from "@/lib/request";
 
 export type CheckoutState = {
@@ -87,6 +87,6 @@ export async function checkout(_prev: CheckoutState, formData: FormData): Promis
   await writeCart([]);
   await recordServerEvent("order", { orderNumber: result.number, path: "/checkout" });
   // Cached pages show which sizes are in stock, so a size that just sold out refreshes them all.
-  if (result.soldOut) revalidatePath("/", "layout");
+  if (result.soldOut) await refreshStore();
   redirect(`/orders/${result.token}`);
 }

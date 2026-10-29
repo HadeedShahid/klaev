@@ -1,12 +1,13 @@
 "use server";
 
-import { refresh, revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/admin/auth";
 import { createExchange, createManualOrder, editItems, receiveReturn } from "@/lib/admin/order-changes";
 import { markContacted } from "@/lib/checkouts";
 import { getDb } from "@/lib/db";
+import { refreshStore } from "@/lib/refresh-store";
 
 import type { ActionState } from "./admin";
 
@@ -23,8 +24,8 @@ function parseJson<T>(value: string, fallback: T): T {
 }
 
 // Stock moved, and the storefront's cached pages show stock.
-function stockChanged() {
-  revalidatePath("/", "layout");
+async function stockChanged() {
+  await refreshStore();
   refresh();
 }
 
@@ -34,7 +35,7 @@ export async function editItemsAction(_: ActionState, form: FormData): Promise<A
   const items = parseJson<{ variantId: number; quantity: number }[]>(text(form, "items"), []);
   const result = await editItems(await getDb(), Number(form.get("number")), Array.isArray(items) ? items : []);
   if (!result.ok) return { error: result.message };
-  stockChanged();
+  await stockChanged();
   return { done: "Items saved." };
 }
 
@@ -47,7 +48,7 @@ export async function exchangeAction(_: ActionState, form: FormData): Promise<Ac
     charge: rupees(text(form, "charge"), 0),
   });
   if (!result.ok) return { error: result.message };
-  revalidatePath("/", "layout");
+  await refreshStore();
   redirect(`/admin/orders/${result.number}`);
 }
 
@@ -55,7 +56,7 @@ export async function returnAction(_: ActionState, form: FormData): Promise<Acti
   await requireAdmin();
   const result = await receiveReturn(await getDb(), Number(form.get("number")));
   if (!result.ok) return { error: result.message };
-  stockChanged();
+  await stockChanged();
   return { done: "Back in stock." };
 }
 
@@ -78,7 +79,7 @@ export async function manualOrderAction(_: ActionState, form: FormData): Promise
     note: text(form, "note"),
   });
   if (!result.ok) return { error: result.message };
-  revalidatePath("/", "layout");
+  await refreshStore();
   redirect(`/admin/orders/${result.number}`);
 }
 

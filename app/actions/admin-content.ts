@@ -1,11 +1,12 @@
 "use server";
 
-import { refresh, revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 
 import { requireAdmin } from "@/lib/admin/auth";
 import { getDb } from "@/lib/db";
 import { setHandled } from "@/lib/messages";
 import { restorePage, savePage } from "@/lib/pages";
+import { refreshStore } from "@/lib/refresh-store";
 
 import type { ActionState } from "./admin";
 
@@ -20,7 +21,7 @@ export async function savePageAction(_: ActionState, form: FormData): Promise<Ac
     body: text(form, "body"),
   });
   if (!result.ok) return { error: result.message };
-  revalidatePath("/", "layout");
+  await refreshStore();
   refresh();
   return { done: "Saved." };
 }
@@ -28,7 +29,7 @@ export async function savePageAction(_: ActionState, form: FormData): Promise<Ac
 export async function restorePageAction(_: ActionState, form: FormData): Promise<ActionState> {
   await requireAdmin();
   await restorePage(await getDb(), text(form, "handle"));
-  revalidatePath("/", "layout");
+  await refreshStore();
   refresh();
   return { done: "Back to the original." };
 }

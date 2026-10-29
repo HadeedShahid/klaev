@@ -1,20 +1,21 @@
 "use server";
 
-import { refresh, revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/admin/auth";
 import { deletePhoto, storePhoto } from "@/lib/admin/media";
 import { getDb } from "@/lib/db";
 import { createPost, deletePost, getPost, savePost, setCover } from "@/lib/journal";
+import { refreshStore } from "@/lib/refresh-store";
 
 import type { ActionState } from "./admin";
 
 const text = (form: FormData, name: string) => String(form.get(name) ?? "");
 
 // The journal pages are cached like the rest of the store: a change shows on the next visit.
-function changed() {
-  revalidatePath("/", "layout");
+async function changed() {
+  await refreshStore();
   refresh();
 }
 
@@ -39,7 +40,7 @@ export async function savePostAction(_: ActionState, form: FormData): Promise<Ac
     seoDescription: text(form, "seoDescription"),
   });
   if (!result.ok) return { error: result.message };
-  changed();
+  await changed();
   return { done: "Saved." };
 }
 
@@ -53,7 +54,7 @@ export async function uploadPostCover(postId: number, form: FormData): Promise<A
   if (!stored.ok) return { error: stored.message };
   const previous = await setCover(db, postId, stored);
   if (previous) await deletePhoto(previous);
-  changed();
+  await changed();
   return { done: "Cover added." };
 }
 
@@ -61,7 +62,7 @@ export async function removeCoverAction(_: ActionState, form: FormData): Promise
   await requireAdmin();
   const previous = await setCover(await getDb(), Number(form.get("postId")), null);
   if (previous) await deletePhoto(previous);
-  changed();
+  await changed();
   return { done: "Cover removed." };
 }
 
@@ -69,6 +70,6 @@ export async function deletePostAction(_: ActionState, form: FormData): Promise<
   await requireAdmin();
   const deleted = await deletePost(await getDb(), Number(form.get("postId")));
   if (deleted?.coverSrc) await deletePhoto(deleted.coverSrc);
-  revalidatePath("/", "layout");
+  await refreshStore();
   redirect("/admin/content/journal");
 }

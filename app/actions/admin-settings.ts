@@ -1,10 +1,11 @@
 "use server";
 
-import { refresh, revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 
 import { changePassword, requireAdmin } from "@/lib/admin/auth";
 import { getDb } from "@/lib/db";
 import { saveFaq, type FaqItem } from "@/lib/faq";
+import { refreshStore } from "@/lib/refresh-store";
 import { saveBankAccount, saveCodTerms } from "@/lib/settings";
 
 import type { ActionState } from "./admin";
@@ -17,7 +18,7 @@ export async function codTermsAction(_: ActionState, form: FormData): Promise<Ac
   await requireAdmin();
   const result = await saveCodTerms(await getDb(), { codDeliveryFee: rupees(text(form, "codDeliveryFee")), codAdvance: rupees(text(form, "codAdvance")) });
   if (!result.ok) return { error: result.message };
-  revalidatePath("/", "layout");
+  await refreshStore();
   refresh();
   return { done: "Saved. The store shows the new amounts now." };
 }
@@ -53,7 +54,7 @@ export async function faqAction(_: ActionState, form: FormData): Promise<ActionS
   }
   const result = await saveFaq(await getDb(), Array.isArray(items) ? items : []);
   if (!result.ok) return { error: result.message };
-  revalidatePath("/", "layout");
+  await refreshStore();
   refresh();
   return { done: "Saved. The home page shows it now." };
 }

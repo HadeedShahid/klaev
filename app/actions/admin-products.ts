@@ -1,6 +1,6 @@
 "use server";
 
-import { refresh, revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/admin/auth";
@@ -20,6 +20,7 @@ import {
 } from "@/lib/admin/products";
 import type { ProductSection } from "@/lib/db/schema";
 import { getDb } from "@/lib/db";
+import { refreshStore } from "@/lib/refresh-store";
 
 import type { ActionState } from "./admin";
 
@@ -29,8 +30,8 @@ const rupees = (value: string) => (value.replace(/[,\s]/g, "") === "" ? Number.N
 const optionalRupees = (value: string) => (value.trim() === "" ? null : rupees(value));
 
 // Every product change shows on the store at once: cached pages refresh on their next visit.
-function changed() {
-  revalidatePath("/", "layout");
+async function changed() {
+  await refreshStore();
   refresh();
 }
 
@@ -73,7 +74,7 @@ export async function saveProductAction(_: ActionState, form: FormData): Promise
     compareAtPrice: optionalRupees(text(form, "compareAtPrice")),
   });
   if (!result.ok) return { error: result.message };
-  changed();
+  await changed();
   return { done: "Saved." };
 }
 
@@ -85,7 +86,7 @@ export async function addSizeAction(_: ActionState, form: FormData): Promise<Act
     costPrice: optionalRupees(text(form, "costPrice")),
   });
   if (!result.ok) return { error: result.message };
-  changed();
+  await changed();
   return { done: "Size added." };
 }
 
@@ -97,7 +98,7 @@ export async function saveSizeAction(_: ActionState, form: FormData): Promise<Ac
     costPrice: optionalRupees(text(form, "costPrice")),
   });
   if (!result.ok) return { error: result.message };
-  changed();
+  await changed();
   return { done: "Size saved." };
 }
 
@@ -111,7 +112,7 @@ export async function uploadProductPhoto(productId: number, form: FormData): Pro
   const stored = await storePhoto(form, `products/${product.handle}`);
   if (!stored.ok) return { error: stored.message };
   await addProductImage(db, productId, { src: stored.src, width: stored.width, height: stored.height, alt: product.title });
-  changed();
+  await changed();
   return { done: "Photo added." };
 }
 
@@ -132,7 +133,7 @@ export async function photoAction(_: ActionState, form: FormData): Promise<Actio
   } else {
     return { error: "That isn't something a photo can do." };
   }
-  changed();
+  await changed();
   return { done: intent === "delete" ? "Photo removed." : "Saved." };
 }
 
@@ -153,6 +154,6 @@ export async function collectionAction(_: ActionState, form: FormData): Promise<
             ? await deleteCollection(db, handle)
             : ({ ok: false, message: "That isn't something a collection can do." } as const);
   if (!result.ok) return { error: result.message };
-  changed();
+  await changed();
   return { done: "Saved." };
 }

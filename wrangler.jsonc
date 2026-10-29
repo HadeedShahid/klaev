@@ -1,9 +1,13 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"main": ".open-next/worker.js",
+	// OpenNext's worker, wrapped to set what Workers Cache keeps (worker.ts).
+	"main": "worker.ts",
 	"name": "klaev",
 	"compatibility_date": "2026-10-01",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	// Workers Cache: store pages are answered from Cloudflare's cache without running the Worker.
+	// lib/edge-cache.ts decides what's kept, refreshStore() purges it, and each deploy starts empty.
+	"cache": { "enabled": true },
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"

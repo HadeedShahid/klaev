@@ -1,6 +1,6 @@
 "use server";
 
-import { refresh, revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { allowSignInAttempt, checkPassword, endSession, requireAdmin, startSession } from "@/lib/admin/auth";
@@ -29,6 +29,7 @@ import { saveCourierSettings } from "@/lib/admin/courier";
 import { restock, saveStock } from "@/lib/admin/stock";
 import { getDb } from "@/lib/db";
 import { saveReceipt } from "@/lib/receipts";
+import { refreshStore } from "@/lib/refresh-store";
 
 export type SignInState = { error: string } | null;
 
@@ -136,7 +137,7 @@ export async function updateOrder(_: ActionState, form: FormData): Promise<Actio
   const result = await action();
   if (!result.ok) return { error: result.message };
   // Cancelling and refusing put stock back, which the storefront's cached pages show.
-  if (intent === "cancel" || intent === "refuse") revalidatePath("/", "layout");
+  if (intent === "cancel" || intent === "refuse") await refreshStore();
   refresh();
   return { done: DONE[intent] };
 }
@@ -175,7 +176,7 @@ export async function restockSize(_: ActionState, form: FormData): Promise<Actio
   await requireAdmin();
   const result = await restock(await getDb(), Number(form.get("variantId")), rupees(form.get("quantity")), String(form.get("note") ?? ""));
   if (!result.ok) return { error: result.message };
-  revalidatePath("/", "layout");
+  await refreshStore();
   refresh();
   return { done: "Restocked." };
 }
@@ -187,7 +188,7 @@ export async function correctStock(_: ActionState, form: FormData): Promise<Acti
   const variantId = Number(form.get("variantId"));
   const result = await saveStock(await getDb(), [{ variantId, from: rupees(form.get("shown")), to: rupees(form.get("count")) }]);
   if (!result.ok) return { error: result.message };
-  revalidatePath("/", "layout");
+  await refreshStore();
   refresh();
   return { done: "Count saved." };
 }
@@ -202,7 +203,7 @@ export async function updateStock(_: ActionState, form: FormData): Promise<Actio
   }));
   const result = await saveStock(await getDb(), changes);
   if (!result.ok) return { error: result.message };
-  revalidatePath("/", "layout");
+  await refreshStore();
   refresh();
   return { done: "Saved." };
 }

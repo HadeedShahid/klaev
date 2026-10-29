@@ -27,6 +27,7 @@ Klaev sells premium leather jackets and belts in Pakistan. This repo replaces th
 |---|---|---|
 | App | Next.js 16 on Cloudflare Workers, deployed with the OpenNext adapter | One codebase for the storefront, admin and API |
 | Plan | Workers Paid, $5 a month | The free plan allows 10 ms of CPU per request, which is too little for server rendering |
+| Page cache | Workers Cache in front of the Worker, cleared when stock, products, content or settings change, and on every deploy | A cached store page reaches the shopper without the Worker running: no CPU, no database read, and faster |
 | Database | D1 (SQLite) with Drizzle ORM | Included in Workers Paid: 25 billion row reads and 50 million row writes a month |
 | Images and uploads | R2. Product photos are stored ready-sized as WebP, one copy per width the site asks for, so nothing resizes on request | Product photos and bank transfer receipts |
 | Admin login | A password and a signed session cookie, built in | One admin needs nothing more, and nothing extra loads or can break on OpenNext |

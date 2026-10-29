@@ -136,7 +136,7 @@ A toned-down Shopify admin, laid out the way Shopify's is so it feels familiar: 
 
 ### Orders
 
-- **List (built):** tabs for All, To confirm, To ship, Shipped, Payout due, Delivered, Cancelled, with counts; search by number, name or phone; paging; CSV export of the tab and search on screen; packing slips for everything waiting to ship, one per page. Bulk "mark packed" is left for later.
+- **List (built):** tabs for All, To confirm, To ship, Shipped, Payout due, Delivered, Cancelled, with counts; filters beside them for payment method, payment status and the date placed (presets or custom dates), kept by the tabs, paging and export; statuses, payments and the dashboard's changes in colour (amber waits, green ready or paid or up, blue on its way, violet delivered, red lost or down); search by number, name or phone; paging; CSV export of the tab and search on screen; packing slips for everything waiting to ship, one per page. Bulk "mark packed" is left for later.
 - **Order page (built):** a stepper (placed, advance in or paid, packed, shipped, delivered, paid out), one Update status menu, and Overview, Payments and History tabs. Confirm records the advance or transfer; shipping takes the tracking number and the courier's upfront charge; the courier's payout records what it kept as tax. The advance, contact details, tracking number, courier charge and payments can all be changed or corrected afterwards, and receipts uploaded from the admin.
 - **On the order page (built):**
   - **Edit items** before it ships: change a size or quantity, add or remove an item. Stock moves by the difference; lines keep their price, added ones take today's, and a percentage code is worked out again.

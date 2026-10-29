@@ -12,6 +12,7 @@ import { placeOrder } from "../orders";
 import {
   cancelOrder,
   confirmOrder,
+  countOrders,
   deletePayment,
   editContact,
   editShipping,
@@ -85,6 +86,39 @@ describe("listing orders", () => {
     expect((await listOrders(store.db, { query: "0333 1112223" })).map((order) => order.number)).toEqual([second]);
 
     expect(await orderCounts(store.db)).toMatchObject({ to_confirm: 1, to_ship: 1, shipped: 0 });
+  });
+
+  test("filtered by payment method, by where the money stands and by when placed, with tab counts that follow", async () => {
+    await store.run(["UPDATE variants SET stock = 10"]);
+    const unpaid = await place(ayesha);
+    const transfer = await place(bilal, DARK_BROWN_M);
+    const advance = await place({ ...ayesha, name: "Sara Malik" });
+    const atCourier = await place({ ...ayesha, name: "Hina Butt" }, DARK_BROWN_M);
+    await confirmOrder(store.db, transfer);
+    await confirmOrder(store.db, advance);
+    await confirmOrder(store.db, atCourier);
+    await markShipped(store.db, atCourier, { trackingNumber: "PX123", courierFee: null });
+    await markDelivered(store.db, atCourier);
+    const numbers = async (filters: Parameters<typeof listOrders>[1]) => (await listOrders(store.db, filters)).map((order) => order.number);
+
+    expect(await numbers({ method: "bank_transfer" })).toEqual([transfer]);
+    expect(await numbers({ method: "cod" })).toEqual([atCourier, advance, unpaid]);
+    expect(await numbers({ paid: "paid" })).toEqual([transfer]);
+    expect(await numbers({ paid: "unpaid" })).toEqual([unpaid]);
+    expect(await numbers({ paid: "advance" })).toEqual([advance]);
+    expect(await numbers({ paid: "with_courier" })).toEqual([atCourier]);
+    // The filter and the badge never disagree: every order is found under its own state.
+    for (const row of await listOrders(store.db, {})) expect(await numbers({ paid: paymentState(row) })).toContain(row.number);
+
+    // Placed ten days ago: outside the last week, inside the last month.
+    await store.run([`UPDATE orders SET created_at = unixepoch() - 10 * 86400 WHERE number = ${unpaid}`]);
+    const day = 86_400_000;
+    expect(await numbers({ from: new Date(Date.now() - 7 * day), to: new Date(Date.now() + day) })).toEqual([atCourier, advance, transfer]);
+    expect(await numbers({ from: new Date(Date.now() - 30 * day), method: "cod", filter: "to_confirm" })).toEqual([unpaid]);
+
+    expect(await countOrders(store.db, { method: "cod" })).toBe(3);
+    expect(await orderCounts(store.db, { method: "cod" })).toMatchObject({ all: 3, to_confirm: 1, to_ship: 1, delivered: 1, payout_due: 1 });
+    expect(await orderCounts(store.db, { method: "bank_transfer" })).toMatchObject({ all: 1, to_ship: 1, payout_due: 0 });
   });
 
   test("each row's paid amount and item count are its own order's", async () => {

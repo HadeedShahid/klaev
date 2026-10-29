@@ -13,7 +13,7 @@ related_targets: ["app/admin/(console)/page.tsx","app/admin/(console)/orders/pag
 
 THESIS: A real operations console in the shadcn dashboard canon the owner pinned (sidebar, KPI cards, chart, data table, tabs), replacing the single-scroll queue that read as elongated and scattered its actions.
 
-OWN-WORLD: Klaev's palette and Geist on the shadcn dashboard frame: Panel Grey inset sidebar holding a Paper work sheet with a hairline edge, no shadows; Ink for the one primary action and for figures; badges in Ink, Panel Grey and outline, never hue. Signature move: the split money bar, carried into the order header and table, with the courier's 4% made visible.
+OWN-WORLD: Klaev's palette and Geist on the shadcn dashboard frame: Panel Grey inset sidebar holding a Paper work sheet with a hairline edge, no shadows; Ink for the one primary action and for figures; badges in the five status colours by DESIGN.md's Colour Means State Rule (the owner asked for colour on 29 October 2026; before that, never hue). Signature move: the split money bar, carried into the order header and table, with the courier's 4% made visible.
 
 STORY: Open the dashboard, read sales, orders, cash with the courier and profit against the last period, see what needs action; jump to a tab of orders; open one, read its stepper, move it on with the one Update status control.
 

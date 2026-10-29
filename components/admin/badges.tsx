@@ -3,40 +3,38 @@ import { Check, FileCheck, Truck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { COURIER_LABELS, STATE_LABELS, STATUS_LABELS } from "@/lib/admin/labels";
 import type { CourierStatus, OrderStatus, paymentState } from "@/lib/admin/orders";
+import { paymentTone, statusTone, TONE_BADGE, type Tone } from "@/lib/admin/tones";
 import { cn } from "@/lib/utils";
 
-// State without hue: Ink for what needs you, Panel Grey for what's moving, outline for what's
-// out of your hands or over.
-const STATUS_VARIANT: Record<OrderStatus, "default" | "secondary" | "outline"> = {
-  pending: "default",
-  confirmed: "secondary",
-  packed: "secondary",
-  shipped: "outline",
-  delivered: "secondary",
-  cancelled: "outline",
-  refused: "outline",
-};
-
-// A shipped order shows where the parcel is; a failed attempt or a parcel coming back needs you.
-export function StatusBadge({ status, courierStatus = null }: { status: OrderStatus; courierStatus?: CourierStatus | null }) {
-  const trouble = status === "shipped" && (courierStatus === "attempted" || courierStatus === "returning");
+// A soft badge in one of the admin's status colours (lib/admin/tones.ts). `data-tone` names it.
+function ToneBadge({ tone, className, children }: { tone: Tone; className?: string; children: React.ReactNode }) {
   return (
-    <Badge variant={trouble ? "default" : STATUS_VARIANT[status]} className={cn((status === "cancelled" || status === "refused") && "text-muted-foreground")}>
+    <Badge variant="secondary" data-tone={tone} className={cn(TONE_BADGE[tone], className)}>
+      {children}
+    </Badge>
+  );
+}
+
+// A shipped order shows where the parcel is, and turns amber or red when it's in trouble.
+export function StatusBadge({ status, courierStatus = null }: { status: OrderStatus; courierStatus?: CourierStatus | null }) {
+  return (
+    <ToneBadge tone={statusTone(status, courierStatus)}>
       {status === "delivered" ? <Check strokeWidth={2} aria-hidden /> : null}
       {status === "shipped" && courierStatus ? COURIER_LABELS[courierStatus] : STATUS_LABELS[status]}
-    </Badge>
+    </ToneBadge>
   );
 }
 
 export function PaymentBadge({ state }: { state: ReturnType<typeof paymentState> }) {
   return (
-    <Badge variant={state === "paid" ? "secondary" : "outline"} className={cn(state === "unpaid" && "text-muted-foreground")}>
+    <ToneBadge tone={paymentTone(state)}>
       {state === "paid" ? <Check strokeWidth={2} aria-hidden /> : state === "with_courier" ? <Truck strokeWidth={2} aria-hidden /> : null}
       {STATE_LABELS[state]}
-    </Badge>
+    </ToneBadge>
   );
 }
 
+// A receipt waiting to be checked is the one thing in a row that asks you to act, so it stays Ink.
 export function ReceiptBadge() {
   return (
     <Badge variant="default">

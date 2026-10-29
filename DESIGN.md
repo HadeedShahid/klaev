@@ -605,7 +605,7 @@ The interface earns trust with exact information rather than decoration. Money i
 - Rounded panels and selection cards; hairlines rule lists and seat fixed bars.
 - No shadows. Depth comes from grey panels against white; glass is reserved for the header and the hero colour picker.
 - Motion serves navigation and state, never ornament.
-- The admin is an operations console in the same materials: Panel Grey sidebar, Paper sheet, ringed cards, badges in Ink, Panel Grey and outline, one black primary per view.
+- The admin is an operations console in the same materials: Panel Grey sidebar, Paper sheet, ringed cards, one black primary per view. It alone adds colour, and only to say what state something is in.
 
 ## Colors
 
@@ -627,8 +627,10 @@ A neutral, faintly cool grey family (hue 286, near-zero chroma) around a pure wh
 - **Signal Red** (oklch 0.55 0.2 27): validation and failure messages only: the size prompt error, a checkout field's error line, the payment choice error, a failed receipt upload. Always a line of text, never a border, fill or icon. Never decorative.
 
 ### In the admin
-The admin adds no hue, and one grey.
+The admin adds one grey, and five status colours.
 - **Selected Grey** (oklch 0.93 0.003 286): the sidebar's current place and its hover wash. One step darker than Press Grey, because Press Grey barely reads on the Panel Grey sidebar.
+
+- **Status colours** (`--tone-*`, `lib/admin/tones.ts`): **Amber** (oklch 0.5 0.12 62 on 0.955 0.055 85) waits on you; **Green** (0.47 0.12 152 on 0.955 0.04 152) is ready, settled or up; **Blue** (0.48 0.15 258 on 0.955 0.03 258) is on its way; **Violet** (0.48 0.17 300 on 0.955 0.03 300) is done; **Red** (0.5 0.19 27 on 0.955 0.03 25) is lost or down. Each is words in the colour on a soft tint of it, 5.4:1 or better; at night light words on a dark tint (Green 0.82 0.13 152 on 0.31 0.05 152, and the same steps for the others), 6.8:1 or better. Grey (Quiet Grey on Panel Grey) is nothing yet.
 
 Panel Grey grounds the sidebar around the Paper work sheet, fills the "moving" badges, the period and status tab tracks, the Needs action hover, the money bar's open track and the tracks of Analytics' share and funnel bars. Ink fills the one primary button, the "needs you" badges, the refusal warning on an order's Customer card, done steps in the stepper, the trend line, the measure in a share or funnel bar and the received share of the money bar. Outline Grey draws outline badges, waiting steps and the dialog footer's rule; Hairline rings the work sheet and rules the page header, table rows and lists. Quiet Grey draws the money bar's door hatching (at 60%), the courier's estimated tax (at 30%) and its recorded tax (solid). Signal Red keeps its one job: the error line under an action.
 
@@ -636,7 +638,7 @@ Panel Grey grounds the sidebar around the Paper work sheet, fills the "moving" b
 
 **Sidebar tokens.** The sidebar's ground is Panel Grey; its text, primary and focus ring are Ink; text on its primary is Paper on Ink; its accent is Selected Grey; its border is Hairline.
 
-**The Ink Is Attention Rule.** State in the admin is drawn without hue, in three tones: Ink, Panel Grey and outline. Ink is spent on a state only when it waits on the owner: an order to confirm, a receipt in, a delivery attempted, a parcel coming back, a customer who has refused a delivery (their badge, and the warning on their next order). What is moving takes Panel Grey; what is elsewhere or over takes the outline, its label in Quiet Grey once it is finished. Beyond state, Ink fills only the one primary button, the figures and the measure in a chart or bar. A label that only sorts (a message's subject) is an outline badge, not Ink.
+**The Colour Means State Rule.** Colour in the admin says one thing each, the same everywhere, and always beside words, never alone. An order: To confirm amber; Confirmed and Packed green; Shipped and its courier statuses blue, turning amber at Delivery attempted and red at Coming back; Delivered violet; Cancelled and Refused red. Its money: Paid green; With courier and Advance in blue; Part paid amber; Unpaid grey. A figure against the period before: up green, down red, level grey. A customer who has refused a delivery: red. The order tabs carry their orders' colour as a 6px dot, so they are the colours' key. Nothing else takes a hue: not charts, bars, buttons or sorting labels (a message's subject stays an outline badge). Ink still fills the one primary button, and the one badge that asks you to act in a row, Receipt in. The storefront stays colourless (the Leather Is the Colour Rule).
 
 ### The admin at night
 The admin has a dark theme; the storefront never does. It follows the computer's light or dark setting unless the owner picks Light or Dark under Appearance at the sidebar's foot (kept in that browser). A script at the top of every admin page sets it before the first paint, so a dark admin never flashes white, and leaving the admin for the store hands the page back light.
@@ -935,10 +937,11 @@ A table row with one action shows it in place (an abandoned checkout's WhatsApp 
 The storefront field at working density: 40px tall, xl radius, 1px Outline Grey border on Paper, 12px side padding, Small text, Quiet Grey placeholders. Labels sit above in Small 500, 6px apart; hints below in Caption Quiet Grey. Money and counts are tabular; stock counts are 64px wide and centred, their size label centred above in Caption Quiet Grey, a size at zero set in Quiet Grey. The note field is the same box, three rows, at least 80px tall, resizing vertically. The orders search sits in the page header at 36px and 18rem, a 16px Search glyph inside at the left.
 
 ### Badges
-State without hue, from the shadcn badge: 20px full pills, Caption 500, 8px side padding, a 12px Lucide glyph at stroke 2 where one helps.
-- **Ink (needs you):** To confirm; Receipt in, with a FileCheck glyph, beside To confirm in the table once a receipt has come; a shipped order whose courier status is Delivery attempted or Coming back; a customer who has refused a delivery ("Refused a delivery", "Refused 2 deliveries"), with a TriangleAlert.
-- **Panel Grey (moving):** Confirmed, Packed, Delivered (with a Check), Paid (with a Check); a Repeat customer; an Active discount code; a Published article.
-- **Outline (out of your hands, or over):** a 1px Outline Grey border on Paper. In Ink text: the courier statuses of a shipped order on its way (Booked, In transit, Out for delivery), With courier (with a Truck), Advance in, Part paid, a First-time customer, a Scheduled code or article, a Draft article, Messaged on an abandoned checkout, and a message's subject (A question, An order, A custom jacket, An exchange). In Quiet Grey text, because it is over: Cancelled, Refused, Unpaid, a Lapsed customer, No orders, a code that has Ended, is Used up or is Off, and a store page still Original.
+From the shadcn badge: 20px full pills, Caption 500, 8px side padding, a 12px Lucide glyph at stroke 2 where one helps.
+- **Status colours (order status, payment, change, refusal):** a soft tint of the status colour with the words in it, by the Colour Means State Rule. Delivered and Paid carry a Check, With courier a Truck, a change a TrendingUp, TrendingDown or Minus, a refusal ("Refused a delivery", "Refused 2 deliveries") a TriangleAlert.
+- **Ink (needs you):** Receipt in, with a FileCheck glyph, beside To confirm in the table once a receipt has come.
+- **Panel Grey:** a Repeat customer; an Active discount code; a Published article.
+- **Outline:** a 1px Outline Grey border on Paper. In Ink text: a First-time customer, a Scheduled code or article, a Draft article, Messaged on an abandoned checkout, and a message's subject (A question, An order, A custom jacket, An exchange). In Quiet Grey text, because it is over: a Lapsed customer, No orders, a code that has Ended, is Used up or is Off, and a store page still Original.
 - **Status of a shipped order:** once shipped, the status badge names where the parcel is (the courier status set by hand) instead of "Shipped".
 - **Customer segments:** a customer's badges sit in a row 6px apart: the refusal first, then Repeat or First-time, then Lapsed or No orders.
 - **Trend:** on a KPI card, an outline badge with a TrendingUp or TrendingDown glyph and the change in tabular figures ("+12%").
@@ -965,7 +968,10 @@ The dashboard card of what waits on you, beside the chart. Its description says 
 Recent orders is the orders table in its compact form (no Items column, no method, no money bar) in a card whose header carries "View all". Running low lists sizes on their last piece, up to eight: the product title with ", size" in Quiet Grey, and "1 left" in 500 at the right; then how many sizes are sold out in Small Quiet Grey. Its header carries "All stock".
 
 ### Status Tabs
-The orders page's tabs are links, so each tab has its own address: All, To confirm, To ship, Out for delivery, Payout due, Delivered, Cancelled. Each is Small Quiet Grey at lg radius, 6px by 12px, Panel Grey and Ink on hover; the current tab is Panel Grey, 500 Ink. Each carries a count chip in Caption tabular at md radius, Panel Grey, turning Paper on the current tab so it holds against the wash. The row scrolls sideways on a phone. Queues (To confirm through Payout due) list the longest-waiting order first. An empty tab says in one centred Small Quiet Grey line what lands there ("Nothing to ship. Confirmed orders wait here for their tracking number.").
+The orders page's tabs are links, so each tab has its own address: All, To confirm, To ship, Out for delivery, Payout due, Delivered, Cancelled. Each is Small Quiet Grey at lg radius, 6px by 12px, Panel Grey and Ink on hover; the current tab is Panel Grey, 500 Ink. Each carries a count chip in Caption tabular at md radius, Panel Grey, turning Paper on the current tab so it holds against the wash, and every tab but All leads with a 6px dot in its orders' status colour (To confirm amber, To ship green, Shipped and Payout due blue, Delivered violet, Cancelled red). The row scrolls sideways on a phone. Queues (To confirm through Payout due) list the longest-waiting order first. An empty tab says in one centred Small Quiet Grey line what lands there ("Nothing to ship. Confirmed orders wait here for their tracking number."); a filtered list with nothing in it says "No orders match these filters."
+
+### Order Filters
+Beneath the tabs, three shadcn selects at 32px, lg radius, at least 9rem wide: Payment method, Payment status and Placed (Today, Yesterday, Last 7 days, Last 30 days, This month, Last month, Custom dates). At rest each reads "Any …" in Quiet Grey; once chosen it reads the choice in 500 Ink with its border at 60% Ink, so a filtered list never passes for the whole one. Custom dates adds From and To date fields at the same height. "Clear filters" follows as a Small 500 link. Filters live in the address with the tab and search; the tab counts, paging, search and the CSV export all keep them.
 
 ### Orders Table
 The shadcn table in a card, rows ruled by Hairline, Panel Grey at 50% on hover. Heads are 40px, Small 500 Ink; cells are 8px, with 16px at the table's two ends. The whole row is the link to the order (its number link stretches over the row).

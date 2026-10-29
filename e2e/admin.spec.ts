@@ -65,6 +65,53 @@ test.describe("admin", () => {
     await expect(page).toHaveURL(/\/admin\/login/);
   });
 
+  test("orders filter by payment and date, in colour, and the tabs and export keep the filters", async ({ page }) => {
+    await signIn(page);
+    // A change on the dashboard is green going up and red going down.
+    for (const delta of await page.locator("[data-delta]").all()) {
+      const text = (await delta.textContent()) ?? "";
+      await expect(delta).toHaveAttribute("data-tone", text.startsWith("+") ? "green" : text.startsWith("-") ? "red" : "grey");
+    }
+
+    await page.goto("/admin/orders");
+    // Every status and payment badge has its colour, and its words: colour is never the only sign.
+    const badges = page.getByRole("table").locator("[data-tone]").filter({ visible: true });
+    await expect(badges.first()).toBeVisible();
+    for (const badge of await badges.all()) {
+      await expect(badge).toHaveAttribute("data-tone", /^(green|blue|violet|amber|red|grey)$/);
+      await expect(badge).not.toBeEmpty();
+    }
+
+    await page.getByRole("combobox", { name: "Payment method" }).click();
+    await page.getByRole("option", { name: "Bank transfer" }).click();
+    await expect(page).toHaveURL(/method=bank_transfer/);
+    await page.getByRole("combobox", { name: "Placed" }).click();
+    await page.getByRole("option", { name: "Last 30 days" }).click();
+    await expect(page).toHaveURL(/placed=30d/);
+    expect(page.url()).toContain("method=bank_transfer");
+    for (const row of await page.getByRole("table").getByRole("row").filter({ has: page.getByRole("link") }).all()) {
+      await expect(row).toContainText("Bank transfer");
+    }
+
+    // Moving between tabs keeps the filters, and so does the export.
+    await page.getByRole("navigation", { name: "Order status" }).getByRole("link", { name: /^To ship/ }).click();
+    await expect(page).toHaveURL(/tab=to_ship/);
+    expect(page.url()).toContain("method=bank_transfer");
+    const exported = await page.getByRole("button", { name: "Export" }).getAttribute("href");
+    expect(exported).toContain("method=bank_transfer");
+    const csv = await (await page.request.get(exported!)).text();
+    for (const line of csv.trim().split("\n").slice(1)) expect(line).toContain("Bank transfer");
+
+    await page.getByRole("link", { name: "Clear filters" }).click();
+    await expect(page).toHaveURL(/tab=to_ship$/);
+
+    // A stretch with nothing in it says so, and offers the way back.
+    await page.goto("/admin/orders?placed=custom&from=2020-01-01&to=2020-01-02");
+    await expect(page.getByText("No orders match these filters.")).toBeVisible();
+    await expect(page.getByLabel("From")).toHaveValue("2020-01-01");
+    await expect(page.getByRole("link", { name: "Clear filters" })).toBeVisible();
+  });
+
   test("a message from the contact form waits in Messages until it's handled", async ({ page }, testInfo) => {
     const name = `Contact ${testInfo.project.name} ${Date.now().toString(36)}`;
     await page.goto("/pages/contact");

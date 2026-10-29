@@ -2,17 +2,18 @@ import { TriangleAlert } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { LAPSED_DAYS } from "@/lib/admin/customers";
+import { TONE_BADGE } from "@/lib/admin/tones";
 
 type Stats = { orders: number; refused: number; lastOrderAt: Date | null };
 
 // Who a customer is to the store, in Shopify's segment words. A refusal is the one that needs you,
-// so it alone is Ink: a COD order from them is a risk worth a call first.
+// so it alone is red: a COD order from them is a risk worth a call first.
 export function CustomerBadges({ stats, now = new Date() }: { stats: Stats; now?: Date }) {
   const lapsed = stats.orders > 0 && stats.lastOrderAt !== null && now.getTime() - stats.lastOrderAt.getTime() > LAPSED_DAYS * 86_400_000;
   return (
     <span className="flex flex-wrap items-center gap-1.5">
       {stats.refused > 0 ? (
-        <Badge variant="default">
+        <Badge variant="secondary" data-tone="red" className={TONE_BADGE.red}>
           <TriangleAlert strokeWidth={2} aria-hidden />
           Refused {stats.refused === 1 ? "a delivery" : `${stats.refused} deliveries`}
         </Badge>

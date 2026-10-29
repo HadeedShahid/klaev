@@ -6,7 +6,7 @@ import type { Db } from "../db";
 import { orders } from "../db/schema";
 import { localPhone } from "./format";
 import { COURIER_LABELS, PAYMENT_LABELS, STATUS_LABELS } from "./labels";
-import { orderWhere, type OrderFilter } from "./orders";
+import { orderWhere, type OrderQuery } from "./orders";
 
 // A spreadsheet cell: quoted, and never read as a formula (a cell starting with = + - or @ gets a ').
 function cell(value: string | number | null | undefined) {
@@ -23,9 +23,9 @@ const HEADERS = [
 ];
 
 // The orders a tab and search pick out, newest first, as CSV for a spreadsheet. Money in whole rupees.
-export async function ordersCsv(db: Db, { filter, query = "" }: { filter?: OrderFilter; query?: string }) {
+export async function ordersCsv(db: Db, selection: OrderQuery) {
   const rows = await db.query.orders.findMany({
-    where: orderWhere(filter, query),
+    where: orderWhere(selection),
     orderBy: desc(orders.number),
     with: { lines: { columns: { title: true, size: true, quantity: true } }, payments: { columns: { amount: true } } },
   });

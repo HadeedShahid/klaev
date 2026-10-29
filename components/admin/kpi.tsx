@@ -1,7 +1,9 @@
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { Minus, TrendingDown, TrendingUp } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { deltaTone, TONE_BADGE } from "@/lib/admin/tones";
+import { cn } from "@/lib/utils";
 
 // The change from the period before, in whole percent; none when there was nothing before.
 export function change(current: number, previous: number) {
@@ -17,8 +19,9 @@ export function Kpi({ label, value, delta, note }: { label: string; value: strin
         <CardTitle className="text-2xl font-semibold tabular-nums">{value}</CardTitle>
         {delta !== undefined && delta !== null ? (
           <CardAction>
-            <Badge variant="outline" className="tabular-nums">
-              {delta >= 0 ? <TrendingUp strokeWidth={2} aria-hidden /> : <TrendingDown strokeWidth={2} aria-hidden />}
+            {/* Up green, down red, level grey: every figure here is better going up. */}
+            <Badge variant="secondary" data-delta data-tone={deltaTone(delta)} className={cn("tabular-nums", TONE_BADGE[deltaTone(delta)])}>
+              {delta > 0 ? <TrendingUp strokeWidth={2} aria-hidden /> : delta < 0 ? <TrendingDown strokeWidth={2} aria-hidden /> : <Minus strokeWidth={2} aria-hidden />}
               {delta > 0 ? "+" : ""}
               {delta}%
             </Badge>

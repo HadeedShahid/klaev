@@ -1,11 +1,13 @@
 import "server-only";
 
-import { and, asc, desc, eq, inArray, isNull, like, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, like, lt, or, sql, type SQL } from "drizzle-orm";
 import type { BatchItem } from "drizzle-orm/batch";
 
 import type { Db } from "../db";
 import { COURIER_STATUSES, orders, payments, stockChanges, variants, type ORDER_STATUSES } from "../db/schema";
 import { normalizePhone } from "../phone";
+
+import type { MethodFilter, PaidFilter } from "./order-filters";
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export type CourierStatus = (typeof COURIER_STATUSES)[number];
@@ -60,6 +62,18 @@ export function paymentState(order: { paymentMethod: string; status: string; tot
   return "part" as const;
 }
 
+// The same tests as paymentState(), in SQL, so a filter finds exactly the orders its badge marks.
+const settled = sql`${paidSum} + ${orders.codTax} >= ${orders.total}`;
+const courierHolds = sql`${orders.paymentMethod} = 'cod' AND ${orders.status} = 'delivered'`;
+const advanceIn = sql`${orders.paymentMethod} = 'cod' AND ${paidSum} >= ${orders.advance}`;
+const PAID_WHERE: Record<PaidFilter, SQL> = {
+  paid: settled,
+  with_courier: sql`NOT (${settled}) AND ${courierHolds}`,
+  unpaid: sql`NOT (${settled}) AND NOT (${courierHolds}) AND ${paidSum} = 0`,
+  advance: sql`NOT (${settled}) AND NOT (${courierHolds}) AND ${paidSum} > 0 AND ${advanceIn}`,
+  part: sql`NOT (${settled}) AND NOT (${courierHolds}) AND ${paidSum} > 0 AND NOT (${advanceIn})`,
+};
+
 // Search takes an order number (1022 or #1022), a phone number however it's typed, or part of a name.
 function matching(query: string): SQL | undefined {
   const text = query.trim();
@@ -72,21 +86,26 @@ function matching(query: string): SQL | undefined {
   return or(...conditions);
 }
 
-// The orders a tab and a search pick out, for anything that lists them (the CSV export too).
-export const orderWhere = (filter: OrderFilter | undefined, query: string) => and(filter ? filterWhere(filter) : undefined, matching(query));
+// What a list of orders shows: a tab, a search, and the filters beside the tabs (lib/admin/order-filters.ts).
+export type OrderQuery = { filter?: OrderFilter; query?: string; method?: MethodFilter; paid?: PaidFilter; from?: Date; to?: Date };
+
+// The orders a tab, a search and the filters pick out, for anything that lists them (the CSV export too).
+export const orderWhere = ({ filter, query = "", method, paid, from, to }: OrderQuery) =>
+  and(
+    filter ? filterWhere(filter) : undefined,
+    matching(query),
+    method ? eq(orders.paymentMethod, method) : undefined,
+    paid ? PAID_WHERE[paid] : undefined,
+    from ? gte(orders.createdAt, from) : undefined,
+    to ? lt(orders.createdAt, to) : undefined,
+  );
 
 // Newest first, except a work queue, which takes the longest-waiting order first.
 export async function listOrders(
   db: Db,
-  {
-    filter,
-    query = "",
-    oldestFirst = false,
-    limit = 200,
-    offset = 0,
-  }: { filter?: OrderFilter; query?: string; oldestFirst?: boolean; limit?: number; offset?: number },
+  { oldestFirst = false, limit = 200, offset = 0, ...selection }: OrderQuery & { oldestFirst?: boolean; limit?: number; offset?: number },
 ) {
-  const where = and(filter ? filterWhere(filter) : undefined, matching(query));
+  const where = orderWhere(selection);
   return db
     .select({
       number: orders.number,
@@ -110,20 +129,19 @@ export async function listOrders(
     .offset(offset);
 }
 
-// How many orders a search or tab holds, for paging.
-export async function countOrders(db: Db, { filter, query = "" }: { filter?: OrderFilter; query?: string }) {
-  const [row] = await db
-    .select({ count: sql<number>`COUNT(*)` })
-    .from(orders)
-    .where(and(filter ? filterWhere(filter) : undefined, matching(query)));
+// How many orders a search, tab and filters hold, for paging.
+export async function countOrders(db: Db, selection: OrderQuery) {
+  const [row] = await db.select({ count: sql<number>`COUNT(*)` }).from(orders).where(orderWhere(selection));
   return row.count;
 }
 
-export async function orderCounts(db: Db) {
-  const rows = await db.select({ status: orders.status, count: sql<number>`COUNT(*)` }).from(orders).groupBy(orders.status);
+// Each tab's count, under the filters beside the tabs (not the search, which finds one order).
+export async function orderCounts(db: Db, filters: Omit<OrderQuery, "filter" | "query"> = {}) {
+  const within = orderWhere(filters);
+  const rows = await db.select({ status: orders.status, count: sql<number>`COUNT(*)` }).from(orders).where(within).groupBy(orders.status);
   const countOf = (statuses: readonly OrderStatus[]) =>
     rows.filter((row) => statuses.includes(row.status)).reduce((sum, row) => sum + row.count, 0);
-  const [due] = await db.select({ count: sql<number>`COUNT(*)` }).from(orders).where(payoutDue);
+  const [due] = await db.select({ count: sql<number>`COUNT(*)` }).from(orders).where(and(payoutDue, within));
   return {
     ...(Object.fromEntries(Object.entries(ORDER_FILTERS).map(([filter, statuses]) => [filter, countOf(statuses)])) as Record<
       keyof typeof ORDER_FILTERS,

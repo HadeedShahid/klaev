@@ -14,11 +14,18 @@ import { shopifyImport } from "./shopify-import";
 const csv = (rows: string[][]) => rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n");
 
 const PRODUCTS = csv([
-  ["Handle", "Variant SKU", "Cost per item"],
-  ["black-lambskin-leather-jacket", "LTHR-BLK-M", "9000.00"],
-  ["black-lambskin-leather-jacket", "LTHR-BLK-L", "9000.00"],
-  ["black-lambskin-leather-jacket", "LTHR-BLK-XL", ""],
-  ["black-lambskin-leather-jacket", "", ""],
+  ["Handle", "Option1 Value", "Variant SKU", "Cost per item", "Variant Inventory Qty"],
+  ["black-lambskin-leather-jacket", "m", "LTHR-BLK-M", "9000.00", "3"],
+  ["black-lambskin-leather-jacket", "l", "LTHR-BLK-L", "9000.00", ""],
+  ["black-lambskin-leather-jacket", "xl", "LTHR-BLK-XL", "", "2"],
+  // A photo's own row: no size, no SKU, nothing to import.
+  ["black-lambskin-leather-jacket", "", "", "", ""],
+  ["dark-brown-cropped-sheepskin-leather-jacket", "S", "KLAEV-CROP-DBRN-S", "", "-1"],
+  // Shopify lost these SKUs; the size, in Shopify's lower case, still finds the variant.
+  ["dark-brown-cropped-sheepskin-leather-jacket", "m", "", "", "0"],
+  ["dark-brown-cropped-sheepskin-leather-jacket", "xl", "", "", "3"],
+  // A product without sizes is Shopify's "Default Title".
+  ["black-stitched-leather-belt", "Default Title", "", "", "4"],
 ]);
 
 const CUSTOMER_COLUMNS = [
@@ -244,6 +251,28 @@ const ORDERS = csv([
     Id: "9006",
     Source: "web",
   }),
+  // Marked paid by mistake: cash on delivery, not sent yet, nothing received.
+  orderRow({
+    Name: "#1107",
+    Email: "buyer.one@example.com",
+    "Financial Status": "paid",
+    "Paid at": "2026-10-27 11:07:08 +0500",
+    "Fulfillment Status": "unfulfilled",
+    Subtotal: "17999.00",
+    Shipping: "800.00",
+    Total: "18799.00",
+    "Shipping Method": "Standard delivery — Cash on delivery",
+    "Created at": "2026-10-26 22:11:34 +0500",
+    "Lineitem quantity": "1",
+    "Lineitem name": "Black Cropped Sheepskin Leather Jacket - S / Black",
+    "Lineitem price": "17999.00",
+    "Lineitem sku": "KLAEV-CROP-BLK-S",
+    "Billing Name": "Ayesha Khan",
+    "Payment Method": "Cash on Delivery (COD)",
+    "Payment Reference": "#1107.1",
+    Id: "9007",
+    Source: "web",
+  }),
 ]);
 
 const at = (text: string) => new Date(text);
@@ -276,6 +305,21 @@ describe("importing the Shopify exports", () => {
     expect(cost["LTHR-BLK-M"]).toBe(9000);
     expect(cost["LTHR-BLK-L"]).toBe(9000);
     expect(cost["LTHR-BLK-XL"]).toBeNull();
+  });
+
+  test("each size takes Shopify's stock count; a blank count leaves it alone, and an oversold one is none", async () => {
+    const rows = await store.db.select({ sku: variants.sku, stock: variants.stock }).from(variants);
+    const stock = Object.fromEntries(rows.map((row) => [row.sku, row.stock]));
+    expect(stock["LTHR-BLK-M"]).toBe(3);
+    expect(stock["LTHR-BLK-L"]).toBe(1);
+    expect(stock["LTHR-BLK-XL"]).toBe(2);
+    expect(stock["KLAEV-CROP-DBRN-S"]).toBe(0);
+    expect(stock["KLAEV-CROP-DBRN-M"]).toBe(0);
+    expect(stock["KLAEV-CROP-DBRN-XL"]).toBe(3);
+    expect(stock["BELT-STC-BK"]).toBe(4);
+    // Untouched: no count in the export.
+    expect(stock["KLAEV-CROP-DBRN-L"]).toBe(1);
+    expect(result.report.stockCounts).toBe(6);
   });
 
   test("customers come across cleaned up, without test and spam sign-ups", async () => {
@@ -388,14 +432,21 @@ describe("importing the Shopify exports", () => {
     expect(row.payments).toMatchObject([{ method: "cod", amount: 17399 }]);
   });
 
+  test("a cash on delivery order Shopify marks paid before it ships is confirmed with nothing received, and flagged", async () => {
+    const row = await order(1107);
+    expect(row).toMatchObject({ status: "confirmed", paymentMethod: "cod", total: 18799, advance: 0 });
+    expect(row.payments).toEqual([]);
+    expect(result.report.warnings).toContainEqual(expect.stringContaining("#1107"));
+  });
+
   test("new orders carry on numbering after the last Shopify order", async () => {
-    expect(result.report).toMatchObject({ orders: 6, lastOrderNumber: 1106 });
+    expect(result.report).toMatchObject({ orders: 7, lastOrderNumber: 1107 });
   });
 
   test("running the import again replaces what it brought in, without duplicates", async () => {
     await store.run(result.statements);
-    expect(await store.db.$count(orders)).toBe(6);
-    expect(await store.db.$count(orderLines)).toBe(7);
+    expect(await store.db.$count(orders)).toBe(7);
+    expect(await store.db.$count(orderLines)).toBe(8);
     expect(await store.db.$count(payments)).toBe(4);
     expect(await store.db.$count(customers)).toBe(4);
   });

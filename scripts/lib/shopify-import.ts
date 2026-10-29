@@ -4,8 +4,8 @@ import { normalizePhone } from "../../lib/phone";
 
 import { insert, literal, raw } from "./sql";
 
-// Turns Shopify's product, customer and order CSV exports into SQL for D1: cost prices onto the
-// seeded variants, then customers, orders, order lines and the payments already received.
+// Turns Shopify's product, customer and order CSV exports into SQL for D1: cost prices and stock
+// counts onto the seeded variants, then customers, orders, order lines and the payments already received.
 // Running it again replaces everything it brought in (rows with a shopify_id) and nothing else.
 
 type Row = Record<string, string | undefined>;
@@ -14,6 +14,7 @@ export type ShopifyExports = { products: string; customers: string; orders: stri
 
 export type ImportReport = {
   costPrices: number;
+  stockCounts: number;
   customers: number;
   skippedCustomers: number;
   orders: number;
@@ -55,6 +56,19 @@ function variantLookup(sku: string | null, title: string, size: string | null): 
   );
 }
 
+// A product export row's variant, as a WHERE clause on variants: by SKU, or where Shopify lost the
+// SKU, by the product's handle and its size. Shopify writes sizes in either case, and "Default
+// Title" for a product without sizes.
+function productRowVariant(row: Row): string | null {
+  const sku = clean(row["Variant SKU"]);
+  if (sku) return `sku = ${literal(sku)}`;
+  const handle = clean(row.Handle);
+  const option = clean(row["Option1 Value"]);
+  if (!handle || !option) return null;
+  const size = option === "Default Title" ? "v.size IS NULL" : `UPPER(v.size) = ${literal(option.toUpperCase())}`;
+  return `id = (SELECT v.id FROM variants v JOIN products p ON p.id = v.product_id WHERE p.handle = ${literal(handle)} AND ${size})`;
+}
+
 type Customer = { row: Row; shopifyId: string; email: string | null; phones: (string | null)[] };
 
 export function shopifyImport(exports: ShopifyExports): { statements: string[]; report: ImportReport } {
@@ -62,16 +76,26 @@ export function shopifyImport(exports: ShopifyExports): { statements: string[]; 
   const statements = ["DELETE FROM orders WHERE shopify_id IS NOT NULL", "DELETE FROM customers WHERE shopify_id IS NOT NULL"];
 
   let costPrices = 0;
+  let stockCounts = 0;
   for (const row of readCsv(exports.products)) {
     const cost = clean(row["Cost per item"]);
-    if (!cost) continue;
-    const sku = clean(row["Variant SKU"]);
-    if (!sku) {
-      warnings.push(`A cost price on ${row.Handle} has no SKU, so it was skipped.`);
+    const count = clean(row["Variant Inventory Qty"]);
+    if (!cost && !count) continue;
+    const variant = productRowVariant(row);
+    if (!variant) {
+      warnings.push(`A cost price or stock count on ${row.Handle} has no SKU or size, so it was skipped.`);
       continue;
     }
-    statements.push(`UPDATE variants SET cost_price = ${rupees(cost)} WHERE sku = ${literal(sku)}`);
-    costPrices += 1;
+    if (cost) {
+      statements.push(`UPDATE variants SET cost_price = ${rupees(cost)} WHERE ${variant}`);
+      costPrices += 1;
+    }
+    // Stock as Shopify counts it at export. Shopify goes below zero when it oversells; here that's none
+    // to sell (variants_stock_check keeps stock at zero or more).
+    if (count && /^-?\d+$/.test(count)) {
+      statements.push(`UPDATE variants SET stock = ${Math.max(0, Number(count))} WHERE ${variant}`);
+      stockCounts += 1;
+    }
   }
 
   const customers: Customer[] = [];
@@ -128,7 +152,15 @@ export function shopifyImport(exports: ShopifyExports): { statements: string[]; 
         : /cash on delivery|\bcod\b/i.test(method)
           ? "cod"
           : "bank_transfer";
-    const paid = order["Financial Status"] === "paid";
+    // The courier collects cash on delivery, so a COD order Shopify marks paid before it has shipped
+    // received nothing (it was marked by mistake). It comes across unpaid, with a warning, so an
+    // advance that did come can be recorded in the admin.
+    const markedPaid = order["Financial Status"] === "paid";
+    const paidBeforeShipping = markedPaid && paymentMethod === "cod" && order["Fulfillment Status"] !== "fulfilled" && !cancelledAt;
+    if (paidBeforeShipping) {
+      warnings.push(`${name}: Shopify marks this cash on delivery order paid before it shipped. It came across with nothing received; record any advance in the admin.`);
+    }
+    const paid = markedPaid && !paidBeforeShipping;
     const status =
       cancelledAt || order["Financial Status"] === "voided"
         ? "cancelled"
@@ -248,6 +280,7 @@ export function shopifyImport(exports: ShopifyExports): { statements: string[]; 
     statements: [...statements, ...orderStatements],
     report: {
       costPrices,
+      stockCounts,
       customers: customers.length,
       skippedCustomers,
       orders: orderRows.size,

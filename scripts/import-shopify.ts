@@ -19,7 +19,7 @@ const { statements, report } = shopifyImport({
 const out = path.join(dir, "shopify-import.sql");
 writeFileSync(out, toFile(statements));
 console.log(
-  `Wrote ${out}: ${report.costPrices} cost prices, ${report.customers} customers ` +
+  `Wrote ${out}: ${report.costPrices} cost prices, ${report.stockCounts} stock counts, ${report.customers} customers ` +
     `(${report.skippedCustomers} test or spam sign-ups left out), ${report.orders} orders up to #${report.lastOrderNumber}.`,
 );
 for (const warning of report.warnings) console.warn(`Warning: ${warning}`);

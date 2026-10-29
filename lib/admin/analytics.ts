@@ -89,7 +89,7 @@ export async function overview(db: Db, days: number, now = new Date()) {
         COUNT(DISTINCT placed.order_number) AS orders
       FROM events AS landing LEFT JOIN events AS placed ON placed.session_id = landing.session_id AND placed.type = 'order'
       WHERE landing.entry = 1 AND landing.campaign IS NOT NULL AND landing.created_at >= ${from} AND landing.created_at < ${to}
-      GROUP BY landing.campaign ORDER BY sessions DESC LIMIT 10`),
+      GROUP BY landing.campaign ORDER BY sessions DESC, MAX(landing.created_at) DESC LIMIT 10`),
   ]);
 
   const dates = Array.from({ length: days }, (_, index) => karachiDate(new Date(now.getTime() - (days - 1 - index) * DAY)));

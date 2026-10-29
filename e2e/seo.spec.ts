@@ -109,6 +109,49 @@ test.describe("search engines", () => {
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://klaev.com/collections/suede-jackets");
   });
 
+  test("a shared link shows a picture: the store's own preview, or the page's photo at a size WhatsApp takes", async ({ page, request }) => {
+    const preview = async () => ({
+      url: await page.locator('meta[property="og:image"]').first().getAttribute("content"),
+      width: await page.locator('meta[property="og:image:width"]').first().getAttribute("content"),
+      height: await page.locator('meta[property="og:image:height"]').first().getAttribute("content"),
+    });
+    const own = { url: "https://klaev.com/og/klaev.jpg", width: "1200", height: "630" };
+    for (const path of ["/", "/policies/refund-policy", "/pages/contact", "/blogs/blog"]) {
+      await page.goto(path);
+      expect(await preview(), path).toEqual(own);
+    }
+    // WhatsApp drops a preview picture over about 300 KB.
+    const file = await request.get("/og/klaev.jpg");
+    expect(file.headers()["content-type"]).toBe("image/jpeg");
+    expect((await file.body()).length).toBeLessThan(300_000);
+
+    await page.goto("/products/dark-brown-cropped-sheepskin-leather-jacket");
+    const product = await preview();
+    expect(product.url).toMatch(/^https:\/\/.+\/products\/dark-brown-cropped-sheepskin-leather-jacket\/[0-9a-f]{12}-1200\.webp$/);
+    expect([product.width, product.height]).toEqual(["1200", "1499"]);
+
+    await page.goto("/collections/suede-jackets");
+    expect((await preview()).url).toMatch(/\/products\/black-suede-jacket\/[0-9a-f]{12}-1200\.webp$/);
+  });
+
+  test("the browser tab, the home screen and Google show the Klaev icon", async ({ page, request }) => {
+    await page.goto("/");
+    const icons = await page.locator('link[rel="icon"], link[rel="apple-touch-icon"]').evaluateAll((links) =>
+      links.map((link) => ({ rel: link.getAttribute("rel"), href: new URL((link as HTMLLinkElement).href).pathname, sizes: link.getAttribute("sizes") })),
+    );
+    expect(icons).toEqual(
+      expect.arrayContaining([
+        { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
+        { rel: "icon", href: "/icon.png", sizes: "512x512" },
+        { rel: "apple-touch-icon", href: "/apple-icon.png", sizes: "180x180" },
+      ]),
+    );
+    for (const path of ["/favicon.ico", "/icon.png", "/apple-icon.png"]) {
+      const response = await request.get(path);
+      expect(response.status(), path).toBe(200);
+    }
+  });
+
   test("the cart and checkout stay out of search results", async ({ page }) => {
     for (const path of ["/cart", "/checkout"]) {
       await page.goto(path);

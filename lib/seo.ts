@@ -4,6 +4,7 @@ import { POLICIES_WRITTEN, type PageKind } from "@/data/pages";
 import { COLLECTION_LISTINGS, HOME_LISTING, type Listing } from "@/data/search-listings";
 
 import type { Product } from "./catalog";
+import { MEDIA_URL } from "./media";
 import { STORE } from "./store";
 
 // What search engines and link previews are told about the store: schema.org data, the sitemap and
@@ -11,9 +12,27 @@ import { STORE } from "./store";
 const SITE = STORE.siteUrl;
 const STORE_ID = `${SITE}/#store`;
 
-// Open Graph fields every page shares. A page that sets its own openGraph spreads these in, because
-// Next replaces the layout's openGraph rather than merging into it.
-export const SITE_OPEN_GRAPH = { siteName: "Klaev", locale: "en_PK" } as const;
+// Open Graph fields every page shares, the picture included (scripts/brand-images.ts makes it). A
+// page that sets its own openGraph spreads these in, because Next replaces the layout's openGraph
+// rather than merging into it; one with a photo of its own replaces the picture.
+export const SITE_OPEN_GRAPH = {
+  siteName: "Klaev",
+  locale: "en_PK",
+  images: [{ url: "/og/klaev.jpg", width: 1200, height: 630, alt: "Three Klaev cropped leather jackets, worn: dark brown, black and burgundy" }],
+};
+
+const PREVIEW_WIDTH = 1200;
+
+// A photo from the media bucket as a link preview: its stored 1200 wide copy, a third to a half of
+// the full size's bytes, so the preview arrives quickly on mobile data. A photo narrower than that was stored
+// at its own width. Anything else is shared as it is.
+export function sharedImage(image: { src: string; width: number; height: number; alt: string }) {
+  if (!image.src.startsWith(`${MEDIA_URL}/`) || !image.src.endsWith(".webp")) {
+    return { url: image.src, width: image.width, height: image.height, alt: image.alt };
+  }
+  const width = Math.min(PREVIEW_WIDTH, image.width);
+  return { url: image.src.replace(/\.webp$/, `-${PREVIEW_WIDTH}.webp`), width, height: Math.round((image.height * width) / image.width), alt: image.alt };
+}
 
 // Only the real domain is for search. The workers.dev preview serves the same store, and a copy of
 // it in the index would compete with klaev.com.
@@ -73,6 +92,8 @@ export function storeData(): { "@context": string; "@graph": Record<string, unkn
         name: "Klaev",
         url: `${SITE}/`,
         description: HOME_LISTING.description,
+        logo: `${SITE}/icon.png`,
+        image: `${SITE}${SITE_OPEN_GRAPH.images[0].url}`,
         email: STORE.email,
         telephone: `+${STORE.whatsappNumber}`,
         sameAs: [`https://instagram.com/${STORE.instagram}`],

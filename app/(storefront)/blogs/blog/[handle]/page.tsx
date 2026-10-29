@@ -7,7 +7,7 @@ import { JsonLd } from "@/components/site/json-ld";
 import { getPublishedPost } from "@/lib/journal";
 import { RichText } from "@/components/site/rich-text";
 import { readingMinutes } from "@/lib/journal-body";
-import { SITE_OPEN_GRAPH } from "@/lib/seo";
+import { sharedImage, SITE_OPEN_GRAPH } from "@/lib/seo";
 import { STORE } from "@/lib/store";
 
 const day = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Karachi", day: "numeric", month: "long", year: "numeric" });
@@ -27,7 +27,10 @@ export async function generateMetadata({ params }: PageProps<"/blogs/blog/[handl
       title: post.title,
       description,
       publishedTime: post.publishedAt?.toISOString(),
-      images: post.coverSrc ? [{ url: post.coverSrc, width: post.coverWidth ?? undefined, height: post.coverHeight ?? undefined, alt: post.coverAlt ?? undefined }] : undefined,
+      // An article without a cover keeps the store's own picture.
+      ...(post.coverSrc && post.coverWidth && post.coverHeight
+        ? { images: [sharedImage({ src: post.coverSrc, width: post.coverWidth, height: post.coverHeight, alt: post.coverAlt ?? post.title })] }
+        : {}),
     },
   };
 }

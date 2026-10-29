@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import { POLICIES_WRITTEN } from "@/data/pages";
 
 import type { Product } from "./catalog";
-import { collectionSeo, productData, robotsFor, sitemapEntries, storeData } from "./seo";
+import { collectionSeo, productData, robotsFor, sharedImage, SITE_OPEN_GRAPH, sitemapEntries, storeData } from "./seo";
 
 const jacket: Product = {
   handle: "black-cropped-leather-jacket",
@@ -92,6 +92,8 @@ describe("structured data", () => {
       "@id": "https://klaev.com/#store",
       name: "Klaev",
       url: "https://klaev.com/",
+      logo: "https://klaev.com/icon.png",
+      image: "https://klaev.com/og/klaev.jpg",
       email: "business.klaev@gmail.com",
       telephone: "+923231483650",
       sameAs: ["https://instagram.com/getklaev"],
@@ -109,6 +111,29 @@ describe("structured data", () => {
       url: "https://klaev.com/",
       publisher: { "@id": "https://klaev.com/#store" },
     });
+  });
+});
+
+describe("link previews", () => {
+  test("a stored photo is shared as its 1200 wide copy, small enough for WhatsApp, with its size", () => {
+    expect(sharedImage({ src: "https://pub-30ff49a2722f4493a6d913644221cdc9.r2.dev/products/dark-brown/02814017fe4f.webp", width: 1844, height: 2304, alt: "Front" })).toEqual({
+      url: "https://pub-30ff49a2722f4493a6d913644221cdc9.r2.dev/products/dark-brown/02814017fe4f-1200.webp",
+      width: 1200,
+      height: 1499,
+      alt: "Front",
+    });
+    // A photo narrower than 1200 was stored at its own width, never enlarged.
+    expect(sharedImage({ src: "https://pub-30ff49a2722f4493a6d913644221cdc9.r2.dev/journal/fit/abc.webp", width: 900, height: 600, alt: "" })).toMatchObject({
+      url: "https://pub-30ff49a2722f4493a6d913644221cdc9.r2.dev/journal/fit/abc-1200.webp",
+      width: 900,
+      height: 600,
+    });
+    // Anything not in the media bucket is shared as it is.
+    expect(sharedImage({ src: "https://elsewhere.example/a.jpg", width: 800, height: 800, alt: "A" })).toEqual({ url: "https://elsewhere.example/a.jpg", width: 800, height: 800, alt: "A" });
+  });
+
+  test("every page shares the store's own preview unless it has a photo of its own", () => {
+    expect(SITE_OPEN_GRAPH.images).toEqual([{ url: "/og/klaev.jpg", width: 1200, height: 630, alt: expect.stringContaining("Klaev") }]);
   });
 });
 

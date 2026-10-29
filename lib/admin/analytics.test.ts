@@ -88,6 +88,22 @@ describe("analytics", () => {
     expect(result.campaigns).toEqual([{ campaign: "eid", sessions: 1, orders: 1 }]);
   });
 
+  test("campaigns list the ten with most visits, the newest first among equals", async () => {
+    // Twelve one-visit campaigns, an hour apart; "launch" has two visits and leads despite its age.
+    const visits = [
+      ...Array.from({ length: 12 }, (_, index) => {
+        const letter = String.fromCharCode(97 + index);
+        return view(`s${letter}`, `v${letter}`, "/", 60 * (index + 1), { entry: true, source: "instagram", campaign: `post-${index}` });
+      }),
+      view("launch1", "launch1", "/", 60 * 20, { entry: true, source: "instagram", campaign: "launch" }),
+      view("launch2", "launch2", "/", 60 * 21, { entry: true, source: "instagram", campaign: "launch" }),
+    ];
+    // D1 takes at most 100 values a query.
+    for (let start = 0; start < visits.length; start += 7) await store.db.insert(events).values(visits.slice(start, start + 7));
+    const { campaigns } = await overview(store.db, 7, NOW);
+    expect(campaigns.map((row) => row.campaign)).toEqual(["launch", ...Array.from({ length: 9 }, (_, index) => `post-${index}`)]);
+  });
+
   test("the funnel counts sessions at each step, then their orders confirmed and delivered", async () => {
     await seed();
     const steps = await funnel(store.db, 7, NOW);

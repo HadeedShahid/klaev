@@ -761,6 +761,9 @@ Journal covers are photographs of their own, not product imagery: 4:3 at xl radi
 
 Borders are 1px. Outline Grey outlines interactive cards; Hairline rules lists. Lists of rows (details, cart lines) are ruled top and bottom as well as between rows.
 
+### Brand marks
+The icon is a Paper K in Geist 600 on an Ink tile, centred on the letter's own ink: the cap height is about 40% of the tile, and about 50% in the favicon sizes (48, 32, 16px) so it still reads in a browser tab. The favicon and the 512px icon (also the store's logo in search) round their corners at 22.5% of the side; the home screen icon is square, because iOS masks it. The link preview (1200 by 630) is White ground with the wordmark centred at 44px above the three cropped jackets worn, dark brown, black and burgundy, as 2xl-rounded cards 16px apart; black sits in the middle, where a square crop of the preview lands. `scripts/brand-images.ts` draws all of them; a shared product, collection or article shows its own first photo instead, at its stored 1200 wide copy.
+
 ## Components
 
 ### Buttons

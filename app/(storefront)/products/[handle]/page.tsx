@@ -15,7 +15,7 @@ import { getCollection, getProduct, getProducts, getRelatedProducts, hiddenProdu
 import { Price } from "@/components/product/price";
 import { formatPKR } from "@/lib/money";
 import { codSummary } from "@/lib/payment";
-import { productData, SITE_OPEN_GRAPH } from "@/lib/seo";
+import { productData, sharedImage, SITE_OPEN_GRAPH } from "@/lib/seo";
 import { getCodTerms } from "@/lib/settings";
 import { sizeMeasurement } from "@/lib/sizing";
 
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: PageProps<"/products/[handle]
     description:
       product.seoDescription ?? (product.tagline ? `${product.tagline} ${formatPKR(product.price)}.` : undefined),
     alternates: { canonical },
-    openGraph: { ...SITE_OPEN_GRAPH, url: canonical, images: product.images.slice(0, 1).map((image) => image.src) },
+    openGraph: { ...SITE_OPEN_GRAPH, url: canonical, ...(product.images[0] ? { images: [sharedImage(product.images[0])] } : {}) },
   };
 }
 

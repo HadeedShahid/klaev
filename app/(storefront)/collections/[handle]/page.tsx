@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { ProductCard } from "@/components/product/product-card";
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
 import { emptyCollectionRedirect, getCollection, getCollections } from "@/lib/catalog";
-import { collectionSeo } from "@/lib/seo";
+import { collectionSeo, sharedImage, SITE_OPEN_GRAPH } from "@/lib/seo";
 
 // Listed at build and rendered on first visit, like the product pages. A collection added in the
 // admin since the last deploy renders on request; unknown handles are still a real 404.
@@ -19,7 +19,15 @@ export async function generateMetadata({ params }: PageProps<"/collections/[hand
   const collection = await getCollection((await params).handle);
   if (!collection) return {};
   const listing = collectionSeo(collection);
-  return { title: listing.title, description: listing.description, alternates: { canonical: `/collections/${collection.handle}` } };
+  const canonical = `/collections/${collection.handle}`;
+  // A shared collection shows its first jacket's photo.
+  const photo = collection.items[0]?.images[0];
+  return {
+    title: listing.title,
+    description: listing.description,
+    alternates: { canonical },
+    openGraph: { ...SITE_OPEN_GRAPH, url: canonical, ...(photo ? { images: [sharedImage(photo)] } : {}) },
+  };
 }
 
 // As on the product page, the handle is checked before anything streams so a missing collection

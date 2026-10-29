@@ -4,6 +4,8 @@ import Link from "next/link";
 import { STORE } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
+import { JsonLd } from "./json-ld";
+
 export type Crumb = { name: string; href: string };
 
 // Where the page sits in the shop. From tablets up the trail leads the page, top left; on phones it
@@ -57,11 +59,5 @@ export function BreadcrumbData({ trail }: { trail: Crumb[] }) {
       item: new URL(crumb.href, STORE.siteUrl).toString(),
     })),
   };
-  return (
-    <script
-      type="application/ld+json"
-      // JSON.stringify output with "<" escaped cannot close the script element.
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replaceAll("<", "\\u003c") }}
-    />
-  );
+  return <JsonLd data={data} />;
 }

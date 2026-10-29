@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { ProductCard } from "@/components/product/product-card";
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
-import { getCollection, getCollections } from "@/lib/catalog";
+import { emptyCollectionRedirect, getCollection, getCollections } from "@/lib/catalog";
+import { collectionSeo } from "@/lib/seo";
 
 // Listed at build and rendered on first visit, like the product pages. A collection added in the
 // admin since the last deploy renders on request; unknown handles are still a real 404.
@@ -16,14 +17,21 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/collections/[handle]">): Promise<Metadata> {
   const collection = await getCollection((await params).handle);
-  return collection ? { title: collection.title } : {};
+  if (!collection) return {};
+  const listing = collectionSeo(collection);
+  return { title: listing.title, description: listing.description, alternates: { canonical: `/collections/${collection.handle}` } };
 }
 
-// As on the product page, the handle is checked before anything streams so a missing
-// collection answers with a real 404 status.
+// As on the product page, the handle is checked before anything streams so a missing collection
+// answers with a real 404 status, and one with nothing on sale (the belts) with a real redirect.
 export default async function CollectionPage({ params }: PageProps<"/collections/[handle]">) {
-  const collection = await getCollection((await params).handle);
-  if (!collection) notFound();
+  const { handle } = await params;
+  const collection = await getCollection(handle);
+  if (!collection) {
+    const elsewhere = await emptyCollectionRedirect(handle);
+    if (elsewhere) redirect(elsewhere);
+    notFound();
+  }
 
   const trail = [
     { name: "Home", href: "/" },

@@ -3,9 +3,11 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
+import { JsonLd } from "@/components/site/json-ld";
 import { getPublishedPost } from "@/lib/journal";
 import { RichText } from "@/components/site/rich-text";
 import { readingMinutes } from "@/lib/journal-body";
+import { SITE_OPEN_GRAPH } from "@/lib/seo";
 import { STORE } from "@/lib/store";
 
 const day = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Karachi", day: "numeric", month: "long", year: "numeric" });
@@ -19,6 +21,8 @@ export async function generateMetadata({ params }: PageProps<"/blogs/blog/[handl
     description,
     alternates: { canonical: `/blogs/blog/${post.handle}` },
     openGraph: {
+      ...SITE_OPEN_GRAPH,
+      url: `/blogs/blog/${post.handle}`,
       type: "article",
       title: post.title,
       description,
@@ -51,7 +55,7 @@ export default async function ArticlePage({ params }: PageProps<"/blogs/blog/[ha
   return (
     <article className="mx-auto flex max-w-2xl flex-col gap-8 px-5 pt-6 pb-16 md:px-8 md:pt-10">
       <BreadcrumbData trail={trail} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structured).replace(/</g, "\\u003c") }} />
+      <JsonLd data={structured} />
       <Breadcrumbs trail={trail} placement="top" className="px-0 pt-0" />
       <header className="flex flex-col gap-3">
         <h1 className="text-[2rem] leading-tight font-semibold tracking-tight text-balance md:text-5xl">{post.title}</h1>

@@ -15,7 +15,7 @@ import { orderMessage } from "@/lib/order-message";
 import { whatsappLink } from "@/lib/store";
 import { pill } from "@/lib/styles";
 
-export const metadata: Metadata = { title: "Cart" };
+export const metadata: Metadata = { title: "Cart", robots: { index: false } };
 
 export default function CartPage() {
   return (

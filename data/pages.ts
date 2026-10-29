@@ -5,10 +5,12 @@
 // a blank line between paragraphs, "## " for a heading, "- " for a list item, [words](/link) for a
 // link. {advance}, {cod_fee}, {exchange_days}, {delivery_days}, {whatsapp} and {email} show the
 // current terms and contact details.
+import { STORE } from "@/lib/store";
+
 export type PageKind = "page" | "policy";
 export type PageDefault = { handle: string; kind: PageKind; title: string; description: string; body: string };
 
-const ADDRESS = "Office 2, First Floor, Ahad Plaza, 14L Gulberg 3, Lahore 54660, Pakistan";
+const ADDRESS = `${STORE.address.street}, ${STORE.address.city} ${STORE.address.postalCode}, ${STORE.address.country}`;
 // When these policies were written; an edit in the admin shows its own date instead.
 export const POLICIES_WRITTEN = new Date("2026-10-27T12:00:00+05:00");
 

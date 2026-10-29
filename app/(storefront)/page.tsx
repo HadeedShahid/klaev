@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -6,14 +7,23 @@ import { Faq } from "@/components/home/faq";
 import { Hero } from "@/components/home/hero";
 import { StorySection } from "@/components/home/story";
 import { ExchangeTerms } from "@/components/site/exchange-terms";
+import { JsonLd } from "@/components/site/json-ld";
 import { PaymentBreakdown } from "@/components/product/payment-options";
+import { HOME_LISTING } from "@/data/search-listings";
 import { fillFaq, getFaq } from "@/lib/faq";
 import { getCodTerms } from "@/lib/settings";
 import { getCollection, getProduct, type Product } from "@/lib/catalog";
 import { formatPKR } from "@/lib/money";
+import { storeData } from "@/lib/seo";
 import { jacketChest } from "@/lib/sizing";
 import { whatsappLink } from "@/lib/store";
 import { pill } from "@/lib/styles";
+
+export const metadata: Metadata = {
+  title: { absolute: HOME_LISTING.title },
+  description: HOME_LISTING.description,
+  alternates: { canonical: "/" },
+};
 
 function priceLabel(products: Product[]) {
   const prices = products.map((product) => product.price);
@@ -51,6 +61,7 @@ export default async function HomePage() {
 
   return (
     <div className="pb-8">
+      <JsonLd data={storeData()} />
       <Hero price={priceLabel(croppedItems)} colours={heroColours} />
       <ColourCards products={croppedItems} />
 

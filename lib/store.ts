@@ -10,6 +10,8 @@ export const STORE = {
   whatsappDisplay: "+92 323 1483650",
   instagram: "getklaev",
   email: "business.klaev@gmail.com",
+  // The office, as the policies and search engines give it.
+  address: { street: "Office 2, First Floor, Ahad Plaza, 14L Gulberg 3", city: "Lahore", postalCode: "54660", country: "Pakistan" },
 } as const;
 
 export function whatsappLink(message?: string) {

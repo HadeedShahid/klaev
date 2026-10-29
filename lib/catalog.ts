@@ -1,6 +1,6 @@
 import "server-only";
 
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, ne } from "drizzle-orm";
 import { cache } from "react";
 
 import { getDb } from "./db";
@@ -54,7 +54,7 @@ const loadCatalog = cache(() => retryLocalRead(readCatalog));
 
 async function readCatalog() {
   const db = await getDb();
-  const [rows, collectionRows] = await Promise.all([
+  const [rows, hidden, collectionRows] = await Promise.all([
     db.query.products.findMany({
       where: eq(products.status, "active"),
       orderBy: [asc(products.position), asc(products.id)],
@@ -63,6 +63,7 @@ async function readCatalog() {
         images: { orderBy: [asc(productImages.position), asc(productImages.id)] },
       },
     }),
+    db.select({ handle: products.handle, collection: products.collectionHandle }).from(products).where(ne(products.status, "active")),
     db.select({ handle: collections.handle, title: collections.title }).from(collections).orderBy(asc(collections.position)),
   ]);
 
@@ -91,7 +92,7 @@ async function readCatalog() {
     images: row.images.map(({ src, width, height, alt }) => ({ src, width, height, alt })),
   }));
 
-  return { live, collections: collectionRows };
+  return { live, hidden, collections: collectionRows };
 }
 
 function withItems(collection: Collection, live: Product[]): CollectionWithItems {
@@ -119,6 +120,23 @@ export async function getCollection(handle: string): Promise<CollectionWithItems
   if (!collection) return null;
   const resolved = withItems(collection, live);
   return resolved.items.length > 0 ? resolved : null;
+}
+
+// Where to send someone following an old link (Shopify's, a post on Instagram) to a product that's
+// hidden for now, like the belts: its collection while that has something on sale, else everything.
+// Null for a handle the store never had, which stays a 404.
+export async function hiddenProductRedirect(handle: string): Promise<string | null> {
+  const { live, hidden } = await loadCatalog();
+  const product = hidden.find((candidate) => candidate.handle === handle);
+  if (!product) return null;
+  return live.some((candidate) => candidate.collection === product.collection) ? `/collections/${product.collection}` : `/collections/${ALL.handle}`;
+}
+
+// The same for a collection with nothing on sale in it.
+export async function emptyCollectionRedirect(handle: string): Promise<string | null> {
+  const { live, collections } = await loadCatalog();
+  const known = collections.some((collection) => collection.handle === handle);
+  return known && !live.some((product) => product.collection === handle) ? `/collections/${ALL.handle}` : null;
 }
 
 export async function getRelatedProducts(handle: string, limit = 4): Promise<Product[]> {

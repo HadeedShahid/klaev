@@ -81,7 +81,7 @@ What the Shopify theme has today, and what the new site does.
 | Back-in-stock alerts | None | "Email me when it's back" on sold-out sizes | Later |
 | Country and language selectors | Shown in the header | Dropped. Pakistan, PKR and English only | Not planned |
 | Gift cards | Template exists | Not planned | Not planned |
-| SEO | Shopify URLs, sitemap, structured data | Keep `/products/`, `/collections/`, `/pages/`, `/blogs/` URLs. Sitemap, robots.txt, Product, Breadcrumb and Organization structured data. 301 redirect anything that moves | v1 |
+| SEO | Shopify URLs, sitemap, structured data | Built 28 October 2026. Every address in Shopify's sitemap keeps working. `/sitemap.xml` lists the live store with product photos (`lib/seo.ts`); `robots.txt` opens klaev.com to crawlers and closes every other host, so the workers.dev preview stays out of search. Canonical and Open Graph addresses are always klaev.com. Product (price in PKR, stock, the exchange policy), Breadcrumb, OnlineStore and WebSite data. Search titles for the home and collection pages in `data/search-listings.ts`, rewritten from Shopify's without its "free delivery nationwide". Shopify's other addresses redirect (`lib/shopify-redirects.ts`): products inside a collection, tag filters, its split sitemaps, old order-status and checkout links, `/search` and `/account`. Hidden products and the empty belts collection redirect to what's on sale until they're live again | v1, built |
 | 404 page | With product suggestions | Same | v1 |
 
 ## Checkout and order flow

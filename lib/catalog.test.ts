@@ -4,7 +4,16 @@ import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import snapshot from "@/data/catalog.json";
 import { catalogSeedStatements } from "@/scripts/lib/catalog-seed";
 
-import { getCollection, getCollections, getProduct, getProducts, getRelatedProducts, getVariant } from "./catalog";
+import {
+  emptyCollectionRedirect,
+  getCollection,
+  getCollections,
+  getProduct,
+  getProducts,
+  getRelatedProducts,
+  getVariant,
+  hiddenProductRedirect,
+} from "./catalog";
 import type { Db } from "./db";
 import { createTestDb } from "./db/test-db";
 
@@ -79,6 +88,21 @@ describe("the catalog, read from D1", () => {
     ]);
     expect(await getCollection("leather-belts")).toBeNull();
     expect(await getCollection("no-such-collection")).toBeNull();
+  });
+
+  test("a hidden product or empty collection sends its visitors to what's on sale; unknown handles go nowhere", async () => {
+    expect(await hiddenProductRedirect("black-studded-leather-belt")).toBe("/collections/all");
+    expect(await emptyCollectionRedirect("leather-belts")).toBe("/collections/all");
+
+    await store.run(["UPDATE products SET status = 'archived' WHERE handle = 'black-cropped-leather-jacket'"]);
+    expect(await hiddenProductRedirect("black-cropped-leather-jacket")).toBe("/collections/cropped-leather-jackets");
+    await store.run(["UPDATE products SET status = 'active' WHERE handle = 'black-cropped-leather-jacket'"]);
+
+    expect(await hiddenProductRedirect("black-cropped-leather-jacket")).toBeNull();
+    expect(await hiddenProductRedirect("no-such-jacket")).toBeNull();
+    expect(await emptyCollectionRedirect("cropped-leather-jackets")).toBeNull();
+    expect(await emptyCollectionRedirect("all")).toBeNull();
+    expect(await emptyCollectionRedirect("no-such-collection")).toBeNull();
   });
 
   test("'all' is every live product", async () => {

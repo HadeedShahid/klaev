@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 
+import { SITE_OPEN_GRAPH } from "@/lib/seo";
+import { STORE } from "@/lib/store";
+
 import "./globals.css";
 
 const geist = Geist({
@@ -8,7 +11,11 @@ const geist = Geist({
   subsets: ["latin"],
 });
 
+// Canonical and Open Graph addresses resolve against the real domain, also on the preview, so
+// search engines credit klaev.com whichever host they found a page on.
 export const metadata: Metadata = {
+  metadataBase: new URL(STORE.siteUrl),
+  openGraph: { ...SITE_OPEN_GRAPH, type: "website" },
   title: { default: "Klaev", template: "%s | Klaev" },
   description: "Leather jackets and belts in real, full-grain leather. Made in Pakistan, delivered across Pakistan.",
 };

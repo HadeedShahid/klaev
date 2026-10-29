@@ -21,11 +21,20 @@ test.describe("collections", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Shop all");
   });
 
-  for (const path of ["/collections/leather-belts", "/collections/not-a-collection", "/products/black-stitched-leather-belt"]) {
+  for (const path of ["/collections/not-a-collection", "/products/not-a-jacket"]) {
     test(`${path} is not on the site`, async ({ page }) => {
       const response = await page.goto(path);
       expect(response?.status()).toBe(404);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText("This page isn't here");
+    });
+  }
+
+  // The belts are hidden for now, but old links to them still lead somewhere to shop (e2e/seo.spec.ts).
+  for (const path of ["/collections/leather-belts", "/products/black-stitched-leather-belt"]) {
+    test(`${path} opens shop all while the belts are hidden`, async ({ page }) => {
+      await page.goto(path);
+      await page.waitForURL("**/collections/all");
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Shop all");
     });
   }
 });

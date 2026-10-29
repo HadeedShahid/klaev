@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { Assurances } from "@/components/product/assurances";
@@ -10,10 +10,12 @@ import { ProductDetails } from "@/components/product/product-details";
 import { PurchasePanel } from "@/components/product/purchase-panel";
 import { SizeGuide } from "@/components/product/size-guide";
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
-import { getCollection, getProduct, getProducts, getRelatedProducts, type Product } from "@/lib/catalog";
+import { JsonLd } from "@/components/site/json-ld";
+import { getCollection, getProduct, getProducts, getRelatedProducts, hiddenProductRedirect, type Product } from "@/lib/catalog";
 import { Price } from "@/components/product/price";
 import { formatPKR } from "@/lib/money";
 import { codSummary } from "@/lib/payment";
+import { productData, SITE_OPEN_GRAPH } from "@/lib/seo";
 import { getCodTerms } from "@/lib/settings";
 import { sizeMeasurement } from "@/lib/sizing";
 
@@ -21,7 +23,8 @@ import { sizeMeasurement } from "@/lib/sizing";
 // pages (AGENTS.md), so each one renders on the Worker from the database on its first visit after
 // a deploy and is served from the R2 cache after that. A product created in the admin since the
 // last deploy isn't in that list, so its page renders on request until the next deploy lists it.
-// Unknown and draft handles are a real 404 either way: the page checks the handle first.
+// The page checks the handle first either way: an unknown one is a real 404, and a hidden product's
+// (a draft, like the belts, or an archived one) redirects to what's on sale.
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -32,20 +35,29 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/products/[handle]">): Promise<Metadata> {
   const product = await getProduct((await params).handle);
   if (!product) return {};
+  // One address per product, whatever ?variant= or campaign tags a link carried.
+  const canonical = `/products/${product.handle}`;
   return {
     // Search titles carried over from Shopify are complete titles, so they skip the "| Klaev" template.
     title: product.seoTitle ? { absolute: product.seoTitle } : product.title,
     description:
       product.seoDescription ?? (product.tagline ? `${product.tagline} ${formatPKR(product.price)}.` : undefined),
-    openGraph: { images: product.images.slice(0, 1).map((image) => image.src) },
+    alternates: { canonical },
+    openGraph: { ...SITE_OPEN_GRAPH, url: canonical, images: product.images.slice(0, 1).map((image) => image.src) },
   };
 }
 
-// The handle is checked before anything streams, so unknown and draft handles answer with a real
-// 404 status. Inside the boundary the response would already have gone out as 200.
+// The handle is checked before anything streams, so unknown handles answer with a real 404 status,
+// and a hidden product's with a real redirect to what's on sale. Inside the boundary the response
+// would already have gone out as 200.
 export default async function ProductPage({ params }: PageProps<"/products/[handle]">) {
-  const product = await getProduct((await params).handle);
-  if (!product) notFound();
+  const { handle } = await params;
+  const product = await getProduct(handle);
+  if (!product) {
+    const elsewhere = await hiddenProductRedirect(handle);
+    if (elsewhere) redirect(elsewhere);
+    notFound();
+  }
 
   return (
     <Suspense fallback={<ProductSkeleton />}>
@@ -73,6 +85,7 @@ async function ProductView({ product }: { product: Product }) {
 
   return (
     <div>
+      <JsonLd data={productData(product)} />
       <BreadcrumbData trail={trail} />
       <Breadcrumbs trail={trail} placement="top" />
       <div className="mx-auto max-w-6xl md:grid md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:gap-10 md:px-8 md:pt-6">

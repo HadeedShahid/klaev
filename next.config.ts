@@ -3,8 +3,12 @@ import type { NextConfig } from "next";
 import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
 import { DEVICE_SIZES, IMAGE_SIZES } from "./lib/media";
+import { SHOPIFY_REDIRECTS } from "./lib/shopify-redirects";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return SHOPIFY_REDIRECTS;
+  },
   images: {
     // No resizing in this app: product photos are stored in R2 at exactly these widths (lib/media.ts).
     loader: "custom",

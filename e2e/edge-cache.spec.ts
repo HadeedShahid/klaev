@@ -20,11 +20,10 @@ test.describe("Workers Cache", () => {
     expect(product).toBeTruthy();
 
     for (const path of ["/", "/collections/all", product!, "/blogs/blog", "/pages/about"]) {
-      expect(await caching(request, path), path).toEqual({
-        status: 200,
-        control: "public, max-age=0, s-maxage=86400",
-        tag: "store",
-      });
+      const { status, control, tag } = await caching(request, path);
+      expect({ status, control }, path).toEqual({ status: 200, control: "public, max-age=0, s-maxage=86400" });
+      // Cloudflare takes Cache-Tag off before the response leaves, so only a local build shows it.
+      if (!deployed) expect(tag, path).toBe("store");
     }
   });
 

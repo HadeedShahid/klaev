@@ -3,6 +3,7 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 import { getDb } from "@/lib/db";
+import { notifyReceipt } from "@/lib/notify";
 import { getOrderByToken } from "@/lib/orders";
 import { saveReceipt } from "@/lib/receipts";
 
@@ -19,5 +20,7 @@ export async function uploadReceipt(token: string, _prev: ReceiptState, formData
 
   const { env } = await getCloudflareContext({ async: true });
   const result = await saveReceipt(db, env.RECEIPTS, order, file);
-  return result.ok ? { status: "received" } : { status: "error", message: result.message };
+  if (!result.ok) return { status: "error", message: result.message };
+  await notifyReceipt(order.number);
+  return { status: "received" };
 }

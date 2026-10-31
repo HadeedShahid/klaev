@@ -31,7 +31,7 @@ Klaev sells premium leather jackets and belts in Pakistan. This repo replaces th
 | Database | D1 (SQLite) with Drizzle ORM | Included in Workers Paid: 25 billion row reads and 50 million row writes a month |
 | Images and uploads | R2. Product photos are stored ready-sized as WebP, one copy per width the site asks for, so nothing resizes on request | Product photos and bank transfer receipts |
 | Admin login | A password and a signed session cookie, built in | One admin needs nothing more, and nothing extra loads or can break on OpenNext |
-| Email | Resend, templates in React Email | Cloudflare's own sending is still in beta. All mail goes through one `sendEmail()` so switching later is a one-file change |
+| Email | Cloudflare Email Service, with plain HTML templates | 3,000 emails a month come with Workers Paid, then $0.35 per 1,000, with no second account. It's still in public beta, so all mail goes through one `sendEmail()` and moving to Resend, the fallback, is a one-file change |
 | Scheduled jobs | Cron Triggers | Abandoned checkout reminders, daily summary email, nightly analytics rollups |
 | Analytics | Built in: a tiny tracker plus server-side events, stored in D1 | See below |
 | Ads tracking | Meta Pixel and Conversions API, off by default | Ready for when ads run. See Ads tracking |
@@ -249,6 +249,8 @@ The browser pixel script is about 114 KB compressed. So when ads are on, events 
 
 ## Emails
 
+Built on 1 November 2026: Order received, Shipped, New order, Receipt uploaded and New message. The rest of these tables comes later. They send once klaev.com is onboarded under Email Sending in Cloudflare, which needs Workers Paid and the domain on Cloudflare's nameservers; until then a send fails and is logged, and the order, receipt or message it reports on stands.
+
 To customers:
 
 | Email | Sent when |
@@ -269,6 +271,7 @@ To you:
 |---|---|
 | New order | Every order |
 | Receipt uploaded | A customer uploads a bank transfer receipt |
+| New message | Someone sends the contact form. Replying answers them, if they left an email |
 | Low stock | A variant drops below its threshold |
 | Daily summary | Every morning: yesterday's sales, orders, visitors and open to-dos |
 

@@ -60,7 +60,7 @@ describe("contact messages", () => {
     expect(await sendMessage(store.db, { ...message, phone: "" })).toMatchObject({ ok: false, field: "contact" });
     expect(await sendMessage(store.db, { ...message, body: " " })).toMatchObject({ ok: false, field: "body" });
     expect(await sendMessage(store.db, { ...message, email: "not-an-email" })).toMatchObject({ ok: false, field: "contact" });
-    expect(await sendMessage(store.db, message)).toEqual({ ok: true });
+    expect(await sendMessage(store.db, message)).toMatchObject({ ok: true });
     const [saved] = await listMessages(store.db);
     expect(saved).toMatchObject({ name: "Bilal", phone: "+923001234567", email: null, subject: "custom" });
     expect(await waitingMessages(store.db)).toBe(1);

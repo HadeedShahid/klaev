@@ -14,12 +14,14 @@ export const SUBJECT_LABELS: Record<MessageSubject, string> = {
   exchange: "An exchange",
 };
 
+export type SavedMessage = { name: string; email: string | null; phone: string | null; subject: MessageSubject; body: string };
+
 // A message from the contact form: a name, a way to reply (a mobile number, an email, or both)
 // and what it's about.
 export async function sendMessage(
   db: Db,
   input: { name: string; email: string; phone: string; subject: string; body: string },
-): Promise<{ ok: true } | { ok: false; field?: "name" | "contact" | "body"; message: string }> {
+): Promise<{ ok: true; saved: SavedMessage } | { ok: false; field?: "name" | "contact" | "body"; message: string }> {
   const name = input.name.trim();
   if (!name || name.length > 120) return { ok: false, field: "name", message: "Enter your name." };
   const email = input.email.trim().toLowerCase();
@@ -31,8 +33,9 @@ export async function sendMessage(
   if (!body) return { ok: false, field: "body", message: "Write your message." };
   if (body.length > 4000) return { ok: false, field: "body", message: "Keep it under 4,000 characters." };
   const subject = MESSAGE_SUBJECTS.find((candidate) => candidate === input.subject) ?? "general";
-  await db.insert(messages).values({ name, email: email || null, phone, subject, body });
-  return { ok: true };
+  const saved = { name, email: email || null, phone, subject, body };
+  await db.insert(messages).values(saved);
+  return { ok: true, saved };
 }
 
 // Waiting messages first, newest first; handled ones after.

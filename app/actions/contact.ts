@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 
 import { getDb } from "@/lib/db";
 import { sendMessage } from "@/lib/messages";
+import { notifyMessage } from "@/lib/notify";
 
 export type ContactState = { sent: string } | { error: string; field?: "name" | "contact" | "body" } | null;
 
@@ -27,5 +28,6 @@ export async function contactAction(_: ContactState, form: FormData): Promise<Co
     body: String(form.get("message") ?? ""),
   });
   if (!result.ok) return { error: result.message, field: result.field };
+  await notifyMessage(result.saved);
   return { sent: name.trim().split(/\s+/)[0] };
 }

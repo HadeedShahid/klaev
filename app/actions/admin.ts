@@ -28,6 +28,7 @@ import {
 import { saveCourierSettings } from "@/lib/admin/courier";
 import { restock, saveStock } from "@/lib/admin/stock";
 import { getDb } from "@/lib/db";
+import { notifyShipped } from "@/lib/notify";
 import { saveReceipt } from "@/lib/receipts";
 import { refreshStore } from "@/lib/refresh-store";
 
@@ -138,6 +139,7 @@ export async function updateOrder(_: ActionState, form: FormData): Promise<Actio
   if (!result.ok) return { error: result.message };
   // Cancelling and refusing put stock back, which the storefront's cached pages show.
   if (intent === "cancel" || intent === "refuse") await refreshStore();
+  if (intent === "ship") await notifyShipped(number);
   refresh();
   return { done: DONE[intent] };
 }

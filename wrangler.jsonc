@@ -20,6 +20,14 @@
 			"service": "klaev"
 		}
 	],
+	// Cloudflare Email Service (lib/email.ts). Sends to anyone once klaev.com is onboarded under Email
+	// Sending, which needs Workers Paid and Cloudflare DNS; until then a send fails and is logged.
+	"send_email": [
+		{
+			"name": "EMAIL",
+			"allowed_sender_addresses": ["orders@klaev.com"]
+		}
+	],
 	"d1_databases": [
 		{
 			// The store database: catalog, stock, customers, orders and payments. Schema in lib/db/schema.ts,

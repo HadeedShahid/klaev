@@ -52,7 +52,7 @@ We confirm every order on WhatsApp once the advance or the transfer is in. An or
 When your order ships, we send you its tracking number. You can also follow it on the [tracking page](/track) with your order number and mobile number.
 
 ## If it can't be delivered
-If the rider can't deliver it, we message you on WhatsApp to arrange another try. A parcel that can't be delivered comes back to us.`,
+A parcel that can't be delivered comes back to us.`,
   },
   {
     handle: "refund-policy",

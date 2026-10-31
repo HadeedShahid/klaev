@@ -20,7 +20,7 @@ export function statusLine(order: { status: Status; courierStatus: CourierStatus
         case "out_for_delivery":
           return "Out for delivery today. Keep your phone close; the rider may call.";
         case "attempted":
-          return "The rider couldn't deliver it. We'll message you on WhatsApp to arrange another try.";
+          return "The rider couldn't deliver it. Keep your phone close; we may call you.";
         case "returning":
           return "It's on its way back to us. Message us on WhatsApp if you still want it.";
         default:

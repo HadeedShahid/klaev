@@ -17,7 +17,7 @@ export function ProductCard({ product, sizes }: { product: Product; sizes: strin
             src={image.src}
             width={image.width}
             height={image.height}
-            alt=""
+            alt={image.alt}
             sizes={sizes}
             className="aspect-4/5 w-full rounded-2xl bg-muted object-cover transition-opacity group-hover:opacity-90"
           />

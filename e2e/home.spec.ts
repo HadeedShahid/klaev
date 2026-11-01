@@ -10,7 +10,8 @@ const CROPPED = [
 test.describe("landing page", () => {
   test("opens on the cropped jackets with the price and a way to shop them", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Cropped leather jackets.");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Klaev. Premium leather jackets in Pakistan.");
+    await expect(page.getByText("Cropped leather jackets.", { exact: true })).toBeVisible();
     await expect(page.getByTestId("hero-price").filter({ visible: true })).toHaveText("PKR 17,999");
     await expect(page.getByRole("link", { name: "Shop cropped" })).toHaveAttribute(
       "href",

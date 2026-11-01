@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { BreadcrumbData } from "@/components/site/breadcrumbs";
 import { listPublished } from "@/lib/journal";
 
 export const metadata: Metadata = {
-  title: "Journal",
+  title: "Blog",
   description: "Notes from Klaev on leather, fit and care: how to choose a jacket, and how to keep it for years.",
   alternates: { canonical: "/blogs/blog" },
 };
@@ -17,8 +18,14 @@ export default async function JournalPage() {
   const posts = await listPublished();
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-10 px-5 pt-8 pb-16 md:px-8 md:pt-12">
+      <BreadcrumbData
+        trail={[
+          { name: "Home", href: "/" },
+          { name: "Blog", href: "/blogs/blog" },
+        ]}
+      />
       <div className="flex flex-col gap-2">
-        <h1 className="text-[2rem] leading-tight font-semibold tracking-tight md:text-5xl">Journal</h1>
+        <h1 className="text-[2rem] leading-tight font-semibold tracking-tight md:text-5xl">Blog</h1>
         <p className="max-w-[52ch] text-muted-foreground text-pretty">Notes on leather, fit and care.</p>
       </div>
       {posts.length === 0 ? (

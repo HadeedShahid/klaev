@@ -45,7 +45,7 @@ export type Collection = { handle: string; title: string };
 export type CollectionWithItems = Collection & { items: Product[] };
 
 // The storefront-wide listing at /collections/all, kept from the Shopify URL shape.
-const ALL: Collection = { handle: "all", title: "Shop all" };
+const ALL: Collection = { handle: "all", title: "All" };
 
 // This is the only module that knows where the catalog lives (Cloudflare D1, through Drizzle).
 // The live catalog is a dozen products, so each request loads it once and the functions below

@@ -84,27 +84,32 @@ test.describe("search engines", () => {
     await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", "Klaev");
     await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", "https://klaev.com/products/dark-brown-cropped-sheepskin-leather-jacket");
 
-    const product = (await structuredData(page)).find((entry) => entry["@type"] === "Product");
-    expect(product).toMatchObject({
-      name: "Dark Brown Cropped Sheepskin Leather Jacket",
-      brand: { name: "Klaev" },
-      offers: { price: 17999, priceCurrency: "PKR", availability: "https://schema.org/InStock" },
-    });
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute("content", "product");
+    await expect(page.locator('meta[property="og:price:amount"]')).toHaveAttribute("content", "17,999");
+
+    const data = await structuredData(page);
+    expect(data.map((entry) => entry["@type"])).toContain("Organization");
+    const product = data.find((entry) => entry["@type"] === "ProductGroup");
+    expect(product).toMatchObject({ name: "Dark Brown Cropped Sheepskin Leather Jacket", brand: { name: "Klaev" }, category: "Coats & Jackets" });
     expect(product.image.length).toBeGreaterThan(1);
+    expect(product.hasVariant.length).toBeGreaterThan(1);
+    expect(product.hasVariant[0].offers).toMatchObject({ price: 17999, priceCurrency: "PKR" });
   });
 
   test("the home page has its search title and introduces the store", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle("Klaev | Leather Jackets in Pakistan");
-    await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /cash on delivery or by bank transfer/);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /Free delivery on bank transfer/);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https:\/\/klaev\.com\/?$/);
-    const graph = (await structuredData(page)).find((entry) => entry["@graph"])["@graph"];
+    const data = await structuredData(page);
+    expect(data.find((entry) => entry["@type"] === "FAQPage").mainEntity.length).toBeGreaterThan(0);
+    const graph = data.find((entry) => entry["@graph"])["@graph"];
     expect(graph.map((node: { "@type": string }) => node["@type"])).toEqual(["OnlineStore", "WebSite"]);
   });
 
   test("a collection page has its own search title, description and address", async ({ page }) => {
     await page.goto("/collections/suede-jackets?sort=price");
-    await expect(page).toHaveTitle("Men’s Suede Jackets in Pakistan | Klaev");
+    await expect(page).toHaveTitle("Men's Suede Leather Jackets Online in Pakistan | Klaev");
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /goatskin suede/);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://klaev.com/collections/suede-jackets");
   });

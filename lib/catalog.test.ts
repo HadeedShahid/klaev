@@ -56,7 +56,7 @@ describe("the catalog, read from D1", () => {
       sections: seed.sections,
       sizeGuide: seed.sizeGuide,
       tags: seed.tags,
-      seoTitle: "Men’s Dark Brown Cropped Leather Jacket | Klaev Pakistan",
+      seoTitle: "Dark Brown Cropped Sheepskin Leather Jacket | Klaev",
     });
     expect(product?.images).toEqual(seed.images);
     expect(product?.variants.map((variant) => [variant.id, variant.size, variant.available])).toEqual([
@@ -107,7 +107,7 @@ describe("the catalog, read from D1", () => {
 
   test("'all' is every live product", async () => {
     const all = await getCollection("all");
-    expect(all?.title).toBe("Shop all");
+    expect(all?.title).toBe("All");
     expect(all?.items).toHaveLength(live.length);
   });
 

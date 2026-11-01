@@ -9,7 +9,7 @@ test.describe("breadcrumbs", () => {
     const trail = page.getByRole("navigation", { name: "Breadcrumb" });
     await expect(trail).toHaveCount(1);
     await expect(trail.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
-    await expect(trail.getByRole("link", { name: "Cropped Leather Jackets" })).toHaveAttribute(
+    await expect(trail.getByRole("link", { name: "Men’s Cropped Leather Jackets" })).toHaveAttribute(
       "href",
       "/collections/cropped-leather-jackets",
     );
@@ -50,14 +50,14 @@ test.describe("breadcrumbs", () => {
     await page.goto("/collections/cropped-leather-jackets");
     const trail = page.getByRole("navigation", { name: "Breadcrumb" });
     await expect(trail.getByRole("link", { name: "Home" })).toBeVisible();
-    await expect(trail.getByText("Cropped Leather Jackets")).toHaveAttribute("aria-current", "page");
+    await expect(trail.getByText("Men’s Cropped Leather Jackets")).toHaveAttribute("aria-current", "page");
 
     await page.goto(PRODUCT);
     const data = await page.locator('script[type="application/ld+json"]').allTextContents();
     const crumbs = data.map((text) => JSON.parse(text)).find((entry) => entry["@type"] === "BreadcrumbList");
     expect(crumbs.itemListElement.map((item: { name: string }) => item.name)).toEqual([
       "Home",
-      "Cropped Leather Jackets",
+      "Men’s Cropped Leather Jackets",
       TITLE,
     ]);
     expect(crumbs.itemListElement[2].item).toBe(`https://klaev.com${PRODUCT}`);

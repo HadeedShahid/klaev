@@ -52,7 +52,7 @@ export function SiteFooter() {
         <div className="flex flex-col gap-2">
           <p className="font-medium text-foreground">More</p>
           <Link className={link} href="/blogs/blog">
-            Journal
+            Blog
           </Link>
           <a className={link} href={`https://instagram.com/${STORE.instagram}`}>
             Instagram @{STORE.instagram}

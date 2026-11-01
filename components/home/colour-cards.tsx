@@ -41,7 +41,7 @@ export function ColourCards({ products }: { products: Product[] }) {
                       src={image.src}
                       width={image.width}
                       height={image.height}
-                      alt=""
+                      alt={image.alt}
                       sizes="(min-width: 768px) 33vw, 33vw"
                       className="aspect-4/5 w-full rounded-xl bg-muted object-cover transition-opacity group-hover:opacity-90 md:rounded-2xl"
                     />

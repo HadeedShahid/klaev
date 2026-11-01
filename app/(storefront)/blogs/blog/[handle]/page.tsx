@@ -17,14 +17,15 @@ export async function generateMetadata({ params }: PageProps<"/blogs/blog/[handl
   if (!post) return {};
   const description = post.seoDescription ?? post.excerpt ?? undefined;
   return {
-    title: post.seoTitle ?? post.title,
+    // A search title that names Klaev is already complete, as Shopify's were; others take the template.
+    title: post.seoTitle?.includes("Klaev") ? { absolute: post.seoTitle } : (post.seoTitle ?? post.title),
     description,
     alternates: { canonical: `/blogs/blog/${post.handle}` },
     openGraph: {
       ...SITE_OPEN_GRAPH,
       url: `/blogs/blog/${post.handle}`,
       type: "article",
-      title: post.title,
+      title: post.seoTitle ?? post.title,
       description,
       publishedTime: post.publishedAt?.toISOString(),
       // An article without a cover keeps the store's own picture.
@@ -41,18 +42,20 @@ export default async function ArticlePage({ params }: PageProps<"/blogs/blog/[ha
   if (!post) notFound();
   const trail = [
     { name: "Home", href: "/" },
-    { name: "Journal", href: "/blogs/blog" },
+    { name: "Blog", href: "/blogs/blog" },
     { name: post.title, href: `/blogs/blog/${post.handle}` },
   ];
   const structured = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
+    "@type": "Article",
     headline: post.title,
+    description: post.seoDescription ?? post.excerpt ?? undefined,
     datePublished: post.publishedAt?.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     image: post.coverSrc ?? undefined,
-    author: { "@type": "Organization", name: "Klaev", url: STORE.siteUrl },
-    mainEntityOfPage: `${STORE.siteUrl}/blogs/blog/${post.handle}`,
+    author: { "@type": "Person", name: "Klaev Editorial" },
+    publisher: { "@type": "Organization", name: "Klaev" },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${STORE.siteUrl}/blogs/blog/${post.handle}` },
   };
 
   return (

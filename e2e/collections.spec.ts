@@ -3,13 +3,13 @@ import { expect, test } from "@playwright/test";
 test.describe("collections", () => {
   test("a line lists its jackets", async ({ page }) => {
     await page.goto("/collections/cropped-leather-jackets");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Cropped Leather Jackets");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Men’s Cropped Leather Jackets");
     await expect(page.getByRole("main").getByRole("link", { name: /Cropped Sheepskin Leather Jacket/ })).toHaveCount(3);
   });
 
   test("shop all lists every jacket and no belts", async ({ page }) => {
     await page.goto("/collections/all");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Shop all");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("All");
     await expect(page.getByRole("main").getByRole("link", { name: /Jacket/ })).toHaveCount(6);
     expect(await page.locator("main").innerText()).not.toMatch(/belt/i);
   });
@@ -18,7 +18,7 @@ test.describe("collections", () => {
     await page.goto("/");
     await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Shop" }).click();
     await page.waitForURL("**/collections/all");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Shop all");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("All");
   });
 
   for (const path of ["/collections/not-a-collection", "/products/not-a-jacket"]) {
@@ -34,7 +34,7 @@ test.describe("collections", () => {
     test(`${path} opens shop all while the belts are hidden`, async ({ page }) => {
       await page.goto(path);
       await page.waitForURL("**/collections/all");
-      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Shop all");
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("All");
     });
   }
 });

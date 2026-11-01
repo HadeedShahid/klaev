@@ -87,6 +87,10 @@ async function ProductView({ product }: { product: Product }) {
   return (
     <div>
       <JsonLd data={productData(product)} />
+      {/* Next's metadata refuses og:type "product", so these three go in by hand. */}
+      <meta property="og:type" content="product" />
+      <meta property="og:price:amount" content={product.price.toLocaleString("en-US")} />
+      <meta property="og:price:currency" content="PKR" />
       <MetaEvent
         key={product.handle}
         name="ViewContent"

@@ -6,8 +6,8 @@ import { StorePage } from "@/components/site/store-page";
 import { getCollections } from "@/lib/catalog";
 
 export const metadata: Metadata = {
-  title: "Jackets size chart",
-  description: "Every Klaev jacket's sizes by chest measurement, in inches.",
+  title: "Men's Jacket Size Chart Pakistan",
+  description: "Find your fit with the Klaev men's leather and suede jacket size chart. Measurements in inches. Free delivery on bank transfer.",
   alternates: { canonical: "/pages/jackets-size-chart" },
 };
 
@@ -28,7 +28,7 @@ export default async function SizeChartPage() {
   });
 
   return (
-    <StorePage path="/pages/jackets-size-chart" title="Jackets size chart" lead="Sizes go by chest. Between two sizes, size up to layer.">
+    <StorePage path="/pages/jackets-size-chart" title="Jackets Size Chart" lead="Sizes go by chest. Between two sizes, size up to layer.">
       <div className="flex flex-col gap-10">
         {charts.map((chart) => (
           <section key={chart.key} aria-labelledby={`chart-${chart.key}`} className="flex flex-col gap-3">

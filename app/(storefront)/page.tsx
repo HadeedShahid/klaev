@@ -14,7 +14,7 @@ import { fillFaq, getFaq } from "@/lib/faq";
 import { getCodTerms } from "@/lib/settings";
 import { getCollection, getProduct, type Product } from "@/lib/catalog";
 import { formatPKR } from "@/lib/money";
-import { storeData } from "@/lib/seo";
+import { faqData, storeData } from "@/lib/seo";
 import { jacketChest } from "@/lib/sizing";
 import { whatsappLink } from "@/lib/store";
 import { pill } from "@/lib/styles";
@@ -62,6 +62,7 @@ export default async function HomePage() {
   return (
     <div className="pb-8">
       <JsonLd data={storeData()} />
+      <JsonLd data={faqData(fillFaq(faq, terms))} />
       <Hero price={priceLabel(croppedItems)} colours={heroColours} />
       <ColourCards products={croppedItems} />
 

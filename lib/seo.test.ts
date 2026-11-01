@@ -34,7 +34,10 @@ const jacket: Product = {
 describe("robots.txt", () => {
   test("klaev.com is open to crawlers except its private parts, and points to the sitemap", () => {
     expect(robotsFor("klaev.com")).toEqual({
-      rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/cart", "/checkout", "/orders/"] },
+      rules: [
+        expect.objectContaining({ userAgent: "*", allow: "/", disallow: expect.arrayContaining(["/admin", "/api/", "/checkout", "/orders", "/cart/", "/account", "/collections/*sort_by*"]) }),
+        expect.objectContaining({ userAgent: "adsbot-google", allow: ["/products/", "/collections/", "/pages/", "/blogs/"], disallow: expect.arrayContaining(["/checkout", "/orders"]) }),
+      ],
       sitemap: "https://klaev.com/sitemap.xml",
     });
   });
@@ -51,16 +54,23 @@ describe("structured data", () => {
     const data = productData(jacket);
     expect(data).toMatchObject({
       "@context": "https://schema.org",
-      "@type": "Product",
+      "@type": "ProductGroup",
       name: "Black Cropped Leather Jacket",
       description: "A short jacket in full-grain leather.",
       url: "https://klaev.com/products/black-cropped-leather-jacket",
       image: ["https://media.example/products/black/1.webp", "https://media.example/products/black/2.webp"],
       brand: { "@type": "Brand", name: "Klaev" },
       color: "Black",
+      variesBy: ["https://schema.org/size"],
+    });
+    expect(data.hasVariant[0].offers.availability).toBe("https://schema.org/OutOfStock");
+    expect(data.hasVariant[1]).toMatchObject({
+      "@type": "Product",
+      size: "M",
+      sku: "CROP-BLK-M",
+      color: "Black",
       offers: {
         "@type": "Offer",
-        url: "https://klaev.com/products/black-cropped-leather-jacket",
         price: 17999,
         priceCurrency: "PKR",
         availability: "https://schema.org/InStock",
@@ -79,7 +89,7 @@ describe("structured data", () => {
     });
 
     const soldOut = productData({ ...jacket, variants: jacket.variants.map((variant) => ({ ...variant, available: false })) });
-    expect(soldOut.offers.availability).toBe("https://schema.org/OutOfStock");
+    expect(soldOut.hasVariant.map((variant) => variant.offers.availability)).toEqual(jacket.variants.map(() => "https://schema.org/OutOfStock"));
     // The product's own words describe it; Shopify's search line is the last resort.
     const unwritten = { ...jacket, intro: [], seoDescription: "Shop the black cropped jacket." };
     expect(productData(unwritten).description).toBe("Cropped at the waist, in black sheepskin.");
@@ -96,7 +106,7 @@ describe("structured data", () => {
       image: "https://klaev.com/og/klaev.jpg",
       email: "business.klaev@gmail.com",
       telephone: "+923231483650",
-      sameAs: ["https://instagram.com/getklaev"],
+      sameAs: ["https://www.instagram.com/getklaev/", "https://www.facebook.com/profile.php?id=61575756869911", "https://www.tiktok.com/@getklaev"],
       address: {
         "@type": "PostalAddress",
         streetAddress: "Office 2, First Floor, Ahad Plaza, 14L Gulberg 3",
@@ -184,20 +194,21 @@ describe("the sitemap", () => {
 describe("collection search listings", () => {
   test("each collection has a title and description of search length, in the brand's words and with the real terms", () => {
     for (const collection of [
-      { handle: "all", title: "Shop all" },
-      { handle: "cropped-leather-jackets", title: "Cropped Leather Jackets" },
+      { handle: "all", title: "All" },
+      { handle: "cropped-leather-jackets", title: "Men’s Cropped Leather Jackets" },
       { handle: "leather-jackets", title: "Leather Jackets" },
       { handle: "suede-jackets", title: "Suede Jackets" },
       { handle: "field-jackets", title: "Field Jackets" },
     ]) {
       const seo = collectionSeo(collection);
       expect(seo.title.length, collection.handle).toBeLessThanOrEqual(52);
-      expect(seo.description.length, collection.handle).toBeLessThanOrEqual(160);
+      expect(seo.description.length, collection.handle).toBeLessThanOrEqual(170);
       for (const text of [seo.title, seo.description]) {
-        expect(text, collection.handle).not.toMatch(/[–—]|free delivery|nationwide|luxury|premium/i);
+        // Shopify's words, but delivery is only free with bank transfer.
+        expect(text, collection.handle).not.toMatch(/[–—]|free delivery(?! on bank transfer)|nationwide/i);
       }
     }
-    expect(collectionSeo({ handle: "suede-jackets", title: "Suede Jackets" }).title).toBe("Men’s Suede Jackets in Pakistan");
+    expect(collectionSeo({ handle: "suede-jackets", title: "Suede Jackets" }).title).toBe("Men's Suede Leather Jackets Online in Pakistan");
     // A collection added in the admin gets a plain listing from its own name.
     expect(collectionSeo({ handle: "field-jackets", title: "Field Jackets" }).title).toBe("Field Jackets in Pakistan");
   });

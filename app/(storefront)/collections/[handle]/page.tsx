@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps<"/collections/[hand
     title: listing.title,
     description: listing.description,
     alternates: { canonical },
-    openGraph: { ...SITE_OPEN_GRAPH, url: canonical, ...(photo ? { images: [sharedImage(photo)] } : {}) },
+    openGraph: { ...SITE_OPEN_GRAPH, type: "website", url: canonical, ...(photo ? { images: [sharedImage(photo)] } : {}) },
   };
 }
 

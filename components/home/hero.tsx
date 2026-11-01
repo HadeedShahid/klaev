@@ -11,12 +11,14 @@ export function Hero({ price, colours }: { price: string; colours: HeroColour[] 
   return (
     <section aria-labelledby="hero-title" className="flex flex-col">
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 px-5 pt-8 pb-6 text-center md:pt-14 md:pb-10">
-        <h1
+        {/* Search reads the h1, as it did on Shopify, where it was hidden too. Shoppers read the headline. */}
+        <h1 className="sr-only">Klaev. Premium leather jackets in Pakistan.</h1>
+        <p
           id="hero-title"
           className="text-[2.5rem] leading-[1.05] font-semibold tracking-tight text-balance md:text-6xl"
         >
           Cropped leather jackets.
-        </h1>
+        </p>
         <p className="text-lg text-balance text-muted-foreground md:text-xl">Full-grain sheepskin, cut to the waist.</p>
         <p data-testid="hero-price" className="font-medium tabular-nums">
           {price}

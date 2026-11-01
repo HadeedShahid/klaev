@@ -4,6 +4,7 @@ import Link from "next/link";
 import { pill } from "@/lib/styles";
 
 import { HeroPhotos, type HeroColour } from "./hero-photos";
+import { ScrollLink } from "./scroll-link";
 
 // Headline on top, then the studio photos of the cropped jackets, with a colour picker on the photo.
 export function Hero({ price, colours }: { price: string; colours: HeroColour[] }) {
@@ -24,13 +25,13 @@ export function Hero({ price, colours }: { price: string; colours: HeroColour[] 
           <Link href="/collections/cropped-leather-jackets" prefetch className={pill}>
             Shop cropped
           </Link>
-          <a
-            href="#colours"
+          <ScrollLink
+            to="colours"
             className="group inline-flex h-12 items-center gap-0.5 text-[0.9375rem] font-medium hover:underline"
           >
             See the colours
             <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-          </a>
+          </ScrollLink>
         </div>
       </div>
       <HeroPhotos colours={colours} />

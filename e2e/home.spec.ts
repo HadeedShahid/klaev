@@ -52,6 +52,8 @@ test.describe("landing page", () => {
     await expect(heading).toBeInViewport();
     // The sticky header must not cover the heading once the scroll settles.
     await expect.poll(async () => (await heading.boundingBox())?.y ?? 0).toBeGreaterThan(56);
+    // The address stays clean, so the section doesn't come back with the page.
+    expect(new URL(page.url()).hash).toBe("");
   });
 
   test("on a laptop, See the colours lands on the heading with every card whole in view", async ({ page }) => {

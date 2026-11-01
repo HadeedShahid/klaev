@@ -16,6 +16,7 @@ import {
 import { addToCart, type AddToCartState } from "@/app/actions/cart";
 import { notifyCartChanged, openCartDrawer } from "@/components/site/cart-link";
 import { FLAGS } from "@/lib/flags";
+import { metaEvent } from "@/lib/meta-client";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +36,11 @@ const idle: AddToCartState = { status: "idle" };
 
 export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGuide }: Props) {
   const [state, formAction, pending] = useActionState(addToCart, idle);
+  // Told only once the action says it's really in the cart.
+  useEffect(() => {
+    if (state.status !== "added") return;
+    metaEvent("AddToCart", { content_ids: [state.variantId], content_type: "product", content_name: state.title, value: state.price, num_items: 1 });
+  }, [state]);
   const [selected, setSelected] = useState<SizeOption | null>(null);
   const sizesRef = useRef<HTMLDivElement>(null);
   const sizeLabelId = useId();

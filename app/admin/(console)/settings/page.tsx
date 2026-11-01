@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { bankAccountAction, codTermsAction, passwordAction } from "@/app/actions/admin-settings";
+import { bankAccountAction, codTermsAction, metaAction, passwordAction } from "@/app/actions/admin-settings";
 import { CourierForm } from "@/components/admin/courier-form";
 import { PageHeader } from "@/components/admin/page-header";
 import { SettingsForm } from "@/components/admin/settings-form";
@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { MIN_PASSWORD_LENGTH, requireAdmin } from "@/lib/admin/auth";
 import { getCourierSettings } from "@/lib/admin/courier";
 import { getDb } from "@/lib/db";
-import { getBankAccount, getCodTerms } from "@/lib/settings";
+import { metaTokenIsSet } from "@/lib/meta-server";
+import { getBankAccount, getCodTerms, getMetaSettings } from "@/lib/settings";
 import { STORE } from "@/lib/store";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -16,7 +17,13 @@ export const metadata: Metadata = { title: "Settings" };
 export default async function SettingsPage() {
   await requireAdmin();
   const db = await getDb();
-  const [courier, terms, bank] = await Promise.all([getCourierSettings(db), getCodTerms(db), getBankAccount(db)]);
+  const [courier, terms, bank, meta, metaToken] = await Promise.all([
+    getCourierSettings(db),
+    getCodTerms(db),
+    getBankAccount(db),
+    getMetaSettings(db),
+    metaTokenIsSet(),
+  ]);
   return (
     <>
       <PageHeader title="Settings" />
@@ -70,6 +77,29 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <CourierForm settings={courier} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Meta ads</CardTitle>
+            <CardDescription>
+              Tells Meta about visits, carts and orders, so Facebook and Instagram ads can be measured and shown to the right people. Nothing is
+              sent while this is off.{" "}
+              {metaToken
+                ? "The access token is set, so orders are sent too."
+                : "Orders are only sent once the access token is set: pnpm exec wrangler secret put META_ACCESS_TOKEN."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SettingsForm
+              action={metaAction}
+              columns={2}
+              fields={[
+                { name: "pixelId", label: "Pixel ID", inputMode: "numeric", defaultValue: meta.pixelId, hint: "In Meta Events Manager, under Data sources." },
+                { name: "enabled", label: "Send events to Meta", type: "checkbox", checked: meta.enabled },
+              ]}
+            />
           </CardContent>
         </Card>
 

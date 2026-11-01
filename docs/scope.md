@@ -34,7 +34,7 @@ Klaev sells premium leather jackets and belts in Pakistan. This repo replaces th
 | Email | Cloudflare Email Service, with plain HTML templates | 3,000 emails a month come with Workers Paid, then $0.35 per 1,000, with no second account. It's still in public beta, so all mail goes through one `sendEmail()` and moving to Resend, the fallback, is a one-file change |
 | Scheduled jobs | Cron Triggers | Abandoned checkout reminders, daily summary email, nightly analytics rollups |
 | Analytics | Built in: a tiny tracker plus server-side events, stored in D1 | See below |
-| Ads tracking | Meta Pixel and Conversions API, not built yet | For when ads run. See Ads tracking |
+| Ads tracking | Meta Pixel and Conversions API, off by default | Ready for when ads run. See Ads tracking |
 | Session replays (optional) | Microsoft Clarity, loaded late and only on chosen pages | Free. The one analytics feature not worth building |
 
 ### Why D1
@@ -229,25 +229,27 @@ Each step shows its count and the drop-off. The last two steps matter most for C
 
 Built 27 October 2026. A tracker of a few lines (`components/site/tracker.tsx`, no library) sends each page view to `/api/e`; carts and orders are recorded by the server actions that make them. A visitor is a random id in a first-party cookie kept a year, a session one kept 30 minutes after the last page. The session's first page records where it came from (a utm_source tag, an ad click id, the Instagram or Facebook in-app browser, or the referrer) and any utm_campaign; Cloudflare supplies the city and country. Crawlers and link previews aren't counted. Not built yet: searches with no results (there's no search yet), and the nightly rollups: the screens read raw events, which is fast at this size; add daily summary tables when visits reach the tens of thousands a month.
 
-## Ads tracking (planned, not built)
+## Ads tracking (built, switched off)
 
-Meta Pixel and Meta's Conversions API, for when ads run. Off until then: while off, nothing loads and nothing is sent. Turning them on takes one switch in Settings, plus the pixel ID and access token.
-
-Shopify's Facebook & Instagram app is connected today, and it stops when Shopify is cancelled. If products are tagged on Instagram or sold through a Meta catalog, this store needs a product feed for Meta first.
+Meta Pixel and Meta's Conversions API, built 1 November 2026, off until switched on under Settings, Meta ads. While off, nothing loads and nothing is sent. Turning it on takes the pixel ID and that one switch in Settings, plus the access token as a Worker secret (`wrangler secret put META_ACCESS_TOKEN`).
 
 | Store action | Meta event |
 |---|---|
 | Any page | PageView |
 | Product page | ViewContent |
-| Search | Search |
-| Add to cart | AddToCart |
+| Add to cart, once it's really in the cart | AddToCart |
 | Checkout opened | InitiateCheckout |
-| Payment method chosen | AddPaymentInfo |
-| Order placed | Purchase, with the value in PKR and the SKUs |
-| WhatsApp button or contact form | Contact |
-| Custom jacket enquiry or newsletter signup | Lead |
+| Payment method changed | AddPaymentInfo |
+| Order saved | Purchase, with the value in PKR and every item. From the server only |
+| WhatsApp link or contact form | Contact |
 
-The browser pixel script is about 114 KB compressed. So when ads are on, events go to Meta from our server through the Conversions API, which ships no JavaScript, and the browser pixel loads only after the page has finished. Each server event carries the customer's email and phone, hashed, which helps Meta match buyers to ads.
+The store has no search or newsletter yet, so Search and Lead wait for those. Custom jacket enquiries go to WhatsApp and count as Contact.
+
+The browser pixel script is about 114 KB compressed, so it loads only after the page has finished. Each event but Purchase goes both ways under one ID, so Meta counts it once, and the server's copy survives an ad blocker. A Purchase carries the customer's email, phone, name and city, hashed, which helps Meta match buyers to ads.
+
+An order page's address is the customer's private link, so the pixel never runs there: its automatic features are off, order pages send no referrer, and Purchase names the checkout as its page. This was checked against Meta's real script through a full order.
+
+Shopify's Facebook & Instagram app is connected today, and it stops when Shopify is cancelled. Use the same pixel ID here so audiences carry on. If products are tagged on Instagram or used in catalog ads, this store also needs a product feed for Meta, which isn't built.
 
 ## Emails
 

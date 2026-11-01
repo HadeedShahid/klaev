@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { OrderLines } from "@/components/checkout/order-lines";
 import { CartCountSync } from "@/components/site/cart-link";
+import { MetaEvent } from "@/components/site/meta-event";
 import { getCartView } from "@/lib/cart";
 import { getCodTerms } from "@/lib/settings";
 import { pill } from "@/lib/styles";
@@ -50,6 +51,15 @@ async function CheckoutContents() {
           lineTotal: line.lineTotal,
           image: line.image,
         }))}
+      />
+      <MetaEvent
+        name="InitiateCheckout"
+        data={{
+          content_ids: cart.lines.map((line) => line.variantId),
+          content_type: "product",
+          num_items: cart.lines.reduce((sum, line) => sum + line.quantity, 0),
+          value: cart.subtotal,
+        }}
       />
       <CheckoutForm subtotal={cart.subtotal} terms={await getCodTerms()} />
     </>

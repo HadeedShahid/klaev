@@ -9,6 +9,7 @@ import { getDb } from "@/lib/db";
 import { recordServerEvent } from "@/lib/analytics";
 import { checkoutOrdered, saveCheckout } from "@/lib/checkouts";
 import { checkDiscount, type DiscountKind } from "@/lib/discounts";
+import { trackPurchase } from "@/lib/meta-server";
 import { notifyOrderPlaced } from "@/lib/notify";
 import { placeOrder } from "@/lib/orders";
 import { normalizePhone } from "@/lib/phone";
@@ -88,6 +89,7 @@ export async function checkout(_prev: CheckoutState, formData: FormData): Promis
   await writeCart([]);
   await recordServerEvent("order", { orderNumber: result.number, path: "/checkout" });
   await notifyOrderPlaced(result.token);
+  await trackPurchase(result.token);
   // Cached pages show which sizes are in stock, so a size that just sold out refreshes them all.
   if (result.soldOut) await refreshStore();
   redirect(`/orders/${result.token}`);

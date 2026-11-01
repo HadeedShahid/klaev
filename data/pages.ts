@@ -88,12 +88,13 @@ If your order arrives damaged, or isn't what you ordered, message us on WhatsApp
 We never see or store card details. We don't take card payments.
 
 ## Why
-To deliver your order, confirm it and keep you updated. To follow up on a checkout you didn't finish. To answer your messages. And to see which pages and products people use, so we can improve the store.
+To deliver your order, confirm it and keep you updated. To follow up on a checkout you didn't finish. To answer your messages. To see which pages and products people use, so we can improve the store. And to measure our Facebook and Instagram ads and show them to people likely to want them.
 
 ## Who sees it
 - Our courier gets your name, mobile number, delivery address and the cash to collect.
 - Cloudflare hosts the store and keeps its data.
 - WhatsApp carries the messages we send you.
+- Meta, which runs Facebook and Instagram, gets the pages you visit, what you add to your cart and what you buy, and sets its own cookies. Your email, mobile number, name and city go to it scrambled, so it can match an order to an ad.
 
 We don't sell your information, and we don't share it for anyone else's advertising.
 

@@ -14,8 +14,9 @@ import { formatPhone } from "@/lib/phone";
 import { getBankAccount, type BankAccount } from "@/lib/settings";
 import { STORE, whatsappLink } from "@/lib/store";
 
-// The link is the customer's key to the order, so the page is never cached or indexed.
-export const metadata: Metadata = { title: "Your order", robots: { index: false, follow: false } };
+// The link is the customer's key to the order, so the page is never cached or indexed, and no next
+// page or outside script gets it as a referrer.
+export const metadata: Metadata = { title: "Your order", robots: { index: false, follow: false }, referrer: "no-referrer" };
 
 export default async function OrderPage({ params }: PageProps<"/orders/[token]">) {
   await connection();

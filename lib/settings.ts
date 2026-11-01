@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 
 import { getDb, type Db } from "./db";
 import { settings } from "./db/schema";
+import { validPixelId } from "./meta";
 import type { CodTerms } from "./payment";
 import { STORE } from "./store";
 
@@ -64,5 +65,23 @@ export async function saveCodTerms(db: Db, terms: CodTerms): Promise<{ ok: true 
   const rupees = (value: number) => Number.isSafeInteger(value) && value >= 0 && value <= 100_000;
   if (!rupees(terms.codDeliveryFee) || !rupees(terms.codAdvance)) return { ok: false, message: "Both are whole numbers of rupees." };
   await write(db, "checkout", terms);
+  return { ok: true };
+}
+
+// Meta's pixel and Conversions API, off until switched on in Settings. The pixel ID is public; the
+// access token is a Worker secret (META_ACCESS_TOKEN), never stored here.
+export type MetaSettings = { enabled: boolean; pixelId: string };
+
+export async function getMetaSettings(db?: Db): Promise<MetaSettings> {
+  const value = ((await read(db, "meta")) ?? {}) as Partial<MetaSettings>;
+  const pixelId = typeof value.pixelId === "string" && validPixelId(value.pixelId) ? value.pixelId : "";
+  return { enabled: value.enabled === true && pixelId !== "", pixelId };
+}
+
+export async function saveMetaSettings(db: Db, input: MetaSettings): Promise<{ ok: true } | { ok: false; message: string }> {
+  const pixelId = input.pixelId.trim();
+  if (pixelId && !validPixelId(pixelId)) return { ok: false, message: "The pixel ID is digits only." };
+  if (input.enabled && !pixelId) return { ok: false, message: "Add the pixel ID first." };
+  await write(db, "meta", { enabled: input.enabled, pixelId });
   return { ok: true };
 }

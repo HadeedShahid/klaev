@@ -131,6 +131,8 @@ test.describe("checkout", () => {
     await expect(page.getByRole("button", { name: "Copy account number" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Cart, 0 items" })).toBeVisible();
     await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
+    // The address is the customer's private link, so no next page or outside script gets it as a referrer.
+    await expect(page.locator('meta[name="referrer"]')).toHaveAttribute("content", "no-referrer");
 
     const number = (await page.getByRole("heading", { level: 1 }).textContent())?.match(/#(\d+)/)?.[1];
     const whatsapp = page.getByRole("link", { name: "Send it on WhatsApp" });

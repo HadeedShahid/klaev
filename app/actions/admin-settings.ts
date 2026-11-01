@@ -6,7 +6,7 @@ import { changePassword, requireAdmin } from "@/lib/admin/auth";
 import { getDb } from "@/lib/db";
 import { saveFaq, type FaqItem } from "@/lib/faq";
 import { refreshStore } from "@/lib/refresh-store";
-import { saveBankAccount, saveCodTerms } from "@/lib/settings";
+import { saveBankAccount, saveCodTerms, saveMetaSettings } from "@/lib/settings";
 
 import type { ActionState } from "./admin";
 
@@ -34,6 +34,16 @@ export async function bankAccountAction(_: ActionState, form: FormData): Promise
   if (!result.ok) return { error: result.message };
   refresh();
   return { done: "Saved. New orders show this account." };
+}
+
+// Meta tracking for ads. The storefront's layout reads this, so every cached page refreshes.
+export async function metaAction(_: ActionState, form: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const result = await saveMetaSettings(await getDb(), { enabled: form.get("enabled") === "on", pixelId: text(form, "pixelId") });
+  if (!result.ok) return { error: result.message };
+  await refreshStore();
+  refresh();
+  return { done: "Saved. The store's pages show it now." };
 }
 
 export async function passwordAction(_: ActionState, form: FormData): Promise<ActionState> {

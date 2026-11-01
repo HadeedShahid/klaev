@@ -11,6 +11,7 @@ import { PurchasePanel } from "@/components/product/purchase-panel";
 import { SizeGuide } from "@/components/product/size-guide";
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
 import { JsonLd } from "@/components/site/json-ld";
+import { MetaEvent } from "@/components/site/meta-event";
 import { getCollection, getProduct, getProducts, getRelatedProducts, hiddenProductRedirect, type Product } from "@/lib/catalog";
 import { Price } from "@/components/product/price";
 import { formatPKR } from "@/lib/money";
@@ -86,6 +87,11 @@ async function ProductView({ product }: { product: Product }) {
   return (
     <div>
       <JsonLd data={productData(product)} />
+      <MetaEvent
+        key={product.handle}
+        name="ViewContent"
+        data={{ content_ids: [product.handle], content_type: "product_group", content_name: product.title, value: product.price }}
+      />
       <BreadcrumbData trail={trail} />
       <Breadcrumbs trail={trail} placement="top" />
       <div className="mx-auto max-w-6xl md:grid md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:gap-10 md:px-8 md:pt-6">

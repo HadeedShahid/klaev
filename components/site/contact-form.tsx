@@ -3,6 +3,7 @@
 import { startTransition, useActionState, useEffect, useId, useRef, type FormEvent } from "react";
 
 import { contactAction, type ContactState } from "@/app/actions/contact";
+import { metaEvent } from "@/lib/meta-client";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ export function ContactForm({ whatsappHref }: { whatsappHref: string }) {
   // button, when no field is to blame).
   useEffect(() => {
     if (!state) return;
+    if ("sent" in state && state.sent) metaEvent("Contact");
     const invalidField = form.current?.querySelector<HTMLElement>("[aria-invalid='true']");
     (invalidField ?? status.current)?.focus();
   }, [state]);

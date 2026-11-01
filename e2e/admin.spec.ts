@@ -447,6 +447,41 @@ test.describe("admin", () => {
     await expect(page.getByRole("alert").filter({ hasText: "The current password isn't right." })).toBeVisible();
   });
 
+  test("the Meta pixel stays off until it's switched on, and then loads after the page", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "android", "a store-wide switch, so one browser at a time");
+    const scripts: string[] = [];
+    await page.route("https://connect.facebook.net/**", (route) => {
+      scripts.push(route.request().url());
+      return route.fulfill({ status: 200, contentType: "text/javascript", body: "" });
+    });
+
+    await page.goto("/pages/about");
+    await page.waitForLoadState("networkidle");
+    expect(scripts).toEqual([]);
+    expect(await page.evaluate(() => typeof window.fbq)).toBe("undefined");
+
+    await signIn(page);
+    await page.goto("/admin/settings");
+    await page.getByLabel("Pixel ID").fill("1234567890");
+    await page.getByLabel("Send events to Meta").check();
+    await page.locator("form").filter({ has: page.getByLabel("Pixel ID") }).getByRole("button", { name: "Save" }).click();
+    await expect(page.getByText("Saved. The store's pages show it now.")).toBeVisible();
+
+    const beacon = page.waitForRequest((request) => request.url().endsWith("/api/m"));
+    await page.goto("/pages/about?fbclid=abcDEF123");
+    expect((await beacon).postDataJSON()).toMatchObject({ name: "PageView", url: expect.stringMatching(/\/pages\/about$/) });
+    await expect.poll(() => scripts.length).toBe(1);
+    expect(await page.evaluate(() => window.fbq?.disablePushState)).toBe(true);
+    expect((await page.context().cookies()).find((cookie) => cookie.name === "_fbc")?.value).toMatch(/^fb\.1\.\d{13}\.abcDEF123$/);
+
+    await page.goto("/admin/settings");
+    await page.getByLabel("Send events to Meta").uncheck();
+    await page.locator("form").filter({ has: page.getByLabel("Pixel ID") }).getByRole("button", { name: "Save" }).click();
+    await expect(page.getByText("Saved. The store's pages show it now.")).toBeVisible();
+    await page.goto("/pages/about");
+    expect(await page.evaluate(() => typeof window.fbq)).toBe("undefined");
+  });
+
   test("create a discount code, turn it off so checkout stops taking it, then remove it", async ({ page }, testInfo) => {
     test.slow();
     // The database keeps codes between runs, so each run makes its own.

@@ -7,6 +7,7 @@ import { applyDiscount, checkout, saveCheckoutDraft, type AppliedDiscount, type 
 import { ExchangeTerms } from "@/components/site/exchange-terms";
 import type { CheckoutField, PaymentChoice } from "@/lib/checkout";
 import { CITIES } from "@/lib/cities";
+import { metaEvent } from "@/lib/meta-client";
 import { formatPKR } from "@/lib/money";
 import { bankTransferSummary, codSummary, type CodTerms } from "@/lib/payment";
 import { STORE } from "@/lib/store";
@@ -19,6 +20,11 @@ export function CheckoutForm({ subtotal, terms }: { subtotal: number; terms: Cod
   const [discount, setDiscount] = useState<AppliedDiscount | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const id = useId();
+
+  function choosePayment(choice: PaymentChoice) {
+    setPayment(choice);
+    metaEvent("AddPaymentInfo", { value: subtotal });
+  }
 
   // After a failed attempt, take the shopper straight to the first thing to fix.
   useEffect(() => {
@@ -99,7 +105,7 @@ export function CheckoutForm({ subtotal, terms }: { subtotal: number; terms: Cod
           <PaymentCard
             value="cod"
             checked={payment === "cod"}
-            onChange={setPayment}
+            onChange={choosePayment}
             title="Cash on delivery"
             note={cod.deliveryFee ? `${formatPKR(cod.deliveryFee)} delivery` : "Free delivery"}
             total={cod.total}
@@ -107,7 +113,7 @@ export function CheckoutForm({ subtotal, terms }: { subtotal: number; terms: Cod
           <PaymentCard
             value="bank_transfer"
             checked={payment === "bank_transfer"}
-            onChange={setPayment}
+            onChange={choosePayment}
             title="Bank transfer"
             note="Free delivery"
             total={bank.total}

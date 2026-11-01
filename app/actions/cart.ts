@@ -7,7 +7,7 @@ import { recordServerEvent } from "@/lib/analytics";
 
 export type AddToCartState =
   | { status: "idle" }
-  | { status: "added"; count: number }
+  | { status: "added"; count: number; variantId: string; title: string; price: number }
   | { status: "error"; message: string };
 
 export async function addToCart(_prev: AddToCartState, formData: FormData): Promise<AddToCartState> {
@@ -23,7 +23,13 @@ export async function addToCart(_prev: AddToCartState, formData: FormData): Prom
   const lines = addLine(await readCart(), variantId);
   await writeCart(lines);
   await recordServerEvent("cart", { productHandle: match.product.handle, path: `/products/${match.product.handle}` });
-  return { status: "added", count: lines.reduce((sum, line) => sum + line.quantity, 0) };
+  return {
+    status: "added",
+    count: lines.reduce((sum, line) => sum + line.quantity, 0),
+    variantId,
+    title: match.product.title,
+    price: match.product.price,
+  };
 }
 
 export async function removeFromCart(formData: FormData) {

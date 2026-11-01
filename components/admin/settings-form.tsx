@@ -15,6 +15,7 @@ export type SettingsField = {
   type?: HTMLInputTypeAttribute;
   inputMode?: "numeric" | "decimal" | "text";
   autoComplete?: string;
+  checked?: boolean;
 };
 
 // One settings card's fields, saved together. What happened is said beside the button.
@@ -34,7 +35,13 @@ export function SettingsForm({
   return (
     <form action={action} className="flex flex-col gap-5">
       <div className={cn("grid gap-4", columns === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2")}>
-        {fields.map((field) => (
+        {fields.map((field) =>
+          field.type === "checkbox" ? (
+            <label key={field.name} className="flex min-h-10 items-center gap-2 text-sm font-medium sm:mt-[26px] sm:self-start">
+              <input name={field.name} type="checkbox" defaultChecked={field.checked} className="size-4 accent-foreground" />
+              {field.label}
+            </label>
+          ) : (
           <div key={field.name} className="flex flex-col gap-1.5">
             <label htmlFor={`${id}-${field.name}`} className="text-sm font-medium">
               {field.label}
@@ -50,7 +57,8 @@ export function SettingsForm({
             />
             {field.hint ? <p className="text-xs text-muted-foreground">{field.hint}</p> : null}
           </div>
-        ))}
+          ),
+        )}
       </div>
       <div className="flex items-center gap-3">
         {/* Several of these share the Settings page, so none takes the one black primary. */}

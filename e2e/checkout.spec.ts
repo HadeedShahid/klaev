@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import sharp from "sharp";
 
 import { addToCart as addSize } from "./helpers";
 
@@ -12,6 +13,15 @@ const RECEIPT = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
   "base64",
 );
+
+// A full-screen laptop screenshot can top 12 MB, past what the server takes. Random pixels don't
+// compress, so the PNG comes out about as big as asked.
+async function bigScreenshot(bytes: number) {
+  const side = Math.ceil(Math.sqrt(bytes / 3));
+  const pixels = Buffer.alloc(side * side * 3);
+  for (let i = 0; i < pixels.length; i++) pixels[i] = (i * 2654435761) >>> 24;
+  return sharp(pixels, { raw: { width: side, height: side, channels: 3 } }).png({ compressionLevel: 0 }).toBuffer();
+}
 
 async function addToCart(page: Page, path: string, size: string) {
   await page.goto(path);
@@ -167,6 +177,19 @@ test.describe("checkout", () => {
     await page.reload();
     await expect(page.getByTestId("order-lead")).toContainText("Receipt received.");
     await expect(page.getByRole("heading", { name: "Paid to" })).toBeVisible();
+
+    // A 12 MB screenshot shrinks in the browser and uploads, instead of breaking the page. The server
+    // refuses anything over 11 MB, so a 200 means it arrived smaller.
+    const upload = page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/orders/"));
+    await page.getByLabel("Upload screenshot").setInputFiles({ name: "laptop.png", mimeType: "image/png", buffer: await bigScreenshot(12_500_000) });
+    expect((await upload).status()).toBe(200);
+    await expect(page.getByRole("button", { name: "Reload" })).toHaveCount(0);
+
+    // A dropped connection says so, and the page stays.
+    await page.route("**/orders/**", (route) => (route.request().method() === "POST" ? route.abort() : route.continue()));
+    await page.getByLabel("Upload screenshot").setInputFiles({ name: "receipt.png", mimeType: "image/png", buffer: RECEIPT });
+    await expect(page.getByText("That didn't upload. Try again, or send the screenshot on WhatsApp.")).toBeVisible();
+    await expect(page.getByTestId("order-lead")).toContainText("Receipt received.");
   });
 
   test("selling the last unit of a size marks it sold out on the product page straight away", async ({ page }, testInfo) => {

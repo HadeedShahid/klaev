@@ -114,8 +114,12 @@ test.describe("checkout", () => {
     test.skip(!placesOrders, "submits the order form");
     const path = "/products/dark-brown-cropped-sheepskin-leather-jacket";
     await addToCart(page, path, "L");
-    await addSize(page);
-    await expect(page.getByRole("link", { name: "Cart, 2 items" })).toBeVisible();
+    // The product page won't put a second one in, since one is left. A cart from before someone
+    // else bought one can still hold two, so this one is made to.
+    const cart = (await page.context().cookies()).find((cookie) => cookie.name === "klaev_cart");
+    if (!cart) throw new Error("no cart cookie");
+    const lines = JSON.parse(decodeURIComponent(cart.value)) as { v: string; q: number }[];
+    await page.context().addCookies([{ ...cart, value: encodeURIComponent(JSON.stringify(lines.map((line) => ({ ...line, q: 2 })))) }]);
 
     await page.goto("/checkout");
     await fillDetails(page);

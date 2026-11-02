@@ -796,6 +796,8 @@ The step that defines the buy flow.
 ### Sticky Buy Bar
 On phones, fixed to the bottom from first paint: white ground, hairline top rule, price (semibold, tabular) with the advance "to confirm" line beneath it, and the primary pill to the right. From 768px it dissolves into the buy column as a full-width pill.
 
+A size goes in the cart only as many times as there are left (and at most five). Pressing the pill once the cart holds them all opens nothing and says so where the price sits: "1 left in size L" in 500 over "It's in your cart" in Caption Quiet Grey (beneath the pill from 768px). Not red: nothing went wrong. Plain counts only, never shown before the cap, so it never reads as urgency. Choosing another size clears it.
+
 ### Inputs / Fields
 Plain and roomy, sized for one thumb.
 - **Style:** 48px tall, xl radius, 1px Outline Grey border on white Paper, 16px side padding, 1rem text (so phones never zoom). The multi-line address field is the same box at least 96px tall with 12px vertical padding, three rows, not resizable.

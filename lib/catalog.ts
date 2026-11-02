@@ -139,6 +139,17 @@ export async function emptyCollectionRedirect(handle: string): Promise<string | 
   return known && !live.some((product) => product.collection === handle) ? `/collections/${ALL.handle}` : null;
 }
 
+// Units of a size free to sell right now, for the cart's cap. Pages only say whether a size is in
+// stock, and the count never reaches them.
+export async function getStockLeft(variantId: string): Promise<number> {
+  const id = Number(variantId);
+  if (!Number.isSafeInteger(id)) return 0;
+  const [row] = await retryLocalRead(async () =>
+    (await getDb()).select({ stock: variants.stock }).from(variants).where(eq(variants.id, id)),
+  );
+  return row?.stock ?? 0;
+}
+
 export async function getRelatedProducts(handle: string, limit = 4): Promise<Product[]> {
   const { live } = await loadCatalog();
   const product = live.find((candidate) => candidate.handle === handle);

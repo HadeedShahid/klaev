@@ -16,6 +16,7 @@ import {
 import { addToCart, type AddToCartState } from "@/app/actions/cart";
 import { notifyCartChanged, openCartDrawer } from "@/components/site/cart-link";
 import { BusyLabel } from "@/components/ui/busy-label";
+import { limitWords } from "@/lib/cart-codec";
 import { FLAGS } from "@/lib/flags";
 import { metaEvent } from "@/lib/meta-client";
 import { pill } from "@/lib/styles";
@@ -60,11 +61,12 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
     notifyCartChanged();
     if (FLAGS.cartDrawer) openCartDrawer(buyRef.current);
   }, [state]);
-  const added = state.status === "added" && state !== dismissed;
+  const shown = state === dismissed ? idle : state;
 
   const hasSizes = sizes.length > 0;
   const soldOut = hasSizes ? sizes.every((option) => !option.available) : !singleVariant?.available;
   const needsSize = hasSizes && !selected;
+  const limit = shown.status === "limit" ? limitWords(shown.limit, shown.size) : null;
 
   let label = "Add to cart";
   if (soldOut) label = "Sold out";
@@ -124,7 +126,11 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
                   disabled={!option.available}
                   // Controlled, because React resets a form's fields after its action finishes.
                   checked={selected?.variantId === option.variantId}
-                  onChange={() => setSelected(option)}
+                  onChange={() => {
+                    setSelected(option);
+                    // What the bar said was about the last size.
+                    setDismissed(state);
+                  }}
                   className="absolute inset-0 cursor-pointer appearance-none rounded-xl opacity-0 disabled:cursor-not-allowed"
                 />
                 <span className="text-base font-semibold">{option.size}</span>
@@ -149,7 +155,7 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
       >
         <div className="mx-auto flex max-w-6xl items-center gap-4 md:flex-col md:items-stretch md:gap-3">
           <div role="status" className="min-w-0 flex-1 text-sm md:order-last">
-            {added ? (
+            {shown.status === "added" ? (
               <span className="flex flex-col md:flex-row md:gap-2">
                 <span className="font-medium">Added to cart</span>
                 {/* With the drawer on, the drawer has the way on. */}
@@ -159,6 +165,13 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
                   </Link>
                 )}
               </span>
+            ) : limit ? (
+              <span className="flex flex-col">
+                <span className="font-medium">{limit.title}</span>
+                <span className="text-xs text-muted-foreground md:text-sm">{limit.detail}</span>
+              </span>
+            ) : shown.status === "error" && !needsSize ? (
+              <span className="text-destructive">{shown.message}</span>
             ) : (
               <span className="flex flex-col whitespace-nowrap md:hidden">
                 <span className="font-semibold tabular-nums">{price}</span>

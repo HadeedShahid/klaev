@@ -77,4 +77,21 @@ test.describe("cart", () => {
     await page.goto("/collections/all");
     await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
   });
+
+  test("a size goes in the cart only as many times as there are left", async ({ page }) => {
+    // Dark brown L has one left in the seed.
+    await page.goto(CROPPED);
+    await addToCart(page, "L");
+    await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
+
+    await page.getByTestId("buy-button").filter({ visible: true }).click();
+    const status = page.getByRole("status").filter({ hasText: "1 left in size L" });
+    await expect(status).toContainText("It's in your cart");
+    await expect(page.getByRole("dialog", { name: "Cart" })).toBeHidden();
+    await expect(page.getByRole("link", { name: "Cart, 1 item" })).toBeVisible();
+
+    // Another size starts afresh.
+    await page.getByRole("radio", { name: /^M\b/ }).check();
+    await expect(status).toBeHidden();
+  });
 });

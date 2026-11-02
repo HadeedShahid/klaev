@@ -40,6 +40,26 @@ export function addLine(lines: CartLine[], variantId: string): CartLine[] {
   );
 }
 
+export type CartLimit = { reason: "stock"; left: number } | { reason: "max" };
+
+// Why one more of a size can't go in the cart, or null when it can: the cart already holds every
+// unit left, or the most one order takes.
+export function addLimit(inCart: number, left: number): CartLimit | null {
+  if (inCart >= left) return { reason: "stock", left };
+  if (inCart >= MAX_QUANTITY) return { reason: "max" };
+  return null;
+}
+
+// What the buy bar says when it stops: plain counts, no urgency.
+export function limitWords(limit: CartLimit, size: string | null) {
+  if (limit.reason === "max") return { title: `${MAX_QUANTITY} is the most per order`, detail: "Ask on WhatsApp for more" };
+  const { left } = limit;
+  return {
+    title: size ? `${left} left in size ${size}` : `${left} left`,
+    detail: left === 1 ? "It's in your cart" : left === 2 ? "Both are in your cart" : `All ${left} are in your cart`,
+  };
+}
+
 export function removeLine(lines: CartLine[], variantId: string): CartLine[] {
   return lines.filter((line) => line.variantId !== variantId);
 }

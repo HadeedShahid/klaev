@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { addLine, cartCount, decodeCart, encodeCart, MAX_QUANTITY, readCartCount, removeLine } from "./cart-codec";
+import { addLimit, addLine, cartCount, decodeCart, encodeCart, limitWords, MAX_QUANTITY, readCartCount, removeLine } from "./cart-codec";
 
 describe("decodeCart", () => {
   test("returns an empty cart for a missing or malformed cookie", () => {
@@ -74,5 +74,37 @@ describe("readCartCount", () => {
     expect(readCartCount("a=1")).toBe(0);
     expect(readCartCount("klaev_cart_count=abc")).toBe(0);
     expect(readCartCount("klaev_cart_count=-4")).toBe(0);
+  });
+});
+
+describe("addLimit", () => {
+  test("lets one more in while the cart holds fewer than are left", () => {
+    expect(addLimit(0, 1)).toBeNull();
+    expect(addLimit(1, 3)).toBeNull();
+  });
+
+  test("stops at what is left in stock", () => {
+    expect(addLimit(1, 1)).toEqual({ reason: "stock", left: 1 });
+    expect(addLimit(2, 2)).toEqual({ reason: "stock", left: 2 });
+  });
+
+  test("stops at the most one order takes, however many are left", () => {
+    expect(addLimit(MAX_QUANTITY, 40)).toEqual({ reason: "max" });
+  });
+});
+
+describe("limitWords", () => {
+  test("says how many are left and that they're all in the cart", () => {
+    expect(limitWords({ reason: "stock", left: 1 }, "L")).toEqual({ title: "1 left in size L", detail: "It's in your cart" });
+    expect(limitWords({ reason: "stock", left: 2 }, "M")).toEqual({ title: "2 left in size M", detail: "Both are in your cart" });
+    expect(limitWords({ reason: "stock", left: 3 }, "S")).toEqual({ title: "3 left in size S", detail: "All 3 are in your cart" });
+  });
+
+  test("leaves the size out for one-size items", () => {
+    expect(limitWords({ reason: "stock", left: 1 }, null)).toEqual({ title: "1 left", detail: "It's in your cart" });
+  });
+
+  test("points past the per-order most to WhatsApp", () => {
+    expect(limitWords({ reason: "max" }, "L")).toEqual({ title: `${MAX_QUANTITY} is the most per order`, detail: "Ask on WhatsApp for more" });
   });
 });

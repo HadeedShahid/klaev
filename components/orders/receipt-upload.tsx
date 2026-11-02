@@ -62,7 +62,7 @@ export function ReceiptUpload({ token, received, whatsappHref }: { token: string
         ) : state.status === "error" ? (
           <Alert variant="error">
             <CircleAlert strokeWidth={2} aria-hidden />
-            <AlertTitle className="font-normal">{state.message}</AlertTitle>
+            <AlertTitle>{state.message}</AlertTitle>
           </Alert>
         ) : null}
       </div>

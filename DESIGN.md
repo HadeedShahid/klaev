@@ -624,7 +624,7 @@ A neutral, faintly cool grey family (hue 286, near-zero chroma) around a pure wh
 - **Hairline** (oklch 0.925 0.003 286): dividers between list rows (payment options, details accordion, cart lines, size table rows), the rules under the cart drawer's title and above its totals, above the sticky buy bar, above the phone breadcrumbs and above the footer. The glass header is seated by Ink at 8% instead, which reads the same on white and holds over a photo.
 
 ### Tertiary
-- **Signal Red** (oklch 0.55 0.2 27): validation and failure messages only: the size prompt error, a checkout field's error line, the payment choice error, a failed receipt upload. Always a line of text, never a border, fill or icon. Never decorative.
+- **Signal Red** (oklch 0.55 0.2 27): validation and failure messages only: the size prompt error, a checkout field's error line, the payment choice error. Either a line of text, or the icon of an error Alert (a failed receipt upload, an order the stock can't fill), whose words stay Ink. Never a border or fill. Never decorative.
 
 ### In the admin
 The admin adds one grey, and five status colours.
@@ -660,13 +660,13 @@ Dark is the same cool near-neutral family (hue 286) with the steps turned over, 
 Printed documents leave the screen palette behind: black text on white paper, no fills. Secondary text (contact line, dates, SKUs, the terms) is one grey, Tailwind's neutral 600; rules are black (under the document's head, under the table head, above the total) or neutral 300 (between rows, around a note, above the terms).
 
 ### Named Rules
-**The Leather Is the Colour Rule.** The interface carries no hue. Warmth on screen comes from the product photographs alone; no brand tint, gradient or coloured badge is added. Even a colour swatch is cut from the leather photo, never painted. One exception, by the owner's choice (2 November 2026): the Green Tick Rule.
+**The Leather Is the Colour Rule.** The interface carries no hue. Warmth on screen comes from the product photographs alone; no brand tint, gradient or coloured badge is added. Even a colour swatch is cut from the leather photo, never painted. Two exceptions, by the owner's choice (2 November 2026), both on an Alert's icon alone: the Green Tick Rule and the red CircleAlert of the Red Line Rule.
 
 **The Green Tick Rule.** A payment screenshot that landed gets a check in the admin's Green (`--tone-green`), on the icon alone and always beside words: "Receipt received." at the top of the order page and "Screenshot uploaded." under the upload button. Nothing else on the storefront is green.
 
 **The One Grey Voice Rule.** Secondary text uses Quiet Grey and nothing else. Hierarchy below that comes from size and weight, not from more greys.
 
-**The Red Line Rule.** Red belongs to the error line alone. An invalid field keeps its Outline Grey border and white ground; the Small Signal Red line beneath it says what to fix, and the first invalid field takes focus.
+**The Red Line Rule.** Red belongs to the error line and the error Alert's icon alone. An invalid field keeps its Outline Grey border and white ground; the Small Signal Red line beneath it says what to fix, and the first invalid field takes focus. An error that belongs to the whole form, not one field, is an Alert: grey panel, Ink words, a Signal Red CircleAlert, the Green Tick Rule's twin (owner's choice, 2 November 2026).
 
 ## Typography
 
@@ -851,8 +851,8 @@ The order page, in what mail apps can render: tables and inline styles in the he
 - **Exchange terms line:** follows the payment panel on the cart and the landing page, 12px below. Small (0.875rem) Quiet Grey text led by a 500 weight Ink lead-in ending in a full stop ("Exchanges."), then the terms in plain sentences.
 - **Size table:** one table everywhere (landing page, product size guide, size chart page), on Panel Grey at 2xl radius, at most 28rem wide on the landing page. The first column head names the unit, Inches or Centimetres, each size is a column in 500 weight, each measurement a row named in Quiet Grey, values centred and tabular at 0.875rem, rows split by Hairline. Notes sit under it in Quiet Grey.
 
-### Alert (upload feedback)
-shadcn's Alert in the store's materials (`components/ui/alert.tsx`): a Panel Grey block at the xl radius, 16 by 12px padding, an 18px Lucide icon in its own column and the words beside it at 15px, the title in 500 and any description in Quiet Grey. It stays until the next action rather than fading, since it confirms money. Success has a CircleCheck in Green by the Green Tick Rule; an error keeps the grey panel and a Quiet Grey CircleAlert, and only its words turn Signal Red, by the Red Line Rule. The caller makes it a live region (status for news, alert for problems). No toasts: they vanish, and they'd load a library on every page.
+### Alert (upload and checkout feedback)
+shadcn's Alert in the store's materials (`components/ui/alert.tsx`): a Panel Grey block at the xl radius, 16 by 12px padding, an 18px Lucide icon in its own column and the words beside it at 15px, the title in 500 and any description in Quiet Grey. It stays until the next action rather than fading, since it confirms money. Success has a CircleCheck in Green by the Green Tick Rule; an error has a CircleAlert in Signal Red by the Red Line Rule. Either way the words stay Ink and the colour sits on the icon alone. Checkout's "Not enough left" error adds a "Change your cart" Ink text link beneath and scrolls smoothly into view, taking focus. The caller makes it a live region (status for news, alert for problems). No toasts: they vanish, and they'd load a library on every page.
 
 ### Disclosure (details accordion)
 Native details elements, so they work before JavaScript. Summary rows are at least 56px, 500 weight, with a Lucide chevron in Quiet Grey. Rows are ruled by Hairline top, bottom and between. The size guide is the same pattern inside a Panel Grey xl panel with a 44px summary. The landing FAQ is the same pattern under a Display heading, in a 48rem column, answers in Body Reading capped at 52ch (about 65 characters, since Geist's ch is wide).

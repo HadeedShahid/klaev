@@ -1,10 +1,12 @@
 "use client";
 
+import { CircleAlert } from "lucide-react";
 import Link from "next/link";
 import { startTransition, useActionState, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 
 import { applyDiscount, checkout, saveCheckoutDraft, type AppliedDiscount, type CheckoutState } from "@/app/actions/checkout";
 import { ExchangeTerms } from "@/components/site/exchange-terms";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BusyLabel } from "@/components/ui/busy-label";
 import type { CheckoutField, PaymentChoice } from "@/lib/checkout";
 import { CITIES } from "@/lib/cities";
@@ -27,9 +29,14 @@ export function CheckoutForm({ subtotal, terms }: { subtotal: number; terms: Cod
     metaEvent("AddPaymentInfo", { value: subtotal });
   }
 
-  // After a failed attempt, take the shopper straight to the first thing to fix.
+  // After a failed attempt, glide to the first thing to fix, then give it focus where it already is.
+  // Focusing alone jumps the page; scrollIntoView follows the page's smooth scrolling, which turns
+  // instant for anyone who asks for less motion, and centres it clear of the header.
   useEffect(() => {
-    formRef.current?.querySelector<HTMLElement>("[aria-invalid='true'], [role='alert']")?.focus();
+    const target = formRef.current?.querySelector<HTMLElement>("[aria-invalid='true'], [role='alert']");
+    if (!target) return;
+    target.scrollIntoView({ block: "center" });
+    target.focus({ preventScroll: true });
   }, [state]);
 
   // Once the phone number is in, what's typed is saved as the shopper leaves each field, so Klaev
@@ -63,12 +70,16 @@ export function CheckoutForm({ subtotal, terms }: { subtotal: number; terms: Cod
   return (
     <form ref={formRef} action={formAction} onSubmit={submit} onBlur={(event) => saveDraft(event.currentTarget)} noValidate className="flex flex-col gap-10">
       {state.message ? (
-        <div role="alert" tabIndex={-1} className="flex flex-col gap-2 rounded-2xl bg-muted p-4 text-sm outline-none">
-          <p className="font-medium">{state.message}</p>
-          <Link href="/cart" className="self-start underline underline-offset-[0.2em] hover:no-underline">
-            Change your cart
-          </Link>
-        </div>
+        // The same alert as the order page's upload messages; by the Red Line Rule only the words are red.
+        <Alert variant="error" role="alert" tabIndex={-1} className="outline-none">
+          <CircleAlert strokeWidth={2} aria-hidden />
+          <AlertTitle>{state.message}</AlertTitle>
+          <AlertDescription className="pt-1">
+            <Link href="/cart" className="font-medium text-foreground underline underline-offset-[0.2em] hover:no-underline">
+              Change your cart
+            </Link>
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       <Section title="Contact">

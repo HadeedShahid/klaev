@@ -27,7 +27,7 @@ const cod: EmailOrder = {
       size: "M",
       quantity: 1,
       unitPrice: 17999,
-      image: { src: "https://pub-30ff49a2722f4493a6d913644221cdc9.r2.dev/products/dark-brown/abc.webp", width: 1600, height: 2000 },
+      image: { src: "https://media.klaev.com/products/dark-brown/abc.webp", width: 1600, height: 2000 },
     },
   ],
 };

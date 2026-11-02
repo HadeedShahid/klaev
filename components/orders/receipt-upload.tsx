@@ -74,7 +74,7 @@ export function ReceiptUpload({ token, received, whatsappHref }: { token: string
             pill,
             "relative cursor-pointer px-5 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring",
             done && "bg-muted text-foreground hover:bg-accent",
-            pending && "pointer-events-none cursor-progress",
+            pending && "pointer-events-none",
           )}
         >
           <BusyLabel busy={pending} busyText="Uploading">{done ? "Upload another" : "Upload screenshot"}</BusyLabel>

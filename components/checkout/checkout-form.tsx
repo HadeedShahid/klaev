@@ -247,7 +247,7 @@ function DiscountCode({ id, applied, onChange }: { id: string; applied: AppliedD
           onClick={() => void apply()}
           disabled={checking}
           aria-busy={checking}
-          className="h-12 shrink-0 rounded-full border border-border px-5 text-sm font-medium transition-colors hover:bg-muted disabled:text-muted-foreground aria-busy:cursor-progress aria-busy:text-foreground!"
+          className="h-12 shrink-0 rounded-full border border-border px-5 text-sm font-medium transition-colors hover:bg-muted disabled:text-muted-foreground aria-busy:text-foreground!"
         >
           <BusyLabel busy={checking} busyText="Checking">Apply</BusyLabel>
         </button>

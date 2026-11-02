@@ -79,7 +79,7 @@ const within = (pathname: string, href: string) => pathname === href || pathname
 function SignOutButton() {
   const { pending } = useFormStatus();
   return (
-    <SidebarMenuButton type="submit" disabled={pending} aria-busy={pending} className="aria-busy:cursor-progress aria-busy:opacity-100!">
+    <SidebarMenuButton type="submit" disabled={pending} aria-busy={pending} className="aria-busy:opacity-100!">
       <BusyLabel busy={pending} busyText="Signing out">
         <LogOut strokeWidth={1.8} aria-hidden />
       </BusyLabel>

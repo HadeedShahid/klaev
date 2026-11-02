@@ -5,25 +5,20 @@ import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, type ChangeEvent } from "react";
 
 import { uploadReceipt, type ReceiptState } from "@/app/actions/receipts";
-import { MAX_UPLOAD_BYTES, shrinkImage } from "@/lib/shrink-image";
+import { MAX_RECEIPT_BYTES, RECEIPT_TOO_BIG } from "@/lib/receipt-limit";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
-const TOO_BIG = "That file is over 10 MB. Upload a screenshot instead, or send it on WhatsApp.";
 const FAILED = "That didn't upload. Try again, or send the screenshot on WhatsApp.";
 
-// Choosing the screenshot uploads it straight away: one tap to open the photos, one to pick.
-// A failed upload (a dropped connection, a file the server refuses) says so here; without the
-// catch it would take the whole page down.
+// Choosing the screenshot uploads it straight away: one tap to open the photos, one to pick. A file
+// over the limit is turned away before it uploads, and a failed upload (a dropped connection, say)
+// says so here; without the catch it would take the whole page down.
 export function ReceiptUpload({ token, received, whatsappHref }: { token: string; received: boolean; whatsappHref: string }) {
   const [state, formAction, pending] = useActionState<ReceiptState, FormData>(
     async (previous, formData) => {
       const chosen = formData.get("receipt");
-      if (chosen instanceof File) {
-        const file = await shrinkImage(chosen);
-        if (file.size > MAX_UPLOAD_BYTES) return { status: "error", message: TOO_BIG };
-        formData.set("receipt", file);
-      }
+      if (chosen instanceof File && chosen.size > MAX_RECEIPT_BYTES) return { status: "error", message: RECEIPT_TOO_BIG };
       try {
         return await uploadReceipt(token, previous, formData);
       } catch {

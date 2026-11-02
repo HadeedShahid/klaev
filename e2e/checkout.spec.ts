@@ -14,8 +14,8 @@ const RECEIPT = Buffer.from(
   "base64",
 );
 
-// A full-screen laptop screenshot can top 12 MB, past what the server takes. Random pixels don't
-// compress, so the PNG comes out about as big as asked.
+// A big screenshot, as a laptop's full screen can make. Random pixels don't compress, so the PNG
+// comes out about as big as asked.
 async function bigScreenshot(bytes: number) {
   const side = Math.ceil(Math.sqrt(bytes / 3));
   const pixels = Buffer.alloc(side * side * 3);
@@ -178,12 +178,19 @@ test.describe("checkout", () => {
     await expect(page.getByTestId("order-lead")).toContainText("Receipt received.");
     await expect(page.getByRole("heading", { name: "Paid to" })).toBeVisible();
 
-    // A 12 MB screenshot shrinks in the browser and uploads, instead of breaking the page. The server
-    // refuses anything over 11 MB, so a 200 means it arrived smaller.
+    // An 8 MB screenshot is under the 10 MB limit, so it uploads as it is.
     const upload = page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/orders/"));
-    await page.getByLabel("Upload screenshot").setInputFiles({ name: "laptop.png", mimeType: "image/png", buffer: await bigScreenshot(12_500_000) });
+    await page.getByLabel("Upload screenshot").setInputFiles({ name: "laptop.png", mimeType: "image/png", buffer: await bigScreenshot(8_000_000) });
     expect((await upload).status()).toBe(200);
-    await expect(page.getByRole("button", { name: "Reload" })).toHaveCount(0);
+    await expect(page.getByText(/That file is over/)).toHaveCount(0);
+
+    // One over 10 MB is turned away with a message before it uploads, and the page stays.
+    const posts: string[] = [];
+    page.on("request", (request) => request.method() === "POST" && request.url().includes("/orders/") && posts.push(request.url()));
+    await page.getByLabel("Upload screenshot").setInputFiles({ name: "huge.png", mimeType: "image/png", buffer: await bigScreenshot(12_500_000) });
+    await expect(page.getByText("That file is over 10 MB. Choose a smaller screenshot, or send it on WhatsApp.")).toBeVisible();
+    expect(posts).toHaveLength(0);
+    await expect(page.getByTestId("order-lead")).toContainText("Receipt received.");
 
     // A dropped connection says so, and the page stays.
     await page.route("**/orders/**", (route) => (route.request().method() === "POST" ? route.abort() : route.continue()));

@@ -3,7 +3,9 @@ import "server-only";
 import type { Db } from "./db";
 import { receipts } from "./db/schema";
 
-export const MAX_RECEIPT_BYTES = 10 * 1024 * 1024;
+import { MAX_RECEIPT_BYTES, RECEIPT_TOO_BIG } from "./receipt-limit";
+
+export { MAX_RECEIPT_BYTES };
 
 // Screenshots and photos from any phone, and PDFs from banking apps.
 const EXTENSIONS: Record<string, string> = {
@@ -36,7 +38,7 @@ export async function saveReceipt(
   const contentType = typeOf(file);
   if (!contentType) return { ok: false, message: "Upload a screenshot, a photo or a PDF of the transfer." };
   if (file.size > MAX_RECEIPT_BYTES) {
-    return { ok: false, message: "That file is over 10 MB. Upload a screenshot instead, or send it on WhatsApp." };
+    return { ok: false, message: RECEIPT_TOO_BIG };
   }
 
   const key = `orders/${order.number}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${EXTENSIONS[contentType]}`;

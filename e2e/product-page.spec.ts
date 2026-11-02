@@ -56,8 +56,25 @@ test.describe("product page", () => {
     await page.goto(CROPPED);
     await page.getByText("Size guide").click();
     const table = page.getByRole("table");
-    await expect(table.getByRole("columnheader", { name: "Jacket chest" })).toBeVisible();
-    await expect(table.getByRole("row", { name: /^M 43 in 23 in$/ })).toBeVisible();
+    await expect(table.getByRole("columnheader", { name: "Inches" })).toBeVisible();
+    for (const row of ["Chest 20.5 21.5 22.5 23.5", "Bottom hem 19.25 20.25 21.25 22.25", "Shoulder 17.25 17.75 18.25 18.75", "Sleeve length 25 25 26 26", "Back length (C.B.) 22.5 23 23.5 24"]) {
+      await expect(table.getByRole("row", { name: row })).toBeVisible();
+    }
+  });
+
+  test("lambskin and suede jackets open their own chart, in centimetres", async ({ page }) => {
+    for (const handle of ["black-lambskin-leather-jacket", "oxblood-lambskin-leather-jacket", "black-suede-jacket"]) {
+      await page.goto(`/products/${handle}`);
+      await page.locator("summary", { hasText: "Size guide" }).click();
+      const table = page.getByRole("table");
+      await expect(table.getByRole("columnheader", { name: "Centimetres" })).toBeVisible();
+      await expect(table.getByRole("row")).toHaveCount(10);
+      await expect(table.getByRole("row", { name: "Sleeve length 65.9 66.5 67.1" })).toBeVisible();
+      // The panel opens all the way: the last row isn't clipped.
+      const cuff = table.getByRole("row", { name: "Cuff 12.4 13 13.6" });
+      await cuff.scrollIntoViewIfNeeded();
+      await expect(cuff).toBeInViewport();
+    }
   });
 
   test("spells out what cash on delivery and bank transfer each cost", async ({ page }) => {

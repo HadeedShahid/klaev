@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { ColourCards } from "@/components/home/colour-cards";
 import { Faq } from "@/components/home/faq";
+import { SizeNotes, SizeTable } from "@/components/product/size-guide";
 import { Hero } from "@/components/home/hero";
 import { StorySection } from "@/components/home/story";
 import { ExchangeTerms } from "@/components/site/exchange-terms";
@@ -15,7 +16,6 @@ import { getCodTerms } from "@/lib/settings";
 import { getCollection, getProduct, type Product } from "@/lib/catalog";
 import { formatPKR } from "@/lib/money";
 import { faqData, storeData } from "@/lib/seo";
-import { jacketChest } from "@/lib/sizing";
 import { whatsappLink } from "@/lib/store";
 import { pill } from "@/lib/styles";
 
@@ -46,7 +46,7 @@ export default async function HomePage() {
   const croppedItems = [...(cropped?.items ?? [])].sort(
     (a, b) => Number(b.handle === "black-cropped-leather-jacket") - Number(a.handle === "black-cropped-leather-jacket"),
   );
-  const sizeRows = croppedItems.find((product) => product.sizeGuide?.kind === "garment")?.sizeGuide;
+  const sizeChart = croppedItems.find((product) => product.sizeGuide)?.sizeGuide?.chart;
   const sideView = darkBrown?.images[4];
   const closeUp = darkBrown?.images[9];
   const croppedPrice = Math.min(...croppedItems.map((product) => product.price));
@@ -72,7 +72,8 @@ export default async function HomePage() {
         imageFit="portrait"
         image={sideView ? { ...sideView, alt: "Dark brown cropped jacket from the side, finishing at the waistband" } : undefined}
       >
-        <p>
+        <p className="md:hidden">Finishes at the waistband. Pointed collar, snap-tab cuffs.</p>
+        <p className="hidden md:block">
           Shorter than a standard leather jacket, it finishes at the trouser waistband. A pointed collar, a clean front
           zip, two welt pockets, snap-tab cuffs.
         </p>
@@ -83,37 +84,23 @@ export default async function HomePage() {
         title="Real leather, up close."
         image={closeUp ? { ...closeUp, alt: "Close up of the collar and grain of the dark brown sheepskin" } : undefined}
       >
-        <p>
+        <p className="md:hidden">A-grade full-grain sheepskin. Not bonded, not coated.</p>
+        <p className="hidden md:block">
           A-grade full-grain sheepskin with its natural grain intact. Not bonded leather, and not a coating made to look
           like grain. Each jacket varies a little, the way real leather does.
         </p>
       </StorySection>
 
       <StorySection id="fit" title="Sized by chest.">
-        <p>Measured on the jacket, as a full chest. Compare it with a jacket you already own.</p>
-        {sizeRows?.kind === "garment" ? (
-          <table className="w-full max-w-sm overflow-hidden rounded-2xl bg-muted text-left text-base tabular-nums">
-            <thead className="text-sm text-muted-foreground">
-              <tr>
-                <th scope="col" className="px-5 pt-4 pb-2 font-normal">
-                  Size
-                </th>
-                <th scope="col" className="px-5 pt-4 pb-2 text-right font-normal">
-                  Jacket chest
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-foreground">
-              {sizeRows.rows.map((row) => (
-                <tr key={row.size} className="border-t border-hairline">
-                  <th scope="row" className="px-5 py-3 font-medium">
-                    {row.size}
-                  </th>
-                  <td className="px-5 py-3 text-right">{jacketChest(row.chestFlat)} in</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <p>Measured on the jacket, laid flat. Compare it with one you own.</p>
+        {sizeChart ? (
+          <div className="flex w-full max-w-md flex-col gap-3 text-left">
+            <div className="rounded-2xl bg-muted px-4 py-2 text-foreground">
+              <SizeTable chart={sizeChart} />
+            </div>
+            {/* The line above the table already says to compare it with a jacket you own. */}
+            <SizeNotes notes={sizeChart.notes.slice(0, 2)} className="flex flex-col gap-1 px-1 text-sm text-pretty" />
+          </div>
         ) : null}
       </StorySection>
 

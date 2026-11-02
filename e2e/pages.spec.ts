@@ -30,11 +30,13 @@ test.describe("pages", () => {
     await expect(page.getByRole("link", { name: "tracking page" })).toHaveAttribute("href", "/track");
   });
 
-  test("the size chart lists every jacket line by chest", async ({ page }) => {
+  test("the size chart gives every jacket line its full measurements", async ({ page }) => {
     await page.goto("/pages/jackets-size-chart");
     await expect(page.getByRole("heading", { name: "Men’s Cropped Leather Jackets" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Black Goatskin Suede Jacket" })).toHaveAttribute("href", "/products/black-suede-jacket");
-    await expect(page.getByRole("cell", { name: "38 to 40 in" }).first()).toBeVisible();
+    await expect(page.getByRole("row", { name: "Bottom hem 19.25 20.25 21.25 22.25" })).toBeVisible();
+    await expect(page.getByRole("row", { name: "Shoulder 45.8 47 48.3" }).first()).toBeVisible();
+    await expect(page.getByText(/Fits chest: M 38 to 40 in/).first()).toBeVisible();
   });
 
   test("the contact form needs a way to reply, then thanks you", async ({ page }) => {

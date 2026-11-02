@@ -2,15 +2,17 @@ import { describe, expect, test } from "vitest";
 
 import { sizeMeasurement } from "./sizing";
 
+const chart = { unit: "in" as const, sizes: [], rows: [], notes: [] };
+
 const garment = {
   kind: "garment" as const,
-  note: "",
+  chart,
   rows: [{ size: "M", chestFlat: 21.5, length: 23 }],
 };
 
 const body = {
   kind: "body" as const,
-  note: "",
+  chart,
   rows: [{ size: "M", chest: [38, 40] as [number, number] }],
 };
 

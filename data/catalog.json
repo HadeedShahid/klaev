@@ -121,7 +121,67 @@
       ],
       "sizeGuide": {
         "kind": "garment",
-        "note": "Measured on the jacket, in inches. Chest is the full chest, twice the width laid flat. Compare with a jacket you own.",
+        "chart": {
+          "unit": "in",
+          "sizes": [
+            "S",
+            "M",
+            "L",
+            "XL"
+          ],
+          "rows": [
+            {
+              "name": "Chest",
+              "values": [
+                20.5,
+                21.5,
+                22.5,
+                23.5
+              ]
+            },
+            {
+              "name": "Bottom hem",
+              "values": [
+                19.25,
+                20.25,
+                21.25,
+                22.25
+              ]
+            },
+            {
+              "name": "Shoulder",
+              "values": [
+                17.25,
+                17.75,
+                18.25,
+                18.75
+              ]
+            },
+            {
+              "name": "Sleeve length",
+              "values": [
+                25,
+                25,
+                26,
+                26
+              ]
+            },
+            {
+              "name": "Back length (C.B.)",
+              "values": [
+                22.5,
+                23,
+                23.5,
+                24
+              ]
+            }
+          ],
+          "notes": [
+            "Measured on the jacket, laid flat. Double the chest for the full chest: 20.5 is a 41 in jacket.",
+            "C.B. means centre back, from the collar seam to the hem.",
+            "Measure a similar jacket laid flat for the closest comparison."
+          ]
+        },
         "rows": [
           {
             "size": "S",
@@ -331,7 +391,67 @@
       ],
       "sizeGuide": {
         "kind": "garment",
-        "note": "Measured on the jacket, in inches. Chest is the full chest, twice the width laid flat. Compare with a jacket you own.",
+        "chart": {
+          "unit": "in",
+          "sizes": [
+            "S",
+            "M",
+            "L",
+            "XL"
+          ],
+          "rows": [
+            {
+              "name": "Chest",
+              "values": [
+                20.5,
+                21.5,
+                22.5,
+                23.5
+              ]
+            },
+            {
+              "name": "Bottom hem",
+              "values": [
+                19.25,
+                20.25,
+                21.25,
+                22.25
+              ]
+            },
+            {
+              "name": "Shoulder",
+              "values": [
+                17.25,
+                17.75,
+                18.25,
+                18.75
+              ]
+            },
+            {
+              "name": "Sleeve length",
+              "values": [
+                25,
+                25,
+                26,
+                26
+              ]
+            },
+            {
+              "name": "Back length (C.B.)",
+              "values": [
+                22.5,
+                23,
+                23.5,
+                24
+              ]
+            }
+          ],
+          "notes": [
+            "Measured on the jacket, laid flat. Double the chest for the full chest: 20.5 is a 41 in jacket.",
+            "C.B. means centre back, from the collar seam to the hem.",
+            "Measure a similar jacket laid flat for the closest comparison."
+          ]
+        },
         "rows": [
           {
             "size": "S",
@@ -541,7 +661,67 @@
       ],
       "sizeGuide": {
         "kind": "garment",
-        "note": "Measured on the jacket, in inches. Chest is the full chest, twice the width laid flat. Compare with a jacket you own.",
+        "chart": {
+          "unit": "in",
+          "sizes": [
+            "S",
+            "M",
+            "L",
+            "XL"
+          ],
+          "rows": [
+            {
+              "name": "Chest",
+              "values": [
+                20.5,
+                21.5,
+                22.5,
+                23.5
+              ]
+            },
+            {
+              "name": "Bottom hem",
+              "values": [
+                19.25,
+                20.25,
+                21.25,
+                22.25
+              ]
+            },
+            {
+              "name": "Shoulder",
+              "values": [
+                17.25,
+                17.75,
+                18.25,
+                18.75
+              ]
+            },
+            {
+              "name": "Sleeve length",
+              "values": [
+                25,
+                25,
+                26,
+                26
+              ]
+            },
+            {
+              "name": "Back length (C.B.)",
+              "values": [
+                22.5,
+                23,
+                23.5,
+                24
+              ]
+            }
+          ],
+          "notes": [
+            "Measured on the jacket, laid flat. Double the chest for the full chest: 20.5 is a 41 in jacket.",
+            "C.B. means centre back, from the collar seam to the hem.",
+            "Measure a similar jacket laid flat for the closest comparison."
+          ]
+        },
         "rows": [
           {
             "size": "S",
@@ -1176,7 +1356,92 @@
       ],
       "sizeGuide": {
         "kind": "body",
-        "note": "Body chest measurement in inches. Between sizes, size up to layer.",
+        "chart": {
+          "unit": "cm",
+          "sizes": [
+            "M",
+            "L",
+            "XL"
+          ],
+          "rows": [
+            {
+              "name": "Back length from hips",
+              "values": [
+                64.8,
+                66,
+                67.3
+              ]
+            },
+            {
+              "name": "Chest, below the armhole",
+              "values": [
+                52.5,
+                55,
+                57.5
+              ]
+            },
+            {
+              "name": "Waist",
+              "values": [
+                51,
+                53.5,
+                56
+              ]
+            },
+            {
+              "name": "Bottom hem",
+              "values": [
+                51.5,
+                53,
+                56.5
+              ]
+            },
+            {
+              "name": "Shoulder",
+              "values": [
+                45.8,
+                47,
+                48.3
+              ]
+            },
+            {
+              "name": "Sleeve length",
+              "values": [
+                65.9,
+                66.5,
+                67.1
+              ]
+            },
+            {
+              "name": "Armhole",
+              "values": [
+                23.5,
+                24.5,
+                25.5
+              ]
+            },
+            {
+              "name": "Bicep",
+              "values": [
+                19.1,
+                20,
+                21
+              ]
+            },
+            {
+              "name": "Cuff",
+              "values": [
+                12.4,
+                13,
+                13.6
+              ]
+            }
+          ],
+          "notes": [
+            "Measured on the jacket, laid flat. Actual measurements may vary by up to 1 in.",
+            "Fits chest: M 38 to 40 in, L 40 to 42 in, XL 42 to 44 in. Between sizes, size up to layer."
+          ]
+        },
         "rows": [
           {
             "size": "M",
@@ -1349,7 +1614,92 @@
       ],
       "sizeGuide": {
         "kind": "body",
-        "note": "Body chest measurement in inches. Between sizes, size up to layer.",
+        "chart": {
+          "unit": "cm",
+          "sizes": [
+            "M",
+            "L",
+            "XL"
+          ],
+          "rows": [
+            {
+              "name": "Back length from hips",
+              "values": [
+                64.8,
+                66,
+                67.3
+              ]
+            },
+            {
+              "name": "Chest, below the armhole",
+              "values": [
+                52.5,
+                55,
+                57.5
+              ]
+            },
+            {
+              "name": "Waist",
+              "values": [
+                51,
+                53.5,
+                56
+              ]
+            },
+            {
+              "name": "Bottom hem",
+              "values": [
+                51.5,
+                53,
+                56.5
+              ]
+            },
+            {
+              "name": "Shoulder",
+              "values": [
+                45.8,
+                47,
+                48.3
+              ]
+            },
+            {
+              "name": "Sleeve length",
+              "values": [
+                65.9,
+                66.5,
+                67.1
+              ]
+            },
+            {
+              "name": "Armhole",
+              "values": [
+                23.5,
+                24.5,
+                25.5
+              ]
+            },
+            {
+              "name": "Bicep",
+              "values": [
+                19.1,
+                20,
+                21
+              ]
+            },
+            {
+              "name": "Cuff",
+              "values": [
+                12.4,
+                13,
+                13.6
+              ]
+            }
+          ],
+          "notes": [
+            "Measured on the jacket, laid flat. Actual measurements may vary by up to 1 in.",
+            "Fits chest: M 38 to 40 in, L 40 to 42 in, XL 42 to 44 in. Between sizes, size up to layer."
+          ]
+        },
         "rows": [
           {
             "size": "M",
@@ -1514,7 +1864,92 @@
       ],
       "sizeGuide": {
         "kind": "body",
-        "note": "Body chest measurement in inches. Between sizes, size up to layer.",
+        "chart": {
+          "unit": "cm",
+          "sizes": [
+            "M",
+            "L",
+            "XL"
+          ],
+          "rows": [
+            {
+              "name": "Back length from hips",
+              "values": [
+                64.8,
+                66,
+                67.3
+              ]
+            },
+            {
+              "name": "Chest, below the armhole",
+              "values": [
+                52.5,
+                55,
+                57.5
+              ]
+            },
+            {
+              "name": "Waist",
+              "values": [
+                51,
+                53.5,
+                56
+              ]
+            },
+            {
+              "name": "Bottom hem",
+              "values": [
+                51.5,
+                53,
+                56.5
+              ]
+            },
+            {
+              "name": "Shoulder",
+              "values": [
+                45.8,
+                47,
+                48.3
+              ]
+            },
+            {
+              "name": "Sleeve length",
+              "values": [
+                65.9,
+                66.5,
+                67.1
+              ]
+            },
+            {
+              "name": "Armhole",
+              "values": [
+                23.5,
+                24.5,
+                25.5
+              ]
+            },
+            {
+              "name": "Bicep",
+              "values": [
+                19.1,
+                20,
+                21
+              ]
+            },
+            {
+              "name": "Cuff",
+              "values": [
+                12.4,
+                13,
+                13.6
+              ]
+            }
+          ],
+          "notes": [
+            "Measured on the jacket, laid flat. Actual measurements may vary by up to 1 in.",
+            "Fits chest: M 38 to 40 in, L 40 to 42 in, XL 42 to 44 in. Between sizes, size up to layer."
+          ]
+        },
         "rows": [
           {
             "size": "M",

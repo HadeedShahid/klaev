@@ -87,7 +87,19 @@ test.describe("landing page", () => {
     for (const heading of ["Cut to the waist.", "Real leather, up close.", "Sized by chest.", "How you pay."]) {
       await expect(page.getByRole("heading", { level: 2, name: heading })).toBeVisible();
     }
-    await expect(page.getByRole("row", { name: /^M 43 in$/ })).toBeVisible();
+    await expect(page.getByRole("row", { name: "Bottom hem 19.25 20.25 21.25 22.25" })).toBeVisible();
+  });
+
+  test("the first two sections stay to two lines on a phone, and read in full on a wide screen", async ({ page }) => {
+    for (const [width, height, lines] of [[390, 844, 2], [1280, 800, 3]] as const) {
+      await page.setViewportSize({ width, height });
+      await page.goto("/");
+      for (const id of ["cut", "leather"]) {
+        const line = page.getByRole("region", { name: id === "cut" ? "Cut to the waist." : "Real leather, up close." }).locator("p:visible").first();
+        const { height: tall, leading } = await line.evaluate((node) => ({ height: node.getBoundingClientRect().height, leading: parseFloat(getComputedStyle(node).lineHeight) }));
+        expect(Math.round(tall / leading), id).toBeLessThanOrEqual(lines);
+      }
+    }
   });
 
   test("shows exactly what a cropped jacket costs each way to pay", async ({ page }) => {

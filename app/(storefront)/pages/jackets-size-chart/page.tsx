@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { SizeTable } from "@/components/product/size-guide";
+import { SizeNotes, SizeTable } from "@/components/product/size-guide";
 import { StorePage } from "@/components/site/store-page";
 import { getCollections } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Men's Jacket Size Chart Pakistan",
-  description: "Find your fit with the Klaev men's leather and suede jacket size chart. Measurements in inches. Free delivery on bank transfer.",
+  description: "Find your fit with the Klaev men's leather and suede jacket size chart. Measurements in inches and centimeters. Free delivery on bank transfer.",
   alternates: { canonical: "/pages/jackets-size-chart" },
 };
 
@@ -46,9 +46,9 @@ export default async function SizeChartPage() {
               ))}
             </p>
             <div className="rounded-2xl bg-muted px-4 py-2">
-              <SizeTable guide={chart.guide} />
+              <SizeTable chart={chart.guide.chart} />
             </div>
-            <p className="text-sm text-muted-foreground">{chart.guide.note}</p>
+            <SizeNotes notes={chart.guide.chart.notes} className="flex flex-col gap-1 text-sm text-muted-foreground" />
           </section>
         ))}
       </div>

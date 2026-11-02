@@ -3,6 +3,7 @@
 import { useActionState, useId, type HTMLInputTypeAttribute } from "react";
 
 import type { ActionState } from "@/app/actions/admin";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { Button } from "@/components/ui/button";
 import { adminField } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -62,8 +63,8 @@ export function SettingsForm({
       </div>
       <div className="flex items-center gap-3">
         {/* Several of these share the Settings page, so none takes the one black primary. */}
-        <Button type="submit" variant="outline" disabled={pending}>
-          {pending ? "Saving" : submit}
+        <Button aria-busy={pending} type="submit" variant="outline" disabled={pending}>
+          <BusyLabel busy={pending} busyText="Saving">{submit}</BusyLabel>
         </Button>
         {state ? (
           <p role={"error" in state ? "alert" : "status"} className={cn("text-sm", "error" in state ? "text-destructive" : "text-muted-foreground")}>

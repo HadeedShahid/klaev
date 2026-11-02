@@ -4,6 +4,7 @@ import { useActionState, useId } from "react";
 
 import type { ActionState } from "@/app/actions/admin";
 import { createProductAction } from "@/app/actions/admin-products";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { Button } from "@/components/ui/button";
 import { adminField } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -60,8 +61,8 @@ export function NewProductForm({ collections }: { collections: { handle: string;
           {state.error}
         </p>
       ) : null}
-      <Button type="submit" disabled={pending} className="self-start">
-        {pending ? "Creating" : "Create product"}
+      <Button aria-busy={pending} type="submit" disabled={pending} className="self-start">
+        <BusyLabel busy={pending} busyText="Creating">Create product</BusyLabel>
       </Button>
     </form>
   );

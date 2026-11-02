@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { updateOrder, type ActionState } from "@/app/actions/admin";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -89,8 +90,8 @@ export function ActionDialog({
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 {dismiss}
               </Button>
-              <Button type="submit" disabled={pending}>
-                {pending ? "Saving" : submit}
+              <Button aria-busy={pending} type="submit" disabled={pending}>
+                <BusyLabel busy={pending} busyText="Saving">{submit}</BusyLabel>
               </Button>
             </DialogFooter>
           </form>

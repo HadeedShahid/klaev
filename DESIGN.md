@@ -776,13 +776,14 @@ Calm, solid and few.
 - **Shared pill:** one class string in `lib/styles.ts` defines the black pill for links and buttons on the landing page, cart and not-found page. New surfaces reuse it rather than restating the classes.
 - **Primary:** Ink ground, Paper on Ink label, 500 weight at 0.9375rem, 48px tall with 20 to 24px side padding; 56px tall and full width in the desktop buy column and the cart order action.
 - **Hover / Active:** ground eases to 85% Ink; pressing scales to 0.98. Focus uses the global 2px Ink outline at 2px offset.
-- **Disabled / Pending:** Panel Grey ground with Quiet Grey label (sold out, adding, placing order, uploading).
+- **Disabled:** Panel Grey ground with Quiet Grey label (sold out).
+- **Busy:** while an action runs (adding to cart, placing an order, sending, uploading, saving in the admin) the button keeps its own look and its exact size, and its label crossfades into shadcn's Spinner (Lucide Loader, 1.15em) in the same place: `components/ui/busy-label.tsx`. Label and spinner share one grid cell, so the button never shrinks or grows; the swap is 300ms with an exponential ease-out, a slight scale and a 2px blur, and instant under reduced motion. The button carries `aria-busy`, which overrides the disabled look, and screen readers hear the busy word ("Adding", "Saving") instead. Icon buttons swap their glyph for the spinner; only the one pressed spins. The cart's remove buttons stay as they are: removing is fast and the drawer has its own spinner.
 - **Quiet pill:** once its job is done a pill can step down to Panel Grey ground with an Ink label, Press Grey on hover, same size (the receipt upload becomes "Upload another"). It is never a second pill beside a black one, except in the admin (see Admin Actions).
 - **Icon button:** 44px circle, Ink glyph (Lucide at 1.6 stroke), Press Grey wash on hover. Used for cart, close and remove. Remove is a Trash glyph (18px) in Quiet Grey that turns Ink on hover, on the cart page and in the cart drawer alike.
 - **Text link:** underlined at 0.2em offset, 1px thickness, underline drops on hover.
 - **Quiet link:** beside a pill (the hero's "See the colours", the order page's "Send it on WhatsApp"), Ink at 500 weight, 0.9375rem, 48px tall, a trailing Lucide chevron; underline appears on hover and the chevron nudges 2px right.
 - **Alternative link:** under a full-width pill (the cart's "Send your order on WhatsApp"), Small Quiet Grey text, centred, 44px tall, no chevron; turns Ink and underlines on hover. The way out that is not the main path.
-- **Outline pill:** a pill attached to a field (the checkout's "Apply"): 48px, 20px side padding, Small 500 Ink on Paper with a 1px Outline Grey border, Panel Grey on hover, Quiet Grey label while it works ("Checking").
+- **Outline pill:** a pill attached to a field (the checkout's "Apply"): 48px, 20px side padding, Small 500 Ink on Paper with a 1px Outline Grey border, Panel Grey on hover; while it works its label turns into the spinner, as every busy button does.
 - **Copy button:** a 44px round icon button inside a row (Lucide Copy at 1.6 stroke, 18px), Press Grey on hover. A tap swaps the glyph for a Check for 2 seconds and announces "Copied" to screen readers; nothing moves or pops.
 
 ### Size Cards (signature)

@@ -3,6 +3,7 @@
 import { useActionState, useId } from "react";
 
 import { signIn, type SignInState } from "@/app/actions/admin";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { cn } from "@/lib/utils";
 import { pill } from "@/lib/styles";
 
@@ -33,8 +34,8 @@ export function SignInForm({ next }: { next: string }) {
           </p>
         ) : null}
       </div>
-      <button type="submit" disabled={pending} className={cn(pill, "w-full disabled:bg-muted disabled:text-muted-foreground")}>
-        {pending ? "Signing in" : "Sign in"}
+      <button aria-busy={pending} type="submit" disabled={pending} className={cn(pill, "w-full disabled:bg-muted disabled:text-muted-foreground")}>
+        <BusyLabel busy={pending} busyText="Signing in">Sign in</BusyLabel>
       </button>
     </form>
   );

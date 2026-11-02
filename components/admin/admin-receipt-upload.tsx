@@ -4,6 +4,7 @@ import { Upload } from "lucide-react";
 import { useActionState, useId, useRef } from "react";
 
 import { finishReceiptUploadAsAdmin, startReceiptUploadAsAdmin, uploadReceiptAsAdmin, type ActionState } from "@/app/actions/admin";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { MAX_RECEIPT_BYTES, MAX_RECEIPT_MB } from "@/lib/receipt-limit";
 import { sendReceipt } from "@/lib/send-receipt";
 import { quietPill } from "@/lib/styles";
@@ -36,9 +37,11 @@ export function AdminReceiptUpload({ number }: { number: number }) {
         className="sr-only"
         onChange={() => form.current?.requestSubmit()}
       />
-      <label htmlFor={id} className={cn(quietPill, "h-9 cursor-pointer", pending && "pointer-events-none text-muted-foreground")}>
-        <Upload className="size-4" strokeWidth={1.8} aria-hidden />
-        {pending ? "Uploading" : "Upload a receipt"}
+      <label htmlFor={id} aria-busy={pending} className={cn(quietPill, "h-9 cursor-pointer", pending && "pointer-events-none")}>
+        <BusyLabel busy={pending} busyText="Uploading">
+          <Upload className="size-4" strokeWidth={1.8} aria-hidden />
+          Upload a receipt
+        </BusyLabel>
       </label>
       {state ? (
         <p role={"error" in state ? "alert" : "status"} className={cn("text-sm", "error" in state ? "text-destructive" : "text-muted-foreground")}>

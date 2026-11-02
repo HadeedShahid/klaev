@@ -4,6 +4,7 @@ import { Check, Copy } from "lucide-react";
 import { useActionState, useEffect, useId, useState } from "react";
 
 import { updateOrder, type ActionState } from "@/app/actions/admin";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { adminField, quietPill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -70,8 +71,8 @@ export function PaymentForm({ number, today }: { number: number; today: string }
           {(id) => <input id={id} name="reference" placeholder="Optional" autoComplete="off" className={adminField} />}
         </Field>
       </div>
-      <button type="submit" disabled={pending} className={cn(quietPill, "self-start")}>
-        {pending ? "Recording" : "Record payment"}
+      <button type="submit" disabled={pending} aria-busy={pending} className={cn(quietPill, "self-start")}>
+        <BusyLabel busy={pending} busyText="Recording">Record payment</BusyLabel>
       </button>
       <Feedback state={state} />
     </form>
@@ -95,8 +96,8 @@ export function NoteForm({ number, note }: { number: number; note: string | null
         placeholder="Only you see this"
         className={cn(adminField, "h-auto min-h-20 resize-y py-2 leading-normal")}
       />
-      <button type="submit" disabled={pending} className={cn(quietPill, "self-start")}>
-        {pending ? "Saving" : "Save note"}
+      <button type="submit" disabled={pending} aria-busy={pending} className={cn(quietPill, "self-start")}>
+        <BusyLabel busy={pending} busyText="Saving">Save note</BusyLabel>
       </button>
       <Feedback state={state} />
     </form>

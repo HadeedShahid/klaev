@@ -6,6 +6,7 @@ import { useActionState, useEffect, useRef, type ChangeEvent } from "react";
 
 import { finishReceiptUpload, startReceiptUpload, uploadReceipt, type ReceiptState } from "@/app/actions/receipts";
 import { Alert, AlertTitle } from "@/components/ui/alert";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { MAX_RECEIPT_BYTES, RECEIPT_TOO_BIG } from "@/lib/receipt-limit";
 import { sendReceipt } from "@/lib/send-receipt";
 import { pill } from "@/lib/styles";
@@ -50,9 +51,7 @@ export function ReceiptUpload({ token, received, whatsappHref }: { token: string
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-3">
       <div role="status" className="text-sm empty:hidden">
-        {pending ? (
-          <p className="font-medium">Uploading</p>
-        ) : done && state.justSent ? (
+        {pending ? null : done && state.justSent ? (
           <Alert>
             <CircleCheck className="text-tone-green" strokeWidth={2} aria-hidden />
             <AlertTitle>Screenshot uploaded.</AlertTitle>
@@ -70,14 +69,15 @@ export function ReceiptUpload({ token, received, whatsappHref }: { token: string
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <label
+          aria-busy={pending}
           className={cn(
             pill,
             "relative cursor-pointer px-5 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring",
             done && "bg-muted text-foreground hover:bg-accent",
-            pending && "pointer-events-none bg-muted text-muted-foreground",
+            pending && "pointer-events-none cursor-progress",
           )}
         >
-          {done ? "Upload another" : "Upload screenshot"}
+          <BusyLabel busy={pending} busyText="Uploading">{done ? "Upload another" : "Upload screenshot"}</BusyLabel>
           <input
             type="file"
             name="receipt"

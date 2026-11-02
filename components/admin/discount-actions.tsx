@@ -7,6 +7,7 @@ import type { ActionState } from "@/app/actions/admin";
 import { discountAction } from "@/app/actions/admin-discounts";
 import { ActionDialog } from "@/components/admin/action-dialog";
 import { DiscountFields, type DiscountValues } from "@/components/admin/discount-fields";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -25,8 +26,10 @@ export function DiscountActions({ id, active, used, values }: { id: number; acti
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={`Actions for ${values.code}`} disabled={pending} />}>
-          <MoreHorizontal strokeWidth={1.8} aria-hidden />
+        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={`Actions for ${values.code}`} disabled={pending} aria-busy={pending} />}>
+          <BusyLabel busy={pending} busyText="Saving">
+            <MoreHorizontal strokeWidth={1.8} aria-hidden />
+          </BusyLabel>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-40">
           <DropdownMenuItem onClick={() => setDialog("edit")}>Edit…</DropdownMenuItem>

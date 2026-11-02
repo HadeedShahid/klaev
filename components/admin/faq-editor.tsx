@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 
 import type { ActionState } from "@/app/actions/admin";
 import { faqAction } from "@/app/actions/admin-settings";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { Button } from "@/components/ui/button";
 import { adminField } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -69,8 +70,8 @@ export function FaqEditor({ items: initial }: { items: { question: string; answe
           <Plus data-icon="inline-start" strokeWidth={1.8} aria-hidden />
           Add a question
         </Button>
-        <Button type="submit" disabled={pending}>
-          {pending ? "Saving" : "Save"}
+        <Button aria-busy={pending} type="submit" disabled={pending}>
+          <BusyLabel busy={pending} busyText="Saving">Save</BusyLabel>
         </Button>
         {state ? (
           <p role={"error" in state ? "alert" : "status"} className={cn("text-sm", "error" in state ? "text-destructive" : "text-muted-foreground")}>

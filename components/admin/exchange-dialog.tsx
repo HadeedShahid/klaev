@@ -4,6 +4,7 @@ import { useActionState, useId, useState } from "react";
 
 import type { ActionState } from "@/app/actions/admin";
 import { exchangeAction } from "@/app/actions/admin-orders";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { SellableProduct } from "@/lib/admin/order-changes";
@@ -98,8 +99,8 @@ export function ExchangeDialog({ number, lines, catalog, charge }: { number: num
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Not now
               </Button>
-              <Button type="submit" disabled={pending || available.length === 0}>
-                {pending ? "Saving" : "Send the new size"}
+              <Button aria-busy={pending} type="submit" disabled={pending || available.length === 0}>
+                <BusyLabel busy={pending} busyText="Saving">Send the new size</BusyLabel>
               </Button>
             </DialogFooter>
           </form>

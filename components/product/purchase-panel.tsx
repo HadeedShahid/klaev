@@ -15,6 +15,7 @@ import {
 
 import { addToCart, type AddToCartState } from "@/app/actions/cart";
 import { notifyCartChanged, openCartDrawer } from "@/components/site/cart-link";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { FLAGS } from "@/lib/flags";
 import { metaEvent } from "@/lib/meta-client";
 import { pill } from "@/lib/styles";
@@ -67,7 +68,6 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
 
   let label = "Add to cart";
   if (soldOut) label = "Sold out";
-  else if (pending) label = "Adding";
   else if (needsSize) label = "Choose a size";
   else if (selected) label = `Add to cart, size ${selected.size}`;
 
@@ -171,10 +171,11 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
             type="submit"
             data-testid="buy-button"
             disabled={soldOut || pending}
+            aria-busy={pending}
             onClick={promptForSize}
             className={cn(pill, "shrink-0 px-5 disabled:bg-muted disabled:text-muted-foreground md:h-14 md:w-full")}
           >
-            {label}
+            <BusyLabel busy={pending} busyText="Adding">{label}</BusyLabel>
           </button>
         </div>
       </div>

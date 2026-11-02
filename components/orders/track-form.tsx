@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import { startTransition, useActionState, useEffect, useId, useRef, type FormEvent } from "react";
 
 import { lookUpOrder, type TrackState } from "@/app/actions/track";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { orderSteps, statusLine } from "@/lib/order-status";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -42,8 +43,8 @@ export function TrackForm() {
           <input id={`${id}-phone`} name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="0300 1234567" className={control} />
           <p className="text-sm text-muted-foreground">The one you ordered with.</p>
         </div>
-        <button type="submit" disabled={pending} className={cn(pill, "w-full disabled:bg-muted disabled:text-muted-foreground")}>
-          {pending ? "Finding it" : "Track order"}
+        <button type="submit" disabled={pending} aria-busy={pending} className={cn(pill, "w-full disabled:bg-muted disabled:text-muted-foreground")}>
+          <BusyLabel busy={pending} busyText="Finding it">Track order</BusyLabel>
         </button>
       </form>
 

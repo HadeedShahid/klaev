@@ -6,6 +6,7 @@ import { startTransition, useActionState, useId, useState, type FormEvent } from
 import type { ActionState } from "@/app/actions/admin";
 import { manualOrderAction } from "@/app/actions/admin-orders";
 import { Field } from "@/components/admin/field";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { SellableProduct } from "@/lib/admin/order-changes";
@@ -235,8 +236,8 @@ export function ManualOrderForm({ catalog, codDeliveryFee, codAdvance }: { catal
             {state.error}
           </p>
         ) : null}
-        <Button type="submit" disabled={pending || lines.length === 0 || advanceTooHigh} className="h-10">
-          {pending ? "Creating" : "Create order"}
+        <Button aria-busy={pending} type="submit" disabled={pending || lines.length === 0 || advanceTooHigh} className="h-10">
+          <BusyLabel busy={pending} busyText="Creating">Create order</BusyLabel>
         </Button>
         {lines.length === 0 ? <p className="-mt-2 text-xs text-muted-foreground">Add an item first. The customer&apos;s name and number are needed too.</p> : null}
       </div>

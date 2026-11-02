@@ -3,9 +3,11 @@
 import { BadgePercent, BarChart3, ExternalLink, FileText, Home, Inbox, LogOut, Package, Settings, ShoppingBag, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useFormStatus } from "react-dom";
 
 import { signOut } from "@/app/actions/admin";
 import { ThemeMenu } from "@/components/admin/admin-theme";
+import { BusyLabel } from "@/components/ui/busy-label";
 import {
   Sidebar,
   SidebarContent,
@@ -72,6 +74,19 @@ const NAV: Section[] = [
 ];
 
 const within = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
+// Its own component so it can read the sign-out form's state; the icon turns into the spinner.
+function SignOutButton() {
+  const { pending } = useFormStatus();
+  return (
+    <SidebarMenuButton type="submit" disabled={pending} aria-busy={pending} className="aria-busy:cursor-progress aria-busy:opacity-100!">
+      <BusyLabel busy={pending} busyText="Signing out">
+        <LogOut strokeWidth={1.8} aria-hidden />
+      </BusyLabel>
+      <span>Sign out</span>
+    </SidebarMenuButton>
+  );
+}
 
 export function AdminSidebar({ waiting, messages }: { waiting: number; messages: number }) {
   const pathname = usePathname();
@@ -142,10 +157,7 @@ export function AdminSidebar({ waiting, messages }: { waiting: number; messages:
           </SidebarMenuItem>
           <SidebarMenuItem>
             <form action={signOut}>
-              <SidebarMenuButton type="submit">
-                <LogOut strokeWidth={1.8} aria-hidden />
-                <span>Sign out</span>
-              </SidebarMenuButton>
+              <SignOutButton />
             </form>
           </SidebarMenuItem>
         </SidebarMenu>

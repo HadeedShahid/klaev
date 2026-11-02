@@ -4,6 +4,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { startTransition, useActionState, useId, useState } from "react";
 
 import { updateOrder, type ActionState } from "@/app/actions/admin";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -115,8 +116,8 @@ export function StatusControl(props: StatusControlProps) {
       <Button type="button" variant="outline" onClick={() => setDialog(null)}>
         {dismiss}
       </Button>
-      <Button type="submit" disabled={pending}>
-        {pending ? "Saving" : yes}
+      <Button type="submit" disabled={pending} aria-busy={pending}>
+        <BusyLabel busy={pending} busyText="Saving">{yes}</BusyLabel>
       </Button>
     </DialogFooter>
   );
@@ -134,8 +135,8 @@ export function StatusControl(props: StatusControlProps) {
         </Button>
       ) : (
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button disabled={pending} />}>
-            {pending ? "Saving" : "Update status"}
+          <DropdownMenuTrigger render={<Button disabled={pending} aria-busy={pending} />}>
+            <BusyLabel busy={pending} busyText="Saving">Update status</BusyLabel>
             <ChevronDown data-icon="inline-end" strokeWidth={1.8} aria-hidden />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-64">

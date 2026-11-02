@@ -3,6 +3,7 @@
 import { startTransition, useActionState, useEffect, useId, useRef, type FormEvent } from "react";
 
 import { contactAction, type ContactState } from "@/app/actions/contact";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { metaEvent } from "@/lib/meta-client";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -148,8 +149,8 @@ export function ContactForm({ whatsappHref }: { whatsappHref: string }) {
           </p>
         ) : null}
       </div>
-      <button type="submit" disabled={pending} className={cn(pill, "w-full sm:w-auto sm:self-start disabled:bg-muted disabled:text-muted-foreground")}>
-        {pending ? "Sending" : "Send message"}
+      <button type="submit" disabled={pending} aria-busy={pending} className={cn(pill, "w-full sm:w-auto sm:self-start disabled:bg-muted disabled:text-muted-foreground")}>
+        <BusyLabel busy={pending} busyText="Sending">Send message</BusyLabel>
       </button>
     </form>
   );

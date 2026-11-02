@@ -5,6 +5,7 @@ import { useActionState, useId, useState } from "react";
 
 import type { ActionState } from "@/app/actions/admin";
 import { editItemsAction } from "@/app/actions/admin-orders";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { SellableProduct } from "@/lib/admin/order-changes";
@@ -142,8 +143,8 @@ export function EditItems({
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Not now
               </Button>
-              <Button type="submit" disabled={pending || rows.length === 0}>
-                {pending ? "Saving" : "Save items"}
+              <Button aria-busy={pending} type="submit" disabled={pending || rows.length === 0}>
+                <BusyLabel busy={pending} busyText="Saving">Save items</BusyLabel>
               </Button>
             </DialogFooter>
           </form>

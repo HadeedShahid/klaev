@@ -5,6 +5,7 @@ import { startTransition, useActionState, useEffect, useId, useRef, useState, ty
 
 import { applyDiscount, checkout, saveCheckoutDraft, type AppliedDiscount, type CheckoutState } from "@/app/actions/checkout";
 import { ExchangeTerms } from "@/components/site/exchange-terms";
+import { BusyLabel } from "@/components/ui/busy-label";
 import type { CheckoutField, PaymentChoice } from "@/lib/checkout";
 import { CITIES } from "@/lib/cities";
 import { metaEvent } from "@/lib/meta-client";
@@ -171,9 +172,10 @@ export function CheckoutForm({ subtotal, terms }: { subtotal: number; terms: Cod
           <button
             type="submit"
             disabled={pending}
+            aria-busy={pending}
             className={cn(pill, "shrink-0 px-6 disabled:bg-muted disabled:text-muted-foreground md:h-14 md:w-full")}
           >
-            {pending ? "Placing order" : "Place order"}
+            <BusyLabel busy={pending} busyText="Placing order">Place order</BusyLabel>
           </button>
         </div>
       </div>
@@ -244,9 +246,10 @@ function DiscountCode({ id, applied, onChange }: { id: string; applied: AppliedD
           type="button"
           onClick={() => void apply()}
           disabled={checking}
-          className="h-12 shrink-0 rounded-full border border-border px-5 text-sm font-medium transition-colors hover:bg-muted disabled:text-muted-foreground"
+          aria-busy={checking}
+          className="h-12 shrink-0 rounded-full border border-border px-5 text-sm font-medium transition-colors hover:bg-muted disabled:text-muted-foreground aria-busy:cursor-progress aria-busy:text-foreground!"
         >
-          {checking ? "Checking" : "Apply"}
+          <BusyLabel busy={checking} busyText="Checking">Apply</BusyLabel>
         </button>
       </div>
       {error ? (

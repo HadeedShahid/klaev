@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import type { ActionState } from "@/app/actions/admin";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -22,8 +23,8 @@ export function SaveForm({ id, action, hidden }: { id: string; action: (state: A
           {"error" in state ? state.error : state.done}
         </p>
       ) : null}
-      <Button type="submit" form={id} disabled={pending}>
-        {pending ? "Saving" : "Save"}
+      <Button aria-busy={pending} type="submit" form={id} disabled={pending}>
+        <BusyLabel busy={pending} busyText="Saving">Save</BusyLabel>
       </Button>
     </div>
   );

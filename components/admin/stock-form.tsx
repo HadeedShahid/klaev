@@ -3,6 +3,7 @@
 import { useActionState, useId, useState } from "react";
 
 import { updateStock, type ActionState } from "@/app/actions/admin";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { adminField, quietPill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -48,8 +49,8 @@ export function StockForm({ title, variants }: { title: string; variants: Varian
           />
         </div>
       ))}
-      <button type="submit" disabled={pending || !changed} className={quietPill}>
-        {pending ? "Saving" : "Save"}
+      <button aria-busy={pending} type="submit" disabled={pending || !changed} className={quietPill}>
+        <BusyLabel busy={pending} busyText="Saving">Save</BusyLabel>
       </button>
       {state ? (
         <p role={"error" in state ? "alert" : "status"} className={cn("w-full text-sm", "error" in state ? "text-destructive" : "text-muted-foreground")}>

@@ -4,6 +4,7 @@ import { ImagePlus } from "lucide-react";
 import { useId, useState } from "react";
 
 import type { ActionState } from "@/app/actions/admin";
+import { BusyLabel } from "@/components/ui/busy-label";
 import { MEDIA_FULL_WIDTH, MEDIA_WIDTHS } from "@/lib/media";
 import { quietPill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -90,9 +91,11 @@ export function PhotoUploader({
           if (files.length) void upload(files);
         }}
       />
-      <label htmlFor={id} className={cn(quietPill, "h-9 cursor-pointer", busy && "pointer-events-none text-muted-foreground")}>
-        <ImagePlus className="size-4" strokeWidth={1.8} aria-hidden />
-        {busy ? "Uploading" : label}
+      <label htmlFor={id} aria-busy={busy} className={cn(quietPill, "h-9 cursor-pointer", busy && "pointer-events-none")}>
+        <BusyLabel busy={busy} busyText="Uploading">
+          <ImagePlus className="size-4" strokeWidth={1.8} aria-hidden />
+          {label}
+        </BusyLabel>
       </label>
       {status ? (
         <p role={status.error ? "alert" : "status"} className={cn("text-sm", status.error ? "text-destructive" : "text-muted-foreground")}>

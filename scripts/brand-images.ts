@@ -43,7 +43,7 @@ const PREVIEW = `<!doctype html>
   <div class="lineup">${LINEUP.map((src) => `<img src="${src}" alt="">`).join("")}</div>
 </body></html>`;
 
-// A K in Paper on an Ink tile, centred on the letter's own ink rather than its line box. Small icons
+// A K in Ink on a Paper tile, centred on the letter's own ink rather than its line box. Small icons
 // get a larger letter so it still reads at 16 px. `rounded` cuts the corners; the home screen icon
 // stays square because iOS masks it.
 async function drawIcon(page: import("@playwright/test").Page, size: number, { rounded, letter }: { rounded: boolean; letter: number }) {
@@ -53,7 +53,7 @@ async function drawIcon(page: import("@playwright/test").Page, size: number, { r
       const canvas = document.createElement("canvas");
       canvas.width = canvas.height = size;
       const context = canvas.getContext("2d")!;
-      context.fillStyle = ink;
+      context.fillStyle = paper;
       context.beginPath();
       context.roundRect(0, 0, size, size, rounded ? size * 0.225 : 0);
       context.fill();
@@ -61,7 +61,7 @@ async function drawIcon(page: import("@playwright/test").Page, size: number, { r
       const ink_ = context.measureText("K");
       const width = ink_.actualBoundingBoxLeft + ink_.actualBoundingBoxRight;
       const height = ink_.actualBoundingBoxAscent + ink_.actualBoundingBoxDescent;
-      context.fillStyle = paper;
+      context.fillStyle = ink;
       context.fillText("K", (size - width) / 2 + ink_.actualBoundingBoxLeft, (size - height) / 2 + ink_.actualBoundingBoxAscent);
       return canvas.toDataURL("image/png");
     },

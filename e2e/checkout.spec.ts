@@ -178,11 +178,12 @@ test.describe("checkout", () => {
     await expect(page.getByTestId("order-lead")).toContainText("Receipt received.");
     await expect(page.getByRole("heading", { name: "Paid to" })).toBeVisible();
 
-    // An 8 MB screenshot is under the 10 MB limit, so it uploads as it is.
-    const upload = page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/orders/"));
+    // An 8 MB screenshot is under the 10 MB limit, so it uploads as it is. An upload is a few requests
+    // (ask, send, confirm), so wait for it to finish rather than for the first.
     await page.getByLabel("Upload screenshot").setInputFiles({ name: "laptop.png", mimeType: "image/png", buffer: await bigScreenshot(8_000_000) });
-    expect((await upload).status()).toBe(200);
-    await expect(page.getByText(/That file is over/)).toHaveCount(0);
+    await expect(page.getByRole("status").filter({ hasText: "Uploading" })).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: "Uploading" })).toHaveCount(0, { timeout: 30_000 });
+    await expect(page.getByText(/That file is over|didn't upload/)).toHaveCount(0);
 
     // One over 10 MB is turned away with a message before it uploads, and the page stays.
     const posts: string[] = [];

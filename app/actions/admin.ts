@@ -29,7 +29,8 @@ import { saveCourierSettings } from "@/lib/admin/courier";
 import { restock, saveStock } from "@/lib/admin/stock";
 import { getDb } from "@/lib/db";
 import { notifyShipped } from "@/lib/notify";
-import { saveReceipt } from "@/lib/receipts";
+import { canSignReceiptUploads, receiptUploadUrl } from "@/lib/receipt-upload-url";
+import { checkReceipt, confirmReceipt, saveReceipt } from "@/lib/receipts";
 import { refreshStore } from "@/lib/refresh-store";
 
 export type SignInState = { error: string } | null;
@@ -157,8 +158,33 @@ export async function updateCourierSettings(_: ActionState, form: FormData): Pro
   return { done: "Saved." };
 }
 
-// A receipt the customer sent some other way (WhatsApp, in person), kept with the order like
-// one they uploaded themselves.
+// A receipt the customer sent some other way (WhatsApp, in person), kept with the order like one
+// they uploaded themselves, and sent the same way: a signed link straight to storage, then a note
+// that it's there (lib/receipt-upload-url.ts). uploadReceiptAsAdmin is the way through the store,
+// for local development.
+export async function startReceiptUploadAsAdmin(number: number, file: { name: string; type: string; size: number }) {
+  await requireAdmin();
+  const order = await getAdminOrder(await getDb(), number);
+  if (!order) return { status: "error" as const, message: `There's no order #${number}.` };
+  const check = checkReceipt(order, file);
+  if (!check.ok) return { status: "error" as const, message: check.message };
+  const { env } = await getCloudflareContext({ async: true });
+  if (!canSignReceiptUploads(env)) return { status: "through-store" as const };
+  return { status: "direct" as const, key: check.key, contentType: check.contentType, url: await receiptUploadUrl(env, check.key, check.contentType) };
+}
+
+export async function finishReceiptUploadAsAdmin(number: number, key: string): Promise<ActionState> {
+  await requireAdmin();
+  const db = await getDb();
+  const order = await getAdminOrder(db, number);
+  if (!order) return { error: `There's no order #${number}.` };
+  const { env } = await getCloudflareContext({ async: true });
+  const result = await confirmReceipt(db, env.RECEIPTS, order, key);
+  if (!result.ok) return { error: result.message };
+  refresh();
+  return { done: "Receipt added." };
+}
+
 export async function uploadReceiptAsAdmin(number: number, _: ActionState, form: FormData): Promise<ActionState> {
   await requireAdmin();
   const file = form.get("receipt");

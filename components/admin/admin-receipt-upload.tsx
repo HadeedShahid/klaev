@@ -3,25 +3,26 @@
 import { Upload } from "lucide-react";
 import { useActionState, useId, useRef } from "react";
 
-import { uploadReceiptAsAdmin, type ActionState } from "@/app/actions/admin";
+import { finishReceiptUploadAsAdmin, startReceiptUploadAsAdmin, uploadReceiptAsAdmin, type ActionState } from "@/app/actions/admin";
 import { MAX_RECEIPT_BYTES, MAX_RECEIPT_MB } from "@/lib/receipt-limit";
+import { sendReceipt } from "@/lib/send-receipt";
 import { quietPill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 // For a receipt the customer sent on WhatsApp or showed in person: pick the file and it's kept with
-// the order, the same way as one they uploaded. A file over the limit, or a failed upload, is a
-// message rather than a broken page, as on the order page.
+// the order, sent straight to storage as it is, like one they uploaded. A file over the limit, or a
+// failed upload, is a message rather than a broken page, as on the order page.
 export function AdminReceiptUpload({ number }: { number: number }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(async (previous, formData) => {
-    const chosen = formData.get("receipt");
-    if (chosen instanceof File && chosen.size > MAX_RECEIPT_BYTES) {
-      return { error: `That file is over ${MAX_RECEIPT_MB} MB. Save a smaller copy and upload that.` };
-    }
-    try {
-      return await uploadReceiptAsAdmin(number, previous, formData);
-    } catch {
-      return { error: "That didn't upload. Try again." };
-    }
+    const file = formData.get("receipt");
+    if (!(file instanceof File) || file.size === 0) return { error: "Choose the screenshot first." };
+    if (file.size > MAX_RECEIPT_BYTES) return { error: `That file is over ${MAX_RECEIPT_MB} MB. Save a smaller copy and upload that.` };
+    return sendReceipt<ActionState>(file, {
+      start: () => startReceiptUploadAsAdmin(number, { name: file.name, type: file.type, size: file.size }),
+      finish: (key) => finishReceiptUploadAsAdmin(number, key),
+      throughStore: () => uploadReceiptAsAdmin(number, previous, formData),
+      failed: (message) => ({ error: message.replace(", or send the screenshot on WhatsApp", "") }),
+    });
   }, null);
   const form = useRef<HTMLFormElement>(null);
   const id = useId();

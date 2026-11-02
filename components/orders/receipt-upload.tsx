@@ -4,26 +4,27 @@ import { ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, type ChangeEvent } from "react";
 
-import { uploadReceipt, type ReceiptState } from "@/app/actions/receipts";
+import { finishReceiptUpload, startReceiptUpload, uploadReceipt, type ReceiptState } from "@/app/actions/receipts";
 import { MAX_RECEIPT_BYTES, RECEIPT_TOO_BIG } from "@/lib/receipt-limit";
+import { sendReceipt } from "@/lib/send-receipt";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
-const FAILED = "That didn't upload. Try again, or send the screenshot on WhatsApp.";
-
-// Choosing the screenshot uploads it straight away: one tap to open the photos, one to pick. A file
-// over the limit is turned away before it uploads, and a failed upload (a dropped connection, say)
-// says so here; without the catch it would take the whole page down.
+// Choosing the screenshot uploads it straight away: one tap to open the photos, one to pick. It goes
+// straight to storage as it is (lib/send-receipt.ts). A file over the limit is turned away before it
+// uploads, and a failed upload says so here instead of taking the page down.
 export function ReceiptUpload({ token, received, whatsappHref }: { token: string; received: boolean; whatsappHref: string }) {
   const [state, formAction, pending] = useActionState<ReceiptState, FormData>(
     async (previous, formData) => {
-      const chosen = formData.get("receipt");
-      if (chosen instanceof File && chosen.size > MAX_RECEIPT_BYTES) return { status: "error", message: RECEIPT_TOO_BIG };
-      try {
-        return await uploadReceipt(token, previous, formData);
-      } catch {
-        return { status: "error", message: FAILED };
-      }
+      const file = formData.get("receipt");
+      if (!(file instanceof File) || file.size === 0) return { status: "error", message: "Choose the screenshot first." };
+      if (file.size > MAX_RECEIPT_BYTES) return { status: "error", message: RECEIPT_TOO_BIG };
+      return sendReceipt<ReceiptState>(file, {
+        start: () => startReceiptUpload(token, { name: file.name, type: file.type, size: file.size }),
+        finish: (key) => finishReceiptUpload(token, key),
+        throughStore: () => uploadReceipt(token, previous, formData),
+        failed: (message) => ({ status: "error", message }),
+      });
     },
     { status: received ? "received" : "idle" },
   );

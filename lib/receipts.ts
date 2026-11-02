@@ -18,7 +18,7 @@ const EXTENSIONS: Record<string, string> = {
 };
 
 // Some phones send no file type, so the file's name decides.
-function typeOf(file: File) {
+function typeOf(file: { name: string; type: string }) {
   if (EXTENSIONS[file.type]) return file.type;
   const extension = file.name.split(".").pop()?.toLowerCase();
   if (extension === "jpeg") return "image/jpeg";
@@ -26,23 +26,49 @@ function typeOf(file: File) {
 }
 
 export type ReceiptResult = { ok: true } | { ok: false; message: string };
+export type ReceiptCheck = { ok: true; contentType: string; key: string } | { ok: false; message: string };
 
-// Keeps a bank transfer receipt in the private klaev-receipts bucket, under the order's number.
-export async function saveReceipt(
-  db: Db,
-  bucket: R2Bucket,
-  order: { id: number; number: number },
-  file: File,
-): Promise<ReceiptResult> {
+// Whether a file can be a receipt for this order, and where it would be kept: the private
+// klaev-receipts bucket, under the order's number. Judged from the name, type and size alone, so it
+// works before the file is sent anywhere.
+export function checkReceipt(order: { number: number }, file: { name: string; type: string; size: number }): ReceiptCheck {
   if (file.size === 0) return { ok: false, message: "That file is empty. Choose the screenshot again." };
   const contentType = typeOf(file);
   if (!contentType) return { ok: false, message: "Upload a screenshot, a photo or a PDF of the transfer." };
-  if (file.size > MAX_RECEIPT_BYTES) {
+  if (file.size > MAX_RECEIPT_BYTES) return { ok: false, message: RECEIPT_TOO_BIG };
+  const key = `orders/${order.number}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${EXTENSIONS[contentType]}`;
+  return { ok: true, contentType, key };
+}
+
+// A key the store handed out for this order, and nothing else.
+export function isReceiptKeyFor(order: { number: number }, key: string) {
+  return new RegExp(`^orders/${order.number}/\\d+-[0-9a-f]{8}\\.(${Object.values(EXTENSIONS).join("|")})$`).test(key);
+}
+
+export async function recordReceipt(db: Db, order: { id: number }, receipt: { key: string; contentType: string; size: number }) {
+  await db.insert(receipts).values({ orderId: order.id, key: receipt.key, contentType: receipt.contentType, size: receipt.size });
+}
+
+// Keeps a receipt that came through the store itself: local development, where there's no signed
+// link to send it straight to storage (lib/receipt-upload-url.ts).
+export async function saveReceipt(db: Db, bucket: R2Bucket, order: { id: number; number: number }, file: File): Promise<ReceiptResult> {
+  const check = checkReceipt(order, file);
+  if (!check.ok) return check;
+  await bucket.put(check.key, await file.arrayBuffer(), { httpMetadata: { contentType: check.contentType } });
+  await recordReceipt(db, order, { key: check.key, contentType: check.contentType, size: file.size });
+  return { ok: true };
+}
+
+// A receipt the browser sent straight to storage: it's there, it's within the limit, and now it's
+// on the order. One over the limit is deleted, since the link can't stop a big file being sent.
+export async function confirmReceipt(db: Db, bucket: R2Bucket, order: { id: number; number: number }, key: string): Promise<ReceiptResult> {
+  if (!isReceiptKeyFor(order, key)) return { ok: false, message: "That upload didn't arrive. Try again, or send it on WhatsApp." };
+  const object = await bucket.head(key);
+  if (!object) return { ok: false, message: "That upload didn't arrive. Try again, or send it on WhatsApp." };
+  if (object.size > MAX_RECEIPT_BYTES) {
+    await bucket.delete(key);
     return { ok: false, message: RECEIPT_TOO_BIG };
   }
-
-  const key = `orders/${order.number}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${EXTENSIONS[contentType]}`;
-  await bucket.put(key, await file.arrayBuffer(), { httpMetadata: { contentType } });
-  await db.insert(receipts).values({ orderId: order.id, key, contentType, size: file.size });
+  await recordReceipt(db, order, { key, contentType: object.httpMetadata?.contentType ?? "application/octet-stream", size: object.size });
   return { ok: true };
 }

@@ -83,6 +83,12 @@
 			"simple": { "limit": 120, "period": 60 }
 		}
 	],
+	// Receipts are sent from the browser straight to klaev-receipts through a link the store signs
+	// (lib/receipt-upload-url.ts), with an R2 API token kept as the Worker secrets R2_ACCESS_KEY_ID and
+	// R2_SECRET_ACCESS_KEY. The link is on R2's own address, which carries the account ID.
+	"vars": {
+		"R2_ACCOUNT_ID": "ead0b36731ec93240322f3c40385dd86"
+	},
 	"observability": {
 		"enabled": true
 	}

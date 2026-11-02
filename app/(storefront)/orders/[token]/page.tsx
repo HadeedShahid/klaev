@@ -1,3 +1,4 @@
+import { CircleCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -6,6 +7,7 @@ import { OrderLines } from "@/components/checkout/order-lines";
 import { CopyButton } from "@/components/orders/copy-button";
 import { ReceiptUpload } from "@/components/orders/receipt-upload";
 import { CartCountSync } from "@/components/site/cart-link";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getDb } from "@/lib/db";
 import { formatPKR } from "@/lib/money";
 import { getOrderByToken } from "@/lib/orders";
@@ -58,10 +60,11 @@ export default async function OrderPage({ params }: PageProps<"/orders/[token]">
       <div className="flex flex-col gap-3">
         <h1 className="text-[2rem] leading-tight font-semibold tracking-tight text-balance">Order #{order.number} is in.</h1>
         {waiting && received ? (
-          <div data-testid="order-lead" className="flex flex-col gap-1 text-lg text-muted-foreground text-pretty">
-            <p className="font-medium text-foreground">Receipt received.</p>
-            <p>We check it against the account and confirm your order on WhatsApp.</p>
-          </div>
+          <Alert data-testid="order-lead" className="text-base">
+            <CircleCheck className="text-tone-green" strokeWidth={2} aria-hidden />
+            <AlertTitle>Receipt received.</AlertTitle>
+            <AlertDescription>We check it against the account and confirm your order on WhatsApp.</AlertDescription>
+          </Alert>
         ) : waiting ? (
           <div data-testid="order-lead" className="flex flex-col gap-1 text-lg text-muted-foreground text-pretty">
             <p className="font-medium text-foreground">Send {formatPKR(sendNow)} to confirm it.</p>

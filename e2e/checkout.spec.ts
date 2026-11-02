@@ -184,6 +184,8 @@ test.describe("checkout", () => {
     await expect(page.getByRole("status").filter({ hasText: "Uploading" })).toBeVisible();
     await expect(page.getByRole("status").filter({ hasText: "Uploading" })).toHaveCount(0, { timeout: 30_000 });
     await expect(page.getByText(/That file is over|didn't upload/)).toHaveCount(0);
+    // The lead already said the receipt was in, so "Upload another" says so beside the button.
+    await expect(page.getByRole("status").filter({ hasText: "Screenshot uploaded." })).toBeVisible();
 
     // One over 10 MB is turned away with a message before it uploads, and the page stays.
     const posts: string[] = [];

@@ -1,30 +1,36 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, CircleAlert, CircleCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, type ChangeEvent } from "react";
 
 import { finishReceiptUpload, startReceiptUpload, uploadReceipt, type ReceiptState } from "@/app/actions/receipts";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { MAX_RECEIPT_BYTES, RECEIPT_TOO_BIG } from "@/lib/receipt-limit";
 import { sendReceipt } from "@/lib/send-receipt";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
+// `justSent` marks a receipt sent from this page just now, as against one already on the order.
+type UploadState = ReceiptState & { justSent?: boolean };
+
 // Choosing the screenshot uploads it straight away: one tap to open the photos, one to pick. It goes
 // straight to storage as it is (lib/send-receipt.ts). A file over the limit is turned away before it
-// uploads, and a failed upload says so here instead of taking the page down.
+// uploads, and a failed upload says so here instead of taking the page down. Every upload that
+// lands says so beside the button: the page's lead only changes for the first.
 export function ReceiptUpload({ token, received, whatsappHref }: { token: string; received: boolean; whatsappHref: string }) {
-  const [state, formAction, pending] = useActionState<ReceiptState, FormData>(
+  const [state, formAction, pending] = useActionState<UploadState, FormData>(
     async (previous, formData) => {
       const file = formData.get("receipt");
       if (!(file instanceof File) || file.size === 0) return { status: "error", message: "Choose the screenshot first." };
       if (file.size > MAX_RECEIPT_BYTES) return { status: "error", message: RECEIPT_TOO_BIG };
-      return sendReceipt<ReceiptState>(file, {
+      const result = await sendReceipt<ReceiptState>(file, {
         start: () => startReceiptUpload(token, { name: file.name, type: file.type, size: file.size }),
         finish: (key) => finishReceiptUpload(token, key),
         throughStore: () => uploadReceipt(token, previous, formData),
         failed: (message) => ({ status: "error", message }),
       });
+      return result.status === "received" ? { ...result, justSent: true } : result;
     },
     { status: received ? "received" : "idle" },
   );
@@ -46,11 +52,19 @@ export function ReceiptUpload({ token, received, whatsappHref }: { token: string
       <div role="status" className="text-sm empty:hidden">
         {pending ? (
           <p className="font-medium">Uploading</p>
+        ) : done && state.justSent ? (
+          <Alert>
+            <CircleCheck className="text-tone-green" strokeWidth={2} aria-hidden />
+            <AlertTitle>Screenshot uploaded.</AlertTitle>
+          </Alert>
         ) : done ? (
-          // The page's lead says it on screen; this tells screen readers the upload worked.
+          // A receipt already on the order: the page's lead says so on screen, this tells screen readers.
           <p className="sr-only">Receipt received</p>
         ) : state.status === "error" ? (
-          <p className="text-destructive">{state.message}</p>
+          <Alert variant="error">
+            <CircleAlert strokeWidth={2} aria-hidden />
+            <AlertTitle className="font-normal">{state.message}</AlertTitle>
+          </Alert>
         ) : null}
       </div>
 

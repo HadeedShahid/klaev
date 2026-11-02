@@ -311,7 +311,7 @@ Many customers in Pakistan don't read email, so confirming by WhatsApp is a one-
    Done on 25 October 2026, except journal posts: the catalog, stock, cost prices, 58 customers and orders #1004 to #1021 (with their payments) are in D1, and the photos are in the `klaev-media` R2 bucket. The exports were deleted after the import.
 2. Keep every URL, and 301 redirect anything that changes.
 3. Run both sites side by side, then point the domain at Cloudflare and cancel Shopify.
-4. At cutover, give the `klaev-media` bucket a custom domain (media.klaev.com) and change `MEDIA_URL` in `lib/media.ts`, plus one `UPDATE` of `product_images.src`. Its r2.dev address is rate limited and meant for testing.
+4. Done 2 November 2026: the `klaev-media` bucket answers at media.klaev.com (`MEDIA_URL` in `lib/media.ts`). Its r2.dev address stays on for links saved before the move.
 
 ## Open questions
 

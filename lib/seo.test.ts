@@ -126,15 +126,15 @@ describe("structured data", () => {
 
 describe("link previews", () => {
   test("a stored photo is shared as its 1200 wide copy, small enough for WhatsApp, with its size", () => {
-    expect(sharedImage({ src: "https://pub-30ff49a2722f4493a6d913644221cdc9.r2.dev/products/dark-brown/02814017fe4f.webp", width: 1844, height: 2304, alt: "Front" })).toEqual({
-      url: "https://pub-30ff49a2722f4493a6d913644221cdc9.r2.dev/products/dark-brown/02814017fe4f-1200.webp",
+    expect(sharedImage({ src: "https://media.klaev.com/products/dark-brown/02814017fe4f.webp", width: 1844, height: 2304, alt: "Front" })).toEqual({
+      url: "https://media.klaev.com/products/dark-brown/02814017fe4f-1200.webp",
       width: 1200,
       height: 1499,
       alt: "Front",
     });
     // A photo narrower than 1200 was stored at its own width, never enlarged.
-    expect(sharedImage({ src: "https://pub-30ff49a2722f4493a6d913644221cdc9.r2.dev/journal/fit/abc.webp", width: 900, height: 600, alt: "" })).toMatchObject({
-      url: "https://pub-30ff49a2722f4493a6d913644221cdc9.r2.dev/journal/fit/abc-1200.webp",
+    expect(sharedImage({ src: "https://media.klaev.com/journal/fit/abc.webp", width: 900, height: 600, alt: "" })).toMatchObject({
+      url: "https://media.klaev.com/journal/fit/abc-1200.webp",
       width: 900,
       height: 600,
     });

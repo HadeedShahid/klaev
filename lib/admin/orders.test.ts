@@ -25,6 +25,7 @@ import {
   orderCounts,
   orderProfit,
   paymentState,
+  recordAdvance,
   recordPayment,
   recordPayout,
   saveNote,
@@ -275,6 +276,54 @@ describe("editing an order at any step", () => {
 
     await recordPayout(store.db, number, 15743);
     expect(await setAdvance(store.db, number, 1000)).toMatchObject({ ok: false });
+  });
+
+  // As an order brought over from Shopify: confirmed with no advance recorded, then its advance set.
+  async function confirmedWithoutAdvance(variantId = DARK_BROWN_S) {
+    const number = await place(ayesha, variantId);
+    await setAdvance(store.db, number, 0);
+    await confirmOrder(store.db, number);
+    await setAdvance(store.db, number, 2000);
+    return number;
+  }
+
+  test("an advance missing after confirmation is recorded in one step, and only once", async () => {
+    const number = await confirmedWithoutAdvance();
+    expect((await getAdminOrder(store.db, number))!.paid).toBe(0);
+
+    const sent = new Date("2026-11-02T12:00:00+05:00");
+    expect(await recordAdvance(store.db, number, 2000, sent)).toEqual({ ok: true });
+    const order = (await getAdminOrder(store.db, number))!;
+    expect(order).toMatchObject({ advance: 2000, paid: 2000 });
+    expect(order.payments).toMatchObject([{ method: "bank_transfer", amount: 2000, note: "Advance", receivedAt: sent }]);
+    expect(await recordAdvance(store.db, number, 2000, sent)).toEqual({ ok: false, message: `The advance for #${number} is already in.` });
+
+    // A recorded advance still changes with the advance, as one confirmed in the usual way does.
+    expect(await setAdvance(store.db, number, 2500)).toEqual({ ok: true });
+    expect((await getAdminOrder(store.db, number))!.paid).toBe(2500);
+  });
+
+  test("a different amount becomes the advance; money already entered under Payments isn't counted twice", async () => {
+    const other = await confirmedWithoutAdvance();
+    expect(await recordAdvance(store.db, other, 3000, new Date())).toEqual({ ok: true });
+    expect(await getAdminOrder(store.db, other)).toMatchObject({ advance: 3000, paid: 3000 });
+
+    const typed = await confirmedWithoutAdvance(DARK_BROWN_M);
+    await recordPayment(store.db, typed, { method: "bank_transfer", amount: 2000, reference: "", receivedAt: new Date() });
+    expect(await recordAdvance(store.db, typed, 2000, new Date())).toMatchObject({ ok: false });
+    expect((await getAdminOrder(store.db, typed))!.paid).toBe(2000);
+  });
+
+  test("recording an advance is for cash on delivery orders past confirmation, before the payout", async () => {
+    const pending = await place(ayesha);
+    expect(await recordAdvance(store.db, pending, 2000, new Date())).toEqual({ ok: false, message: `Confirm #${pending} to record its advance.` });
+    const bank = await place(bilal, DARK_BROWN_M);
+    expect(await recordAdvance(store.db, bank, 2000, new Date())).toMatchObject({ ok: false });
+
+    const number = await confirmedWithoutAdvance();
+    expect(await recordAdvance(store.db, number, 0, new Date())).toMatchObject({ ok: false });
+    expect(await recordAdvance(store.db, number, 99999, new Date())).toMatchObject({ ok: false });
+    expect(await recordAdvance(store.db, number, 2000, new Date(Number.NaN))).toMatchObject({ ok: false });
   });
 
   test("contact details are corrected, with the phone stored the usual way", async () => {

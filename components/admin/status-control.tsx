@@ -16,11 +16,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { todayInKarachi } from "@/lib/admin/format";
 import { formatPKR } from "@/lib/money";
 import { adminField } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
-type DialogKind = "ship" | "payout" | "advance" | "cancel" | "refuse";
+type DialogKind = "ship" | "payout" | "advance" | "received" | "cancel" | "refuse";
 type Step = { label: string; intent?: string; dialog?: DialogKind; value?: string };
 
 // Where the parcel is, as the courier's tracking shows it. Booked is set on shipping.
@@ -47,8 +48,15 @@ export type StatusControlProps = {
 };
 
 // Every step for this order's state: the next one first, then the rest, then the ways out. The
-// COD advance can change at every step until the courier pays out.
-function steps({ status, cod, paidOut, owedToConfirm, collected }: StatusControlProps): { next: Step[]; other: Step[]; exits: Step[] } {
+// COD advance can change at every step until the courier pays out. An order past confirmation
+// whose advance isn't in yet (one brought over from Shopify) has recording it as its next step.
+function steps(props: StatusControlProps): { next: Step[]; other: Step[]; exits: Step[] } {
+  const listed = stepsFor(props);
+  const missing = props.cod && !props.paidOut && props.status !== "pending" && props.owedToConfirm > 0;
+  return missing ? { ...listed, next: [{ label: `Record the advance, ${formatPKR(props.owedToConfirm)}`, dialog: "received" }, ...listed.next] } : listed;
+}
+
+function stepsFor({ status, cod, paidOut, owedToConfirm, collected }: StatusControlProps): { next: Step[]; other: Step[]; exits: Step[] } {
   const cancel: Step = { label: "Cancel order", dialog: "cancel" };
   const advance: Step[] = cod && !paidOut ? [{ label: "Change the advance", dialog: "advance" }] : [];
   switch (status) {
@@ -78,7 +86,7 @@ function steps({ status, cod, paidOut, owedToConfirm, collected }: StatusControl
 // The one control that moves an order on. Steps that need nothing more happen on the spot; the
 // rest open a dialog. What happened, or what's wrong, is said beside it.
 export function StatusControl(props: StatusControlProps) {
-  const { number, name, status, courierStatus, cod, advance, collected, courierCharge, codTaxPercent } = props;
+  const { number, name, status, courierStatus, cod, advance, owedToConfirm, collected, courierCharge, codTaxPercent } = props;
   const [state, action, pending] = useActionState<ActionState, FormData>(updateOrder, null);
   const [dialog, setDialog] = useState<DialogKind | null>(null);
   const [seen, setSeen] = useState(state);
@@ -267,6 +275,44 @@ export function StatusControl(props: StatusControlProps) {
             </div>
             {error}
             {footer("Save")}
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={dialog === "received"} onOpenChange={(open) => !open && setDialog(null)}>
+        <DialogContent>
+          <form action={action} className="flex flex-col gap-4">
+            {hidden("advance_received")}
+            <DialogHeader>
+              <DialogTitle>Advance for #{number}</DialogTitle>
+              <DialogDescription>
+                What {name.split(/\s+/)[0]} sent before delivery. Once it&apos;s in, the rider collects {formatPKR(Math.max(0, collected - owedToConfirm))}.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-[8rem_1fr] gap-3">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor={`${id}-received-amount`} className="text-sm font-medium">
+                  Amount
+                </label>
+                <input
+                  id={`${id}-received-amount`}
+                  name="amount"
+                  inputMode="numeric"
+                  defaultValue={owedToConfirm}
+                  autoFocus
+                  className={cn(adminField, "tabular-nums")}
+                />
+              </div>
+              {/* A date input won't shrink below its own width on a narrow phone unless told to. */}
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <label htmlFor={`${id}-received-on`} className="text-sm font-medium">
+                  Received
+                </label>
+                <input id={`${id}-received-on`} name="receivedAt" type="date" defaultValue={todayInKarachi()} required className={cn(adminField, "min-w-0 tabular-nums")} />
+              </div>
+            </div>
+            {error}
+            {footer("Record advance")}
           </form>
         </DialogContent>
       </Dialog>

@@ -277,6 +277,57 @@ test.describe("admin", () => {
     expect(csv).toContain(`"${number}"`);
   });
 
+  // Black cropped XL is sold out in the seed and no other test buys it; each phone restocks the one it sells.
+  test("an order confirmed without its advance, as Shopify's came, records it from Update status", async ({ page }, testInfo) => {
+    test.slow();
+    const title = "Black Cropped Sheepskin Leather Jacket";
+    await signIn(page);
+    await page.goto("/admin/inventory");
+    const stockRow = page.getByRole("row").filter({ hasText: title }).filter({ has: page.getByRole("cell", { name: "XL", exact: true }) });
+    await stockRow.getByRole("button", { name: "Restock" }).click();
+    const restock = page.getByRole("dialog", { name: `Restock ${title}, size XL` });
+    await restock.getByLabel("How many came in").fill("1");
+    await restock.getByRole("button", { name: "Restock" }).click();
+    await expect(restock).toBeHidden();
+
+    // A cash on delivery order, confirmed with nothing received, then given its advance.
+    await page.goto("/admin/orders/new");
+    await page.getByLabel("Add a jacket or belt").selectOption({ label: `${title}, PKR 17,999` });
+    await page.getByRole("button", { name: "Add", exact: true }).click();
+    await chooseSize(page.getByLabel("Size"), "XL");
+    await page.getByLabel("Name", { exact: true }).fill("Zubair Ahmad");
+    await page.getByLabel("Mobile number").fill(testInfo.project.name === "iphone" ? "0321 5550301" : "0321 5550302");
+    await page.getByLabel("City").fill("Dera Ghazi Khan");
+    await page.getByLabel("Address").fill("Shop 245, New Sabzi Mandi");
+    await page.getByRole("button", { name: "Create order" }).click();
+    await expect(page).toHaveURL(/\/admin\/orders\/\d+$/);
+    const number = page.url().match(/(\d+)$/)![1];
+    const advance = page.getByRole("dialog", { name: `Advance for #${number}` });
+    for (const amount of ["0", "2000"]) {
+      if (amount === "2000") await step(page, /^Confirm$/);
+      await step(page, "Change the advance");
+      await advance.getByLabel("Advance").fill(amount);
+      await advance.getByRole("button", { name: "Save" }).click();
+      await expect(advance).toBeHidden();
+    }
+
+    // Received nothing yet, so the next step is recording it, in one go.
+    await page.getByRole("tab", { name: "Payments" }).click();
+    const money = page.locator("dl").filter({ hasText: "To collect at the door" });
+    await expect(money).toContainText(/Advance received\s*PKR 0/);
+    await step(page, "Record the advance, PKR 2,000");
+    await expect(advance).toContainText("the rider collects PKR 16,899");
+    await advance.getByRole("button", { name: "Record advance" }).click();
+    await expect(advance).toBeHidden();
+    await expect(money).toContainText(/Advance received\s*PKR 2,000/);
+    await expect(money).toContainText(/To collect at the door\s*PKR 16,899/);
+
+    // Once it's in, it isn't offered again.
+    await page.getByRole("button", { name: "Update status" }).click();
+    await expect(page.getByRole("menuitem", { name: /^Record the advance/ })).toHaveCount(0);
+    await page.keyboard.press("Escape");
+  });
+
   // Oxblood's M and L are sold out and no other test looks at them; each phone restocks its own.
   test("restock a size, sell it, and take the order from receipt to the courier's payout", async ({ page }, testInfo) => {
     // A whole order's life and its customer: longer than one page's test.

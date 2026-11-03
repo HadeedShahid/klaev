@@ -436,6 +436,41 @@ export async function setAdvance(db: Db, number: number, advance: number): Promi
   return (results[0] as { id: number }[]).length > 0 ? ok : fail(`Order #${number} changed meanwhile. Try again.`);
 }
 
+// Past confirmation and before the payout, where an advance can be found missing.
+const ADVANCE_RECORDABLE = ["confirmed", "packed", "shipped", "delivered"] as const;
+
+// The advance on a COD order that got past confirmation without it, such as one brought over from
+// Shopify: recorded as received in one step, so the cash to collect drops by it. If a different
+// amount came in, the advance becomes that. Only a missing advance can be recorded, so money
+// already entered under Payments is never counted twice.
+export async function recordAdvance(db: Db, number: number, amount: number, receivedAt: Date): Promise<Result> {
+  const order = await readState(db, number);
+  if (!order) return notFound(number);
+  if (order.paymentMethod !== "cod") return fail("Only cash on delivery orders have an advance.");
+  if (order.paidOutAt) return fail(`Order #${number}'s payout is recorded, so its advance is settled.`);
+  if (order.status === "pending") return fail(`Confirm #${number} to record its advance.`);
+  if (!ADVANCE_RECORDABLE.some((status) => status === order.status)) return stale(number, order.status);
+  if (order.paid >= order.advance) return fail(`The advance for #${number} is already in.`);
+  if (!Number.isSafeInteger(amount) || amount <= 0 || order.paid + amount > order.total) {
+    return fail("The advance is a whole number of rupees, no more than the order total.");
+  }
+  if (Number.isNaN(receivedAt.getTime())) return fail("Add the date it was received.");
+  // Both run only while nothing else has been paid meanwhile, so a second press records nothing.
+  const unchanged = sql`(SELECT COALESCE(SUM(amount), 0) FROM payments WHERE order_id = ${order.id}) = ${order.paid}`;
+  const open = sql`${statusIn(order.id, ADVANCE_RECORDABLE)} AND (SELECT paid_out_at FROM orders WHERE id = ${order.id}) IS NULL`;
+  const results = await db.batch([
+    db
+      .update(orders)
+      .set({ advance: order.paid + amount })
+      .where(and(eq(orders.id, order.id), inArray(orders.status, [...ADVANCE_RECORDABLE]), isNull(orders.paidOutAt), unchanged))
+      .returning({ id: orders.id }),
+    db
+      .insert(payments)
+      .select(sql`SELECT NULL, ${order.id}, 'bank_transfer', ${amount}, NULL, 'Advance', ${seconds(receivedAt)}, unixepoch() WHERE ${open} AND ${unchanged}`),
+  ]);
+  return (results[0] as { id: number }[]).length > 0 ? ok : fail(`Order #${number} changed meanwhile. Try again.`);
+}
+
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Corrects who the order goes to. The phone is stored the usual way (+92...), whatever was typed.

@@ -17,6 +17,7 @@ import {
   markPacked,
   markRefused,
   markShipped,
+  recordAdvance,
   recordPayment,
   recordPayout,
   saveNote,
@@ -70,6 +71,7 @@ const DONE: Record<string, string> = {
   refuse: "Marked refused. The units are back in stock.",
   cancel: "Cancelled. The units are back in stock.",
   advance: "Advance saved.",
+  advance_received: "Advance recorded.",
   payment: "Payment recorded.",
   payout: "Payout recorded.",
   note: "Note saved.",
@@ -100,6 +102,8 @@ export async function updateOrder(_: ActionState, form: FormData): Promise<Actio
     refuse: () => markRefused(db, number),
     cancel: () => cancelOrder(db, number),
     advance: () => setAdvance(db, number, rupees(form.get("advance"))),
+    advance_received: () =>
+      recordAdvance(db, number, rupees(form.get("amount")), new Date(`${form.get("receivedAt")}T12:00:00+05:00`)),
     payment: () =>
       recordPayment(db, number, {
         method: String(form.get("method") ?? ""),

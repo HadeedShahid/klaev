@@ -92,6 +92,9 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
   const owedToConfirm = Math.max(0, expected - order.paid);
   // The COD cash: before delivery what the rider will collect, after it what the courier holds.
   const collected = cod ? Math.max(0, order.total - order.paid - order.codTax) : 0;
+  // On cash on delivery, the courier's money comes in as COD payments; everything else is the advance.
+  const courierPaid = order.payments.filter((payment) => payment.method === "cod").reduce((sum, payment) => sum + payment.amount, 0);
+  const advanceIn = order.paid - courierPaid;
   const finished = ["delivered", "cancelled", "refused"].includes(order.status);
   const state = paymentState(order);
   const profit = orderProfit(order, courier.codTaxPercent);
@@ -468,10 +471,18 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
                 <CardContent className="flex flex-col gap-4">
                   <dl className="divide-y divide-hairline">
                     <Row term="Total" value={formatPKR(order.total)} strong />
-                    {cod ? <Row term="Advance to confirm" value={formatPKR(order.advance)} /> : null}
-                    <Row term="Received" value={formatPKR(order.paid)} />
-                    {cod && order.status === "delivered" && collected > 0 ? <Row term="With the courier" value={formatPKR(collected)} /> : null}
-                    {cod && !finished ? <Row term="To collect at the door" value={formatPKR(collected)} /> : null}
+                    {cod ? (
+                      // One figure for the advance: what came in, 0 until it does. The amount agreed is
+                      // in the next step ("Confirm, PKR 2,000 received", "Record the advance").
+                      <>
+                        <Row term="Advance received" value={formatPKR(advanceIn)} />
+                        {order.status === "delivered" && collected > 0 ? <Row term="With the courier" value={formatPKR(collected)} /> : null}
+                        {!finished ? <Row term="To collect at the door" value={formatPKR(collected)} /> : null}
+                        {courierPaid > 0 ? <Row term="Paid out by the courier" value={formatPKR(courierPaid)} /> : null}
+                      </>
+                    ) : (
+                      <Row term="Received" value={formatPKR(order.paid)} />
+                    )}
                     {order.codTax > 0 ? <Row term="Kept by the courier as tax" value={formatPKR(order.codTax)} /> : null}
                     {!cod && order.paid < order.total ? <Row term="Still due" value={formatPKR(order.total - order.paid)} /> : null}
                   </dl>

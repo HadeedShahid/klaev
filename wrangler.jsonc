@@ -5,6 +5,10 @@
 	"name": "klaev",
 	"compatibility_date": "2026-10-01",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	// The store's domain, attached in the dashboard on 3 November 2026 when klaev.com left Shopify.
+	// Listed here so a deploy keeps it. The workers.dev address stays as the preview.
+	"routes": [{ "pattern": "klaev.com", "custom_domain": true }],
+	"workers_dev": true,
 	// Workers Cache: store pages are answered from Cloudflare's cache without running the Worker.
 	// lib/edge-cache.ts decides what's kept, refreshStore() purges it, and each deploy starts empty.
 	"cache": { "enabled": true },

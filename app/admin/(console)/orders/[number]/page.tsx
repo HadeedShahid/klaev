@@ -402,14 +402,24 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
                   </CardContent>
                 </Card>
 
-                {order.trackingNumber ? (
+                {/* Once the parcel has gone to the courier. Orders handed over in person never ship, so they
+                    have no box; Shopify's shipped orders came over without a tracking number, so the box
+                    says so and offers to add it. */}
+                {order.shippedAt || order.trackingNumber ? (
                   <Card>
                     <CardHeader>
                       <CardTitle>Shipping</CardTitle>
                       <CardAction>
-                        <ActionDialog label="Edit" title={`Shipping for #${order.number}`} number={order.number} intent="shipping" submit="Save" variant="ghost">
+                        <ActionDialog
+                          label={order.trackingNumber ? "Edit" : "Add tracking"}
+                          title={`Shipping for #${order.number}`}
+                          number={order.number}
+                          intent="shipping"
+                          submit="Save"
+                          variant={order.trackingNumber ? "ghost" : "outline"}
+                        >
                           <div className="grid grid-cols-[1fr_8rem] gap-3">
-                            <Field id={`shipping-${order.number}-tracking`} name="trackingNumber" label="Tracking number" defaultValue={order.trackingNumber} required autoComplete="off" />
+                            <Field id={`shipping-${order.number}-tracking`} name="trackingNumber" label="Tracking number" defaultValue={order.trackingNumber ?? ""} required autoComplete="off" />
                             <Field
                               id={`shipping-${order.number}-charge`}
                               name="courierFee"
@@ -423,7 +433,7 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
                     </CardHeader>
                     <CardContent>
                       <dl className="divide-y divide-hairline">
-                        <Row term="Tracking number" value={order.trackingNumber} />
+                        <Row term="Tracking number" value={order.trackingNumber ?? "Not added"} muted={!order.trackingNumber} />
                         <Row term="Courier charge" value={order.courierFee === null ? "Not recorded" : formatPKR(order.courierFee)} muted={order.courierFee === null} />
                         {order.shippedAt ? <Row term="Shipped" value={dateTime(order.shippedAt)} /> : null}
                       </dl>

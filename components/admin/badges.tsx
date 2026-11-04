@@ -43,3 +43,9 @@ export function ReceiptBadge() {
     </Badge>
   );
 }
+
+// A parcel with the courier and no tracking number on file (Shopify's orders came over without
+// one). Quieter than the receipt badge: the order page's Shipping box is where it gets added.
+export function NoTrackingBadge() {
+  return <Badge variant="outline">No tracking</Badge>;
+}

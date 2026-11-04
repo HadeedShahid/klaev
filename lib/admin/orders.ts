@@ -114,6 +114,7 @@ export async function listOrders(
       city: orders.city,
       status: orders.status,
       courierStatus: orders.courierStatus,
+      trackingNumber: orders.trackingNumber,
       paymentMethod: orders.paymentMethod,
       total: orders.total,
       advance: orders.advance,

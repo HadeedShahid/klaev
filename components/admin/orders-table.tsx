@@ -6,7 +6,7 @@ import { PAYMENT_LABELS } from "@/lib/admin/labels";
 import { paymentState, type listOrders } from "@/lib/admin/orders";
 import { formatPKR } from "@/lib/money";
 
-import { PaymentBadge, ReceiptBadge, StatusBadge } from "./badges";
+import { NoTrackingBadge, PaymentBadge, ReceiptBadge, StatusBadge } from "./badges";
 import { MoneyBar } from "./money-bar";
 
 export type OrderRowData = Awaited<ReturnType<typeof listOrders>>[number];
@@ -38,8 +38,9 @@ export function OrdersTable({ rows, compact = false }: { rows: OrderRowData[]; c
             <TableCell className="max-w-48">
               <p className="truncate font-medium">{row.name}</p>
               <p className="truncate text-xs text-muted-foreground">{row.city}</p>
-              <div className="mt-1.5 sm:hidden">
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5 sm:hidden">
                 <StatusBadge status={row.status} courierStatus={row.courierStatus} />
+                {row.status === "shipped" && !row.trackingNumber ? <NoTrackingBadge /> : null}
               </div>
             </TableCell>
             {compact ? null : (
@@ -60,6 +61,7 @@ export function OrdersTable({ rows, compact = false }: { rows: OrderRowData[]; c
               <div className="flex flex-wrap items-center gap-1.5">
                 <StatusBadge status={row.status} courierStatus={row.courierStatus} />
                 {row.status === "pending" && row.receipts > 0 ? <ReceiptBadge /> : null}
+                {row.status === "shipped" && !row.trackingNumber ? <NoTrackingBadge /> : null}
               </div>
             </TableCell>
             <TableCell className="pr-4 text-right font-medium tabular-nums">{formatPKR(row.total)}</TableCell>

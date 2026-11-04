@@ -7,7 +7,7 @@ import { catalogSeedStatements } from "@/scripts/lib/catalog-seed";
 
 import type { CheckoutValues } from "../checkout";
 import { createTestDb } from "../db/test-db";
-import { variants } from "../db/schema";
+import { orders, variants } from "../db/schema";
 import { placeOrder } from "../orders";
 import {
   cancelOrder,
@@ -349,6 +349,21 @@ describe("editing an order at any step", () => {
     await markShipped(store.db, number, { trackingNumber: "PX1", courierFee: 590 });
     expect(await editShipping(store.db, number, { trackingNumber: "PX2", courierFee: 480 })).toEqual({ ok: true });
     expect(await getAdminOrder(store.db, number)).toMatchObject({ trackingNumber: "PX2", courierFee: 480 });
+  });
+
+  test("an order that shipped without a tracking number (from Shopify) gets one added later", async () => {
+    const number = await place(ayesha);
+    await confirmOrder(store.db, number);
+    await markShipped(store.db, number, { trackingNumber: "PX1", courierFee: null });
+    // Shopify's export carries no tracking numbers, so its shipped orders came over without one.
+    await store.db.update(orders).set({ trackingNumber: null }).where(eq(orders.number, number));
+
+    const [listed] = await listOrders(store.db, { filter: "shipped" });
+    expect(listed).toMatchObject({ number, status: "shipped", trackingNumber: null });
+
+    expect(await editShipping(store.db, number, { trackingNumber: " PX777 ", courierFee: null })).toEqual({ ok: true });
+    expect(await getAdminOrder(store.db, number)).toMatchObject({ status: "shipped", trackingNumber: "PX777" });
+    expect((await listOrders(store.db, { filter: "shipped" }))[0]).toMatchObject({ trackingNumber: "PX777" });
   });
 
   test("a payment can be corrected or removed; removing the payout clears its tax", async () => {

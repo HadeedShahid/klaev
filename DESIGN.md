@@ -990,7 +990,7 @@ The shadcn table in a card, rows ruled by Hairline, Panel Grey at 50% on hover. 
 - **Customer:** the name in 500 with the city in Caption Quiet Grey beneath, both truncated at 12rem.
 - **Items:** "2 items" in Quiet Grey, from 768px.
 - **Payment:** a 9rem stack of the payment badge with the method beside it in Caption Quiet Grey ("COD", "Bank transfer"), and the money bar beneath.
-- **Status:** the status badge, with Receipt in beside it while confirming.
+- **Status:** the status badge, with Receipt in beside it while confirming, and an outline No tracking beside a shipped order with no tracking number on file.
 - **Total:** right-aligned, 500 tabular.
 - **Phones:** below 640px Payment and Status drop; the status badge moves under the customer's city instead.
 - **Pager:** under the card when there are more than 25: "1 to 25 of 140" in Small Quiet Grey tabular at the left, Previous and Next as 36px quiet pills at the right.

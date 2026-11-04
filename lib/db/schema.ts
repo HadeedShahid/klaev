@@ -277,8 +277,13 @@ export const payments = sqliteTable(
   (t) => [index("payments_order_idx").on(t.orderId)],
 );
 
-// Bank transfer receipts customers upload from their order page. The files live in the private
-// klaev-receipts R2 bucket under `key`.
+// The files kept on an order in the private klaev-receipts R2 bucket, under `key`: the customer's
+// payment receipts (they may send several), and one each of the admin's own records: the courier's
+// shipping receipt, and for cash on delivery the courier's payout voucher and the screenshot of
+// its transfer.
+export const RECEIPT_KINDS = ["payment", "shipping", "voucher", "payout"] as const;
+export type ReceiptKind = (typeof RECEIPT_KINDS)[number];
+
 export const receipts = sqliteTable(
   "receipts",
   {
@@ -289,6 +294,9 @@ export const receipts = sqliteTable(
     key: text().notNull().unique(),
     contentType: text().notNull(),
     size: integer().notNull(),
+    // What the file is (RECEIPT_KINDS). Only "payment" receipts are the customer's; the rest are the
+    // admin's own records, never shown to the customer.
+    kind: text({ enum: RECEIPT_KINDS }).notNull().default("payment"),
     createdAt,
   },
   (t) => [index("receipts_order_idx").on(t.orderId)],

@@ -27,10 +27,11 @@ import { expectedPayout, getCourierSettings } from "@/lib/admin/courier";
 import { customerHistory } from "@/lib/admin/customers";
 import { exchangeLinks, ITEMS_EDITABLE, listSellable } from "@/lib/admin/order-changes";
 import { customerMessage, dateTime, localPhone, parcelText, todayInKarachi, whatsappTo } from "@/lib/admin/format";
-import { PAYMENT_LABELS, STATUS_LABELS } from "@/lib/admin/labels";
+import { PAYMENT_LABELS, RECEIPT_LABELS, STATUS_LABELS } from "@/lib/admin/labels";
 import { getAdminOrder, orderProfit, paymentState, type AdminOrder } from "@/lib/admin/orders";
 import { returnAction } from "@/app/actions/admin-orders";
 import { getDb } from "@/lib/db";
+import type { ReceiptKind } from "@/lib/db/schema";
 import { formatPKR } from "@/lib/money";
 import { getCodTerms } from "@/lib/settings";
 import { adminField, quietPill } from "@/lib/styles";
@@ -53,7 +54,7 @@ function Row({ term, value, strong, muted }: { term: ReactNode; value: ReactNode
 function timeline(order: AdminOrder) {
   const events: { at: Date; text: string }[] = [
     { at: order.createdAt, text: order.source === "manual" ? "Entered by hand" : "Placed on the site" },
-    ...order.receipts.map((receipt) => ({ at: receipt.createdAt, text: "Receipt uploaded" })),
+    ...order.receipts.map((receipt) => ({ at: receipt.createdAt, text: receipt.kind === "payment" ? "Receipt uploaded" : `${RECEIPT_LABELS[receipt.kind]} added` })),
     ...order.payments.map((payment) => ({
       at: payment.receivedAt,
       text: `${formatPKR(payment.amount)} received, ${PAYMENT_LABELS[payment.method]?.toLowerCase() ?? payment.method}${payment.note ? ` (${payment.note.toLowerCase()})` : ""}`,
@@ -99,7 +100,10 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
   const state = paymentState(order);
   const profit = orderProfit(order, courier.codTaxPercent);
   const costsKnown = order.lines.every((line) => line.costPrice !== null);
-  const [newest, ...older] = [...order.receipts].reverse();
+  // The customer's payment receipts, newest first, apart from the admin's own records (one of each).
+  const paymentReceipts = order.receipts.filter((receipt) => receipt.kind === "payment");
+  const [newest, ...older] = [...paymentReceipts].reverse();
+  const kept = (kind: ReceiptKind) => [...order.receipts].reverse().find((receipt) => receipt.kind === kind) ?? null;
   const firstName = order.name.split(/\s+/)[0];
   const parcelRows: [string, string, string][] = [
     ["Name", order.name, order.name],
@@ -335,11 +339,11 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
                     <CardHeader>
                       <CardTitle>Receipts</CardTitle>
                       <CardDescription>
-                        {order.receipts.length === 0 ? "None on this order." : "Screenshots the customer uploaded, or you added."}
+                        {paymentReceipts.length === 0 ? "None on this order." : "Screenshots the customer uploaded, or you added."}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-3">
-                      <ReceiptLinks older={[...order.receipts].reverse()} label="Uploaded" />
+                      <ReceiptLinks older={[...paymentReceipts].reverse()} label="Uploaded" />
                       <AdminReceiptUpload number={order.number} />
                     </CardContent>
                   </Card>
@@ -431,12 +435,13 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
                         </ActionDialog>
                       </CardAction>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex flex-col">
                       <dl className="divide-y divide-hairline">
                         <Row term="Tracking number" value={order.trackingNumber ?? "Not added"} muted={!order.trackingNumber} />
                         <Row term="Courier charge" value={order.courierFee === null ? "Not recorded" : formatPKR(order.courierFee)} muted={order.courierFee === null} />
                         {order.shippedAt ? <Row term="Shipped" value={dateTime(order.shippedAt)} /> : null}
                       </dl>
+                      <KeptFile number={order.number} kind="shipping" file={kept("shipping")} />
                     </CardContent>
                   </Card>
                 ) : null}
@@ -486,6 +491,8 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
                       // in the next step ("Confirm, PKR 2,000 received", "Record the advance").
                       <>
                         <Row term="Advance received" value={formatPKR(advanceIn)} />
+                        {/* What the rider took at the door, which the courier's tax is worked out on. */}
+                        {order.status === "delivered" ? <Row term="Collected at the door" value={formatPKR(order.total - advanceIn)} /> : null}
                         {order.status === "delivered" && collected > 0 ? <Row term="With the courier" value={formatPKR(collected)} /> : null}
                         {!finished ? <Row term="To collect at the door" value={formatPKR(collected)} /> : null}
                         {courierPaid > 0 ? <Row term="Paid out by the courier" value={formatPKR(courierPaid)} /> : null}
@@ -611,6 +618,19 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
                   </Disclosure>
                 </CardContent>
               </Card>
+
+              {cod && (order.status === "delivered" || kept("voucher") || kept("payout")) ? (
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle>PostEx payout</CardTitle>
+                    <CardDescription>The voucher with what was kept as tax, and the screenshot of the money arriving.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-col">
+                    <KeptFile number={order.number} kind="voucher" file={kept("voucher")} first />
+                    <KeptFile number={order.number} kind="payout" file={kept("payout")} />
+                  </CardContent>
+                </Card>
+              ) : null}
             </div>
           </TabsContent>
 
@@ -631,6 +651,41 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
         </Tabs>
       </div>
     </>
+  );
+}
+
+// One of the admin's own files on the order: when it was added and a link to open it, or "Not
+// added", with the button to upload it, or replace it. `first` drops the rule above it in a card.
+function KeptFile({
+  number,
+  kind,
+  file,
+  first = false,
+}: {
+  number: number;
+  kind: Exclude<ReceiptKind, "payment">;
+  file: AdminOrder["receipts"][number] | null;
+  first?: boolean;
+}) {
+  const name = RECEIPT_LABELS[kind];
+  const lower = kind === "voucher" ? name : name.toLowerCase();
+  return (
+    <div className={cn("flex flex-col gap-2 py-3", !first && "border-t border-hairline", kind === "shipping" && "pb-0")}>
+      <div className="flex items-baseline justify-between gap-4">
+        <span className="text-muted-foreground">{name}</span>
+        {file ? (
+          <span className="text-right tabular-nums">
+            <a href={`/admin/receipts/${file.id}`} target="_blank" rel="noreferrer" aria-label={`Open the ${lower}`} className="font-medium underline-offset-4 hover:underline">
+              Open
+            </a>
+            <span className="text-muted-foreground">, {dateTime(file.createdAt)}</span>
+          </span>
+        ) : (
+          <span className="text-muted-foreground">Not added</span>
+        )}
+      </div>
+      <AdminReceiptUpload number={number} kind={kind} label={`${file ? "Replace" : "Upload"} ${lower}`} />
+    </div>
   );
 }
 

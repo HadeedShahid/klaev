@@ -31,7 +31,7 @@ import { restock, saveStock } from "@/lib/admin/stock";
 import { getDb } from "@/lib/db";
 import { notifyShipped } from "@/lib/notify";
 import { canSignReceiptUploads, receiptUploadUrl } from "@/lib/receipt-upload-url";
-import { checkReceipt, confirmReceipt, saveReceipt } from "@/lib/receipts";
+import { checkReceipt, confirmReceipt, receiptKindFor, saveReceipt, type ReceiptKind } from "@/lib/receipts";
 import { refreshStore } from "@/lib/refresh-store";
 
 export type SignInState = { error: string } | null;
@@ -162,45 +162,61 @@ export async function updateCourierSettings(_: ActionState, form: FormData): Pro
   return { done: "Saved." };
 }
 
-// A receipt the customer sent some other way (WhatsApp, in person), kept with the order like one
-// they uploaded themselves, and sent the same way: a signed link straight to storage, then a note
-// that it's there (lib/receipt-upload-url.ts). uploadReceiptAsAdmin is the way through the store,
-// for local development.
-export async function startReceiptUploadAsAdmin(number: number, file: { name: string; type: string; size: number }) {
+// A file the admin keeps on the order: a receipt the customer sent some other way (WhatsApp, in
+// person), kept like one they uploaded themselves, or one of the admin's own records (the shipping
+// receipt; for cash on delivery the courier's voucher and payout screenshot). Sent the same way as
+// the customer's: a signed link straight to storage, then a note that it's there
+// (lib/receipt-upload-url.ts). uploadReceiptAsAdmin is the way through the store, for local
+// development.
+const ADDED: Record<ReceiptKind, string> = {
+  payment: "Receipt added.",
+  shipping: "Shipping receipt added.",
+  voucher: "PostEx voucher added.",
+  payout: "Payout screenshot added.",
+};
+const NOT_THIS_ORDER = "Only cash on delivery orders have a PostEx payout.";
+
+export async function startReceiptUploadAsAdmin(number: number, file: { name: string; type: string; size: number }, kindName = "payment") {
   await requireAdmin();
   const order = await getAdminOrder(await getDb(), number);
   if (!order) return { status: "error" as const, message: `There's no order #${number}.` };
-  const check = checkReceipt(order, file);
+  const kind = receiptKindFor(order, kindName);
+  if (!kind) return { status: "error" as const, message: NOT_THIS_ORDER };
+  const check = checkReceipt(order, file, kind);
   if (!check.ok) return { status: "error" as const, message: check.message };
   const { env } = await getCloudflareContext({ async: true });
   if (!canSignReceiptUploads(env)) return { status: "through-store" as const };
   return { status: "direct" as const, key: check.key, contentType: check.contentType, url: await receiptUploadUrl(env, check.key, check.contentType) };
 }
 
-export async function finishReceiptUploadAsAdmin(number: number, key: string): Promise<ActionState> {
+export async function finishReceiptUploadAsAdmin(number: number, key: string, kindName = "payment"): Promise<ActionState> {
   await requireAdmin();
   const db = await getDb();
   const order = await getAdminOrder(db, number);
   if (!order) return { error: `There's no order #${number}.` };
+  const kind = receiptKindFor(order, kindName);
+  if (!kind) return { error: NOT_THIS_ORDER };
   const { env } = await getCloudflareContext({ async: true });
-  const result = await confirmReceipt(db, env.RECEIPTS, order, key);
+  const result = await confirmReceipt(db, env.RECEIPTS, order, key, kind);
   if (!result.ok) return { error: result.message };
   refresh();
-  return { done: "Receipt added." };
+  return { done: ADDED[kind] };
 }
 
 export async function uploadReceiptAsAdmin(number: number, _: ActionState, form: FormData): Promise<ActionState> {
   await requireAdmin();
   const file = form.get("receipt");
-  if (!(file instanceof File) || file.size === 0) return { error: "Choose the screenshot first." };
+  if (!(file instanceof File) || file.size === 0) return { error: "Choose the file first." };
   const db = await getDb();
   const order = await getAdminOrder(db, number);
   if (!order) return { error: `There's no order #${number}.` };
+  const kind = receiptKindFor(order, String(form.get("kind") ?? "payment"));
+  if (!kind) return { error: NOT_THIS_ORDER };
   const { env } = await getCloudflareContext({ async: true });
-  const result = await saveReceipt(db, env.RECEIPTS, order, file);
+  const result = await saveReceipt(db, env.RECEIPTS, order, file, kind);
   if (!result.ok) return { error: result.message };
   refresh();
-  return { done: "Receipt added." };
+  return { done: ADDED[kind] };
 }
 
 // "This many came in" for one size: added to its stock, with a line in its history.

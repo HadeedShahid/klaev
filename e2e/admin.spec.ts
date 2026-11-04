@@ -390,6 +390,14 @@ test.describe("admin", () => {
     await ship.getByRole("button", { name: "Mark shipped" }).click();
     await expect(header.getByText("Booked", { exact: true })).toBeVisible();
 
+    // The courier's booking receipt goes in the Shipping box, and opens behind the admin session.
+    await page.getByLabel("Upload shipping receipt").setInputFiles({ name: "booking.png", mimeType: "image/png", buffer: RECEIPT });
+    await expect(page.getByText("Shipping receipt added.")).toBeVisible();
+    const booking = page.getByRole("link", { name: "Open the shipping receipt" });
+    await expect(booking).toBeVisible();
+    await expect(page.getByLabel("Replace shipping receipt")).toBeAttached();
+    expect((await page.request.get((await booking.getAttribute("href"))!)).headers()["content-type"]).toBe("image/png");
+
     // The courier's tracking says it's out for delivery; the customer's tracking page says so too.
     await step(page, "Out for delivery");
     await expect(header.getByText("Out for delivery", { exact: true })).toBeVisible();
@@ -406,8 +414,21 @@ test.describe("admin", () => {
 
     await page.getByRole("tab", { name: "Payments" }).click();
     await expect(page.getByText("Kept by the courier as tax", { exact: true })).toBeVisible();
+    // What the rider took at the door, which the tax was worked out on.
+    await expect(page.locator("dt", { hasText: "Collected at the door" }).locator("xpath=following-sibling::dd[1]")).toHaveText("PKR 13,899");
+
+    // The courier's papers for that payout: its voucher with the tax, and the transfer screenshot.
+    await page.getByLabel("Upload PostEx voucher").setInputFiles({ name: "voucher.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4\n%%EOF\n") });
+    await expect(page.getByRole("link", { name: "Open the PostEx voucher" })).toBeVisible();
+    await page.getByLabel("Upload payout screenshot").setInputFiles({ name: "payout.png", mimeType: "image/png", buffer: RECEIPT });
+    await expect(page.getByRole("link", { name: "Open the payout screenshot" })).toBeVisible();
+    const voucher = await page.getByRole("link", { name: "Open the PostEx voucher" }).getAttribute("href");
+    expect((await page.request.get(voucher!)).headers()["content-type"]).toBe("application/pdf");
+
     await page.getByRole("tab", { name: "History" }).click();
     await expect(page.getByText(`Shipped, tracking PX-${number}`)).toBeVisible();
+    await expect(page.getByText("Shipping receipt added", { exact: true })).toBeVisible();
+    await expect(page.getByText("PostEx voucher added", { exact: true })).toBeVisible();
     await expect(page.getByText("Courier paid out, PKR 556 kept as tax")).toBeVisible();
 
     // The customer: every order they placed, and a note for next time. Both phones order as Sara,

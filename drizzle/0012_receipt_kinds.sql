@@ -1,0 +1,1 @@
+ALTER TABLE `receipts` ADD `kind` text DEFAULT 'payment' NOT NULL;

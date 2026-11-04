@@ -1,3 +1,5 @@
+import type { ReceiptKind } from "../db/schema";
+
 import type { CourierStatus, OrderStatus } from "./orders";
 
 export const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -33,3 +35,11 @@ export const STATE_LABELS = {
   part: "Part paid",
   unpaid: "Unpaid",
 } as const;
+
+// The files kept on an order (RECEIPT_KINDS in lib/db/schema.ts), as the order page names them.
+export const RECEIPT_LABELS: Record<ReceiptKind, string> = {
+  payment: "Receipt",
+  shipping: "Shipping receipt",
+  voucher: "PostEx voucher",
+  payout: "Payout screenshot",
+};

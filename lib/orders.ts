@@ -209,7 +209,8 @@ export async function getOrderByToken(db: Db, token: string) {
           },
         },
       },
-      receipts: { columns: { id: true, createdAt: true } },
+      // Their own payment receipts only; the admin's records of the parcel and payout stay in the admin.
+      receipts: { columns: { id: true, createdAt: true }, where: (rows, { eq }) => eq(rows.kind, "payment") },
     },
   });
   if (!order) return null;

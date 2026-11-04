@@ -91,7 +91,7 @@ export async function needsAction(db: Db, now = new Date()) {
       .then(([row]) => row.count);
   const [toConfirm, receiptsWaiting, toShip, overdue, withCourier, lowStock] = await Promise.all([
     count(eq(orders.status, "pending")),
-    count(and(eq(orders.status, "pending"), sql`EXISTS (SELECT 1 FROM receipts WHERE receipts.order_id = orders.id)`)),
+    count(and(eq(orders.status, "pending"), sql`EXISTS (SELECT 1 FROM receipts WHERE receipts.order_id = orders.id AND receipts.kind = 'payment')`)),
     count(inArray(orders.status, ["confirmed", "packed"])),
     count(and(eq(orders.status, "shipped"), lte(orders.shippedAt, new Date(now.getTime() - OVERDUE_DAYS * DAY)))),
     count(and(eq(orders.paymentMethod, "cod"), eq(orders.status, "delivered"), isNull(orders.paidOutAt), outstanding)),

@@ -120,7 +120,7 @@ export async function listOrders(
       advance: orders.advance,
       codTax: orders.codTax,
       paid: paidSum,
-      receipts: sql<number>`(SELECT COUNT(*) FROM receipts WHERE receipts.order_id = orders.id)`,
+      receipts: sql<number>`(SELECT COUNT(*) FROM receipts WHERE receipts.order_id = orders.id AND receipts.kind = 'payment')`,
       items: sql<number>`(SELECT COALESCE(SUM(quantity), 0) FROM order_lines WHERE order_lines.order_id = orders.id)`,
     })
     .from(orders)
@@ -175,7 +175,7 @@ export async function getAdminOrder(db: Db, number: number) {
         },
       },
       payments: { orderBy: (rows, { asc }) => [asc(rows.receivedAt), asc(rows.id)] },
-      receipts: { columns: { id: true, contentType: true, createdAt: true }, orderBy: (rows, { asc }) => asc(rows.id) },
+      receipts: { columns: { id: true, contentType: true, kind: true, createdAt: true }, orderBy: (rows, { asc }) => asc(rows.id) },
     },
   });
   if (!order) return null;

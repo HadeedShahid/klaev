@@ -44,7 +44,14 @@ describe("admin formatting", () => {
         "Order #1024: Dark Brown Cropped Sheepskin Leather Jacket (M), Black Leather Belt x2",
       ].join("\n"),
     );
-    expect(parcelText({ ...order, paymentMethod: "bank_transfer", paid: 18899 })).toContain("COD: 0");
+  });
+
+  test("a parcel with nothing to collect is marked prepaid, never COD: 0", () => {
+    const prepaid = parcelText({ ...order, paymentMethod: "bank_transfer", paid: 18899 });
+    expect(prepaid.split("\n")[4]).toBe("Non-COD (Prepaid)");
+    expect(prepaid).not.toContain("COD: 0");
+    // Cash on delivery with the whole amount paid up front: the rider has nothing to collect either.
+    expect(parcelText({ ...order, paid: 18899 }).split("\n")[4]).toBe("Non-COD (Prepaid)");
   });
 
   test("messages to the customer use their first name and never name the courier", () => {

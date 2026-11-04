@@ -252,6 +252,8 @@ test.describe("admin", () => {
 
     const slip = await page.request.get(`/admin/print/${number}?doc=slip`);
     expect(await slip.text()).toContain("Packing slip");
+    const label = await page.request.get(`/admin/print/${number}?doc=label`);
+    expect(await label.text()).toContain(`Box label for #${number}`);
     await step(page, "Mark packed");
     await step(page, /^Mark shipped/);
     const ship = page.getByRole("dialog", { name: `Ship #${number}` });

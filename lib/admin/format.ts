@@ -53,11 +53,17 @@ type ParcelOrder = {
   lines: { title: string; size: string | null; quantity: number }[];
 };
 
-const cashToCollect = (order: Pick<ParcelOrder, "total" | "paid" | "paymentMethod">) =>
+// The cash the rider collects: what's left of a cash on delivery order once the advance is in.
+export const cashToCollect = (order: Pick<ParcelOrder, "total" | "paid" | "paymentMethod">) =>
   order.paymentMethod === "cod" ? Math.max(0, order.total - order.paid) : 0;
+
+// How a parcel with nothing to collect is marked for the courier, pasted or on the box: "COD: 0"
+// still reads like cash on delivery.
+export const PREPAID_PARCEL = "Non-COD (Prepaid)";
 
 // What the courier's booking form asks for, one field per line, ready to paste.
 export function parcelText(order: ParcelOrder) {
+  const cash = cashToCollect(order);
   const items = order.lines
     .map((line) => `${line.title}${line.size ? ` (${line.size})` : ""}${line.quantity > 1 ? ` x${line.quantity}` : ""}`)
     .join(", ");
@@ -66,7 +72,7 @@ export function parcelText(order: ParcelOrder) {
     order.phone ? localPhone(order.phone) : "",
     order.address1 ?? "",
     order.city ?? "",
-    `COD: ${cashToCollect(order)}`,
+    cash > 0 ? `COD: ${cash}` : PREPAID_PARCEL,
     `Order #${order.number}: ${items}`,
   ].join("\n");
 }

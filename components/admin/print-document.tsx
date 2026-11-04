@@ -19,7 +19,7 @@ export function PrintDocument({ order, kind, exchangeFor = null }: { order: Admi
         <div className="flex flex-col gap-1">
           <p className="text-[17px] font-semibold tracking-[0.28em] uppercase">Klaev</p>
           <p className="text-neutral-600">
-            {STORE.email} · WhatsApp {STORE.whatsappDisplay}
+            {STORE.email}
           </p>
         </div>
         <div className="flex flex-col items-end gap-1 text-right">
@@ -123,7 +123,7 @@ export function PrintDocument({ order, kind, exchangeFor = null }: { order: Admi
       ) : null}
 
       <footer className="mt-auto border-t border-neutral-300 pt-4 text-neutral-600">
-        Size exchanges within 7 days of delivery. Unworn, tags on. You cover delivery both ways. No refunds. Questions: WhatsApp {STORE.whatsappDisplay}.
+        Size exchanges within 7 days of delivery. Unworn, tags on. You cover delivery both ways. No refunds.
       </footer>
     </article>
   );

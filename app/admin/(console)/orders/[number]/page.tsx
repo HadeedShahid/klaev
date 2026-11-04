@@ -1,4 +1,4 @@
-import { ChevronLeft, FileText, MessageCircle, TriangleAlert } from "lucide-react";
+import { ChevronLeft, FileText, MessageCircle, Printer, TriangleAlert } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -462,7 +462,14 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
                           </div>
                         ))}
                       </dl>
-                      <CopyText text={parcelText(order)} label="Copy all for PostEx" />
+                      <div className="flex flex-wrap items-center gap-3">
+                        <CopyText text={parcelText(order)} label="Copy all for PostEx" />
+                        {/* The same details for the outside of the box, so they're never written by hand. */}
+                        <a href={`/admin/print/${order.number}?doc=label`} target="_blank" rel="noreferrer" className={quietPill}>
+                          <Printer className="size-4" strokeWidth={1.8} aria-hidden />
+                          Print box label
+                        </a>
+                      </div>
                     </CardContent>
                   </Card>
                 )}

@@ -201,6 +201,34 @@ test.describe("admin", () => {
     expect(await dark()).toBe(false);
   });
 
+  test.describe("on a phone", () => {
+    test.use({ viewport: { width: 390, height: 844 } });
+
+    test("the menu closes once a page in it is tapped, the page you're on included", async ({ page }) => {
+      await signIn(page);
+      const menu = page.getByRole("dialog", { name: "Sidebar" });
+      const open = async () => {
+        await page.getByRole("button", { name: "Toggle Sidebar" }).first().click();
+        await expect(menu).toBeVisible();
+      };
+
+      await open();
+      await menu.getByRole("link", { name: "Orders", exact: true }).click();
+      await expect(menu).toBeHidden();
+      await expect(page).toHaveURL(/\/admin\/orders$/);
+
+      // A section's own pages show once you're in it.
+      await open();
+      await menu.getByRole("link", { name: "Create order" }).click();
+      await expect(menu).toBeHidden();
+      await expect(page).toHaveURL(/\/admin\/orders\/new$/);
+
+      await open();
+      await menu.getByRole("link", { name: "Create order" }).click();
+      await expect(menu).toBeHidden();
+    });
+  });
+
   // Burgundy's and the suede's M and L are sold out in the seed and no other test looks at them; each
   // phone restocks its own jacket's two sizes.
   test("an order taken on WhatsApp: change its size, ship it, exchange it, and take the old one back", async ({ page }, testInfo) => {

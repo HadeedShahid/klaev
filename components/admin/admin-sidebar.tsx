@@ -22,6 +22,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 type Section = { href: string; label: string; icon: LucideIcon; exact?: boolean; sub?: { href: string; label: string }[] };
@@ -90,10 +91,16 @@ function SignOutButton() {
 
 export function AdminSidebar({ waiting, messages }: { waiting: number; messages: number }) {
   const pathname = usePathname();
+  // On a phone the menu is a panel over the page: a tapped link closes it straight away, the page
+  // you're already on included, rather than leaving it covering the page that's loading.
+  const { isMobile, setOpenMobile } = useSidebar();
+  const close = () => {
+    if (isMobile) setOpenMobile(false);
+  };
   return (
     <Sidebar variant="inset" collapsible="offcanvas">
       <SidebarHeader className="px-4 pt-4 pb-2">
-        <Link href="/admin" className="flex items-baseline gap-2.5">
+        <Link href="/admin" onClick={close} className="flex items-baseline gap-2.5">
           <span className="text-[0.9375rem] font-semibold tracking-[0.28em] uppercase">Klaev</span>
           <span className="text-sm text-muted-foreground">Admin</span>
         </Link>
@@ -109,7 +116,7 @@ export function AdminSidebar({ waiting, messages }: { waiting: number; messages:
                 const active = !currentSub && (section.exact ? pathname === section.href : within(pathname, section.href));
                 return (
                   <SidebarMenuItem key={section.href}>
-                    <SidebarMenuButton isActive={active} render={<Link href={section.href} aria-current={active ? "page" : undefined} />}>
+                    <SidebarMenuButton isActive={active} render={<Link href={section.href} onClick={close} aria-current={active ? "page" : undefined} />}>
                       <section.icon strokeWidth={1.8} aria-hidden />
                       <span>{section.label}</span>
                     </SidebarMenuButton>
@@ -129,7 +136,7 @@ export function AdminSidebar({ waiting, messages }: { waiting: number; messages:
                           const current = page.href === currentSub;
                           return (
                             <SidebarMenuSubItem key={page.href}>
-                              <SidebarMenuSubButton isActive={current} render={<Link href={page.href} aria-current={current ? "page" : undefined} />}>
+                              <SidebarMenuSubButton isActive={current} render={<Link href={page.href} onClick={close} aria-current={current ? "page" : undefined} />}>
                                 <span>{page.label}</span>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
@@ -150,7 +157,7 @@ export function AdminSidebar({ waiting, messages }: { waiting: number; messages:
             <ThemeMenu />
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton render={<a href="/" target="_blank" rel="noreferrer" />}>
+            <SidebarMenuButton render={<a href="/" target="_blank" rel="noreferrer" onClick={close} />}>
               <ExternalLink strokeWidth={1.8} aria-hidden />
               <span>View store</span>
             </SidebarMenuButton>

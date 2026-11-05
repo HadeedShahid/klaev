@@ -112,6 +112,28 @@ test.describe("admin", () => {
     await expect(page.getByRole("link", { name: "Clear filters" })).toBeVisible();
   });
 
+  test("the back link on an order works like the browser's back button, filters and all", async ({ page }) => {
+    await signIn(page);
+    await page.goto("/admin/orders");
+    await page.getByRole("combobox", { name: "Payment method" }).click();
+    await page.getByRole("option", { name: "Cash on delivery" }).click();
+    await expect(page).toHaveURL(/method=cod/);
+    const list = page.url();
+
+    await page.getByRole("table").getByRole("link").first().click();
+    await expect(page).toHaveURL(/\/admin\/orders\/\d+$/);
+    const order = page.url();
+    await page.getByRole("main").getByRole("link", { name: "Orders", exact: true }).click();
+    await expect(page).toHaveURL(list);
+    await expect(page.getByRole("combobox", { name: "Payment method" })).toContainText("Cash on delivery");
+
+    // An order opened in a fresh tab has nothing to go back to, so it goes to the orders list.
+    const [fresh] = await Promise.all([page.waitForEvent("popup"), page.evaluate((url) => window.open(url), order)]);
+    await fresh.waitForURL(order);
+    await fresh.getByRole("main").getByRole("link", { name: "Orders", exact: true }).click();
+    await expect(fresh).toHaveURL(/\/admin\/orders$/);
+  });
+
   test("a message from the contact form waits in Messages until it's handled", async ({ page }, testInfo) => {
     const name = `Contact ${testInfo.project.name} ${Date.now().toString(36)}`;
     await page.goto("/pages/contact");

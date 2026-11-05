@@ -13,6 +13,7 @@ import { MoneyBar } from "@/components/admin/money-bar";
 import { EditItems } from "@/components/admin/edit-items";
 import { ExchangeDialog } from "@/components/admin/exchange-dialog";
 import { CopyText, NoteForm, PaymentForm } from "@/components/admin/order-forms";
+import { BackLink } from "@/components/admin/back-link";
 import { OrderStepper } from "@/components/admin/order-stepper";
 import { PageHeader } from "@/components/admin/page-header";
 import { ReceiptImage } from "@/components/admin/receipt-image";
@@ -118,10 +119,10 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
       <PageHeader
         title={
           <span className="flex flex-wrap items-center gap-2">
-            <Link href="/admin/orders" className="flex items-center text-muted-foreground hover:text-foreground">
+            <BackLink href="/admin/orders" className="flex items-center text-muted-foreground hover:text-foreground">
               <ChevronLeft className="size-4" strokeWidth={1.8} aria-hidden />
               Orders
-            </Link>
+            </BackLink>
             <span className="tabular-nums">#{order.number}</span>
             <StatusBadge status={order.status} courierStatus={order.courierStatus} />
             <PaymentBadge state={state} />

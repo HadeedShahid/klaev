@@ -14,6 +14,10 @@ export const STORE = {
   address: { street: "Office 2, First Floor, Ahad Plaza, 14L Gulberg 3", city: "Lahore", postalCode: "54660", country: "Pakistan" },
 } as const;
 
+// Opens a chat with the store on Instagram, in the app on a phone. Instagram can't pre-write a message.
+export const instagramChatLink = `https://ig.me/m/${STORE.instagram}`;
+export const instagramProfileLink = `https://instagram.com/${STORE.instagram}`;
+
 export function whatsappLink(message?: string) {
   const url = new URL(`https://wa.me/${STORE.whatsappNumber}`);
   if (message) url.searchParams.set("text", message);

@@ -16,6 +16,7 @@ import { getCollection, getProduct, getProducts, getRelatedProducts, hiddenProdu
 import { Price } from "@/components/product/price";
 import { formatPKR } from "@/lib/money";
 import { codSummary } from "@/lib/payment";
+import { isRestocking } from "@/lib/restock";
 import { productData, sharedImage, SITE_OPEN_GRAPH } from "@/lib/seo";
 import { getCodTerms } from "@/lib/settings";
 import { sizeMeasurement } from "@/lib/sizing";
@@ -118,6 +119,7 @@ async function ProductView({ product }: { product: Product }) {
             sizes={sizes}
             singleVariant={single ? { variantId: single.id, available: single.available } : null}
             sizeGuide={product.sizeGuide ? <SizeGuide guide={product.sizeGuide} /> : null}
+            restocking={isRestocking(product)}
           />
 
           <PaymentOptions id={product.handle} subtotal={product.price} terms={terms} />

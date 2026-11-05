@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ViewTransition } from "react";
 
 import type { Product } from "@/lib/catalog";
+import { isRestocking } from "@/lib/restock";
 import { Price } from "./price";
 
 export function ProductCard({ product, sizes }: { product: Product; sizes: string }) {
@@ -26,7 +27,7 @@ export function ProductCard({ product, sizes }: { product: Product; sizes: strin
       <span className="flex flex-col gap-0.5 px-0.5">
         <span className="text-[0.9375rem] leading-snug font-medium text-balance">{product.title}</span>
         <span className="text-sm text-muted-foreground">
-          {soldOut ? "Sold out" : <Price price={product.price} compareAt={product.compareAtPrice} />}
+          {soldOut ? (isRestocking(product) ? <span className="font-medium text-foreground">Restocking soon</span> : "Sold out") : <Price price={product.price} compareAt={product.compareAtPrice} />}
         </span>
       </span>
     </Link>

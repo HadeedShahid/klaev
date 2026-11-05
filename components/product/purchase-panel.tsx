@@ -14,11 +14,13 @@ import {
 } from "react";
 
 import { addToCart, type AddToCartState } from "@/app/actions/cart";
+import { RestockNotice } from "@/components/product/restock-notice";
 import { notifyCartChanged, openCartDrawer } from "@/components/site/cart-link";
 import { BusyLabel } from "@/components/ui/busy-label";
 import { limitWords } from "@/lib/cart-codec";
 import { FLAGS } from "@/lib/flags";
 import { metaEvent } from "@/lib/meta-client";
+import { instagramChatLink } from "@/lib/store";
 import { pill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -32,11 +34,13 @@ type Props = {
   // Set for one-size products such as belts.
   singleVariant: { variantId: string; available: boolean } | null;
   sizeGuide: ReactNode;
+  // A new batch is on order and a size is sold out (lib/restock.ts).
+  restocking: boolean;
 };
 
 const idle: AddToCartState = { status: "idle" };
 
-export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGuide }: Props) {
+export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGuide, restocking }: Props) {
   const [state, formAction, pending] = useActionState(addToCart, idle);
   // Told only once the action says it's really in the cart.
   useEffect(() => {
@@ -65,6 +69,8 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
 
   const hasSizes = sizes.length > 0;
   const soldOut = hasSizes ? sizes.every((option) => !option.available) : !singleVariant?.available;
+  // Sold out with a batch on order: the pill becomes the way to hold one from it.
+  const reserve = soldOut && restocking;
   const needsSize = hasSizes && !selected;
   const limit = shown.status === "limit" ? limitWords(shown.limit, shown.size) : null;
 
@@ -92,6 +98,8 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
   return (
     <form action={formAction} onSubmit={submit} className="flex flex-col gap-4">
       {singleVariant ? <input type="hidden" name="variantId" value={singleVariant.variantId} /> : null}
+
+      {restocking ? <RestockNotice soldOut={soldOut} sized={hasSizes} /> : null}
 
       {hasSizes ? (
         <div className="flex flex-col gap-3">
@@ -175,21 +183,27 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
             ) : (
               <span className="flex flex-col whitespace-nowrap md:hidden">
                 <span className="font-semibold tabular-nums">{price}</span>
-                <span className="text-xs text-muted-foreground tabular-nums">{confirmNow} to confirm</span>
+                <span className="text-xs text-muted-foreground tabular-nums">{reserve ? "Restocking soon" : `${confirmNow} to confirm`}</span>
               </span>
             )}
           </div>
-          <button
-            ref={buyRef}
-            type="submit"
-            data-testid="buy-button"
-            disabled={soldOut || pending}
-            aria-busy={pending}
-            onClick={promptForSize}
-            className={cn(pill, "shrink-0 px-5 disabled:bg-muted disabled:text-muted-foreground md:h-14 md:w-full")}
-          >
-            <BusyLabel busy={pending} busyText="Adding">{label}</BusyLabel>
-          </button>
+          {reserve ? (
+            <a href={instagramChatLink} target="_blank" rel="noreferrer" data-testid="reserve-link" className={cn(pill, "shrink-0 px-5 md:h-14 md:w-full")}>
+              Reserve on Instagram
+            </a>
+          ) : (
+            <button
+              ref={buyRef}
+              type="submit"
+              data-testid="buy-button"
+              disabled={soldOut || pending}
+              aria-busy={pending}
+              onClick={promptForSize}
+              className={cn(pill, "shrink-0 px-5 disabled:bg-muted disabled:text-muted-foreground md:h-14 md:w-full")}
+            >
+              <BusyLabel busy={pending} busyText="Adding">{label}</BusyLabel>
+            </button>
+          )}
         </div>
       </div>
     </form>

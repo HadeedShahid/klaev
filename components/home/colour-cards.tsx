@@ -3,12 +3,17 @@ import Link from "next/link";
 import { ViewTransition } from "react";
 
 import type { Product } from "@/lib/catalog";
+import { isRestocking } from "@/lib/restock";
 
 const COUNT_WORDS = ["", "One", "Two", "Three", "Four", "Five", "Six"];
 
-function stockLine(product: Product) {
+// What's in stock ("S, M in stock", or "Sold out"), and "Restocking soon" beneath it while a new batch
+// is on order (lib/restock.ts). A colour that's out entirely with a batch coming says only that.
+function stockLines(product: Product) {
   const sizes = product.variants.filter((variant) => variant.available && variant.size).map((variant) => variant.size);
-  return sizes.length ? `${sizes.join(", ")} in stock` : "Sold out";
+  const soon = isRestocking(product);
+  const inStock = sizes.length ? `${sizes.join(", ")} in stock` : soon ? null : "Sold out";
+  return { inStock, soon };
 }
 
 // The lead line's colours, right under the hero, for shoppers who already know they want one.
@@ -32,6 +37,7 @@ export function ColourCards({ products }: { products: Product[] }) {
       <ul className="grid grid-cols-3 gap-2 md:gap-5">
         {products.map((product) => {
           const image = product.images[0];
+          const stock = stockLines(product);
           return (
             <li key={product.handle}>
               <Link href={`/products/${product.handle}`} prefetch className="group flex flex-col gap-2">
@@ -50,7 +56,8 @@ export function ColourCards({ products }: { products: Product[] }) {
                 <span className="sr-only">{product.title}</span>
                 <span className="flex flex-col px-0.5">
                   <span className="text-sm font-medium md:text-base">{product.colour}</span>
-                  <span className="text-xs text-muted-foreground md:text-sm">{stockLine(product)}</span>
+                  {stock.inStock ? <span className="text-xs text-muted-foreground md:text-sm">{stock.inStock}</span> : null}
+                  {stock.soon ? <span className="text-xs font-medium md:text-sm">Restocking soon</span> : null}
                 </span>
               </Link>
             </li>

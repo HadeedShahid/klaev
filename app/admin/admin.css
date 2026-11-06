@@ -1,0 +1,116 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "../theme.css";
+
+/* The admin's stylesheet. Shoppers never load it: the store's pages get app/store.css. Tailwind
+   scans the whole project here, so anything the admin shows from the store's components is styled. */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-tone-green-soft: var(--tone-green-soft);
+  --color-tone-blue: var(--tone-blue);
+  --color-tone-blue-soft: var(--tone-blue-soft);
+  --color-tone-violet: var(--tone-violet);
+  --color-tone-violet-soft: var(--tone-violet-soft);
+  --color-tone-amber: var(--tone-amber);
+  --color-tone-amber-soft: var(--tone-amber-soft);
+  --color-tone-red: var(--tone-red);
+  --color-tone-red-soft: var(--tone-red-soft);
+}
+
+:root {
+  /* The admin: a Panel Grey sidebar holding the work area as a Paper sheet, and charts in Ink
+     and two greys. */
+  --sidebar: oklch(0.97 0.0016 286);
+  --sidebar-foreground: oklch(0.218 0.004 286);
+  --sidebar-primary: oklch(0.218 0.004 286);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.93 0.003 286);
+  --sidebar-accent-foreground: oklch(0.218 0.004 286);
+  --sidebar-border: oklch(0.925 0.003 286);
+  --sidebar-ring: oklch(0.218 0.004 286);
+  --chart-1: oklch(0.218 0.004 286);
+  --chart-2: oklch(0.52 0.008 286);
+  --chart-3: oklch(0.87 0.0056 286);
+  /* The admin's status colours (lib/admin/tones.ts): words in the colour on a soft tint of it, at
+     5.4:1 or better. Green itself is shared with the store's success tick, so it lives in
+     app/theme.css; the rest are the admin's alone. */
+  --tone-green-soft: oklch(0.955 0.04 152);
+  --tone-blue: oklch(0.48 0.15 258);
+  --tone-blue-soft: oklch(0.955 0.03 258);
+  --tone-violet: oklch(0.48 0.17 300);
+  --tone-violet-soft: oklch(0.955 0.03 300);
+  --tone-amber: oklch(0.5 0.12 62);
+  --tone-amber-soft: oklch(0.955 0.055 85);
+  --tone-red: oklch(0.5 0.19 27);
+  --tone-red-soft: oklch(0.955 0.03 25);
+}
+
+/* The admin at night (it alone ever carries .dark; the storefront stays white). The same cool
+   near-neutral greys with the steps turned over: a darker ground holds a lifted work sheet, menus
+   and dialogs sit a step above it, and Ink becomes the light pill, still the one primary and still
+   what needs you. Text holds at least 6:1 on every surface. */
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.185 0.004 286);
+  --foreground: oklch(0.955 0.002 286);
+  --card: oklch(0.185 0.004 286);
+  --card-foreground: oklch(0.955 0.002 286);
+  --popover: oklch(0.215 0.004 286);
+  --popover-foreground: oklch(0.955 0.002 286);
+  --primary: oklch(0.955 0.002 286);
+  --primary-foreground: oklch(0.2 0.004 286);
+  --secondary: oklch(0.245 0.004 286);
+  --secondary-foreground: oklch(0.955 0.002 286);
+  --muted: oklch(0.245 0.004 286);
+  --muted-foreground: oklch(0.71 0.008 286);
+  --accent: oklch(0.285 0.005 286);
+  --accent-foreground: oklch(0.955 0.002 286);
+  --destructive: oklch(0.7 0.18 25);
+  --border: oklch(0.38 0.006 286);
+  --hairline: oklch(0.275 0.005 286);
+  --input: oklch(0.38 0.006 286);
+  --ring: oklch(0.955 0.002 286);
+  --sidebar: oklch(0.145 0.003 286);
+  --sidebar-foreground: oklch(0.955 0.002 286);
+  --sidebar-primary: oklch(0.955 0.002 286);
+  --sidebar-primary-foreground: oklch(0.2 0.004 286);
+  --sidebar-accent: oklch(0.255 0.004 286);
+  --sidebar-accent-foreground: oklch(0.955 0.002 286);
+  --sidebar-border: oklch(0.255 0.004 286);
+  --sidebar-ring: oklch(0.955 0.002 286);
+  --chart-1: oklch(0.955 0.002 286);
+  --chart-2: oklch(0.71 0.008 286);
+  --chart-3: oklch(0.38 0.006 286);
+  /* Light words on a dark tint, at 6.8:1 or better. */
+  --tone-green: oklch(0.82 0.13 152);
+  --tone-green-soft: oklch(0.31 0.05 152);
+  --tone-blue: oklch(0.82 0.09 258);
+  --tone-blue-soft: oklch(0.31 0.06 258);
+  --tone-violet: oklch(0.82 0.1 300);
+  --tone-violet-soft: oklch(0.31 0.06 300);
+  --tone-amber: oklch(0.85 0.12 80);
+  --tone-amber-soft: oklch(0.32 0.055 70);
+  --tone-red: oklch(0.8 0.12 25);
+  --tone-red-soft: oklch(0.31 0.07 25);
+}
+
+@layer base {
+  /* Nothing in the admin sticks to the top, so its jumps need no room cleared above them. */
+  html:has([data-admin]) {
+    scroll-padding-top: 0;
+  }
+}

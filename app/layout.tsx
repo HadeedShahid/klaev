@@ -4,7 +4,8 @@ import { Geist } from "next/font/google";
 import { SITE_OPEN_GRAPH } from "@/lib/seo";
 import { STORE } from "@/lib/store";
 
-import "./globals.css";
+// No stylesheet here: the store's pages load app/store.css and the admin loads app/admin/admin.css,
+// each from its own layout, so shoppers never download the admin's styles.
 
 const geist = Geist({
   variable: "--font-geist-sans",

@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
     // Pages read the local D1 database while building, and Wrangler's local copy fails at random
     // when several build workers open it at once. One worker is still quick for a dozen pages.
     cpus: 1,
-    // On 25 October 2026 a warm build cache shipped a stale app/globals.css (new rules missing) to
+    // On 25 October 2026 a warm build cache shipped a stale stylesheet (new rules missing) to
     // the Worker build. Builds take seconds, and a deploy must carry exactly what is in the files.
     turbopackFileSystemCacheForBuild: false,
     // Receipt screenshots go up through a Server Action (app/actions/receipts.ts), and phone

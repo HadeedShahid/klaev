@@ -420,7 +420,7 @@
         "Site header",
         "Hero colour picker"
       ],
-      "source": "@utility glass in app/globals.css"
+      "source": "@utility glass in app/theme.css"
     },
     "iconStroke": {
       "storefront": 1.6,

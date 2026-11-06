@@ -3,7 +3,7 @@ import type { CourierStatus, OrderStatus } from "./orders";
 
 // The admin's few colours, each with one meaning wherever it appears: amber waits on you, green is
 // ready, settled or up, blue is on its way, violet is done, red is lost or down, and grey is nothing
-// yet. Words always come with them, so colour is never the only sign. Tokens: app/globals.css.
+// yet. Words always come with them, so colour is never the only sign. Tokens: app/admin/admin.css (green in app/theme.css, shared with the store's success tick).
 export type Tone = "green" | "blue" | "violet" | "amber" | "red" | "grey";
 
 const STATUS: Record<OrderStatus, Tone> = {

@@ -39,6 +39,7 @@ Storefront and admin for Klaev, a premium leather jacket and belt brand selling 
 - Direction: the category standard, executed at Apple Store craft. Don't reuse the Shopify theme's look (`../klaev-shopify`).
 - Components: shadcn/ui on Base UI (`base-nova`), Lucide icons, Tailwind CSS v4. Add components with `pnpm dlx shadcn@latest add <name>` and edit them in `components/ui`.
 - Font: Geist Sans, through `next/font`.
+- **Two stylesheets.** Shoppers load only `app/store.css`, which Tailwind builds from the store's own files (its `@source` lines); the admin loads `app/admin/admin.css`, built from the whole project. Both import the shared tokens and base styles in `app/theme.css`; the admin's extra tokens and dark theme live in `admin.css`. A store page that starts using another `components/ui` file needs it added to `store.css`, and `lib/store-css.test.ts` fails until it is; it also fails if a store file uses a colour only `admin.css` defines, since that colour doesn't exist on the store (shared ones, like the success tick's green, go in `theme.css`). The root layout imports no CSS, so no page applies both (two Tailwind builds on one page would fight over rule order). The admin links the store and back only in new tabs, which keeps it that way.
 
 ## Content and data
 

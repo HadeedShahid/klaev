@@ -8,6 +8,8 @@ import { FLAGS } from "@/lib/flags";
 import { organizationData } from "@/lib/seo";
 import { getCodTerms, getMetaSettings } from "@/lib/settings";
 
+import "../store.css";
+
 // Reads the cash on delivery terms and the Meta switch (Settings), not cookies or headers, so every
 // page stays static.
 export default async function StorefrontLayout({ children }: LayoutProps<"/">) {

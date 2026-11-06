@@ -1,0 +1,25 @@
+@import "tailwindcss" source(none);
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./theme.css";
+
+/* The store's stylesheet, loaded by app/(storefront)/layout.tsx and app/not-found.tsx. Tailwind
+   builds it only from the files a shopper's pages are made of, so phones don't download the
+   admin's styles (those are in app/admin/admin.css). A store page that starts using another file
+   from components/ui needs it listed here; lib/store-css.test.ts fails until it is. */
+@source "./";
+@source not "./admin";
+@source "../components/site";
+@source "../components/product";
+@source "../components/home";
+@source "../components/checkout";
+@source "../components/orders";
+@source "../components/ui/alert.tsx";
+@source "../components/ui/busy-label.tsx";
+@source "../components/ui/disclosure.tsx";
+@source "../components/ui/spinner.tsx";
+@source "../lib";
+@source not "../lib/admin";
+
+/* The store never carries .dark, so the shared components' dark: styles stay off here. */
+@custom-variant dark (&:is(.dark *));

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { CartLink } from "./cart-link";
 
-// Full-width glass (the `glass` utility in globals.css) with a faint hairline to seat it. Shop on the
+// Full-width glass (the `glass` utility in app/theme.css) with a faint hairline to seat it. Shop on the
 // left in ink, so it holds its contrast over dark leather beneath; the wordmark centred; the cart on
 // the right. 48px tall on phones, 52px from tablets up.
 export function SiteHeader() {

@@ -10,7 +10,7 @@ import { createTestDb } from "../db/test-db";
 import { discounts, orders, payments, stockChanges, variants } from "../db/schema";
 import { placeOrder } from "../orders";
 import { createExchange, createManualOrder, editItems, receiveReturn, type ManualOrderInput } from "./order-changes";
-import { cancelOrder, confirmOrder, markDelivered, markShipped, setCourierStatus } from "./orders";
+import { cancelOrder, confirmOrder, listOrders, markDelivered, markShipped, setCourierStatus } from "./orders";
 
 const BROWN = { S: 49253873647687, M: 49253873680455, L: 49253873713223, XL: 49253873745991 }; // 2, 1, 1, 0 in stock; PKR 17,999
 const BLACK_M = 42204090892359; // 1 in stock, PKR 14,999
@@ -124,6 +124,10 @@ describe("size exchanges", () => {
       customerId: original.customerId,
     });
     expect(sent.lines.map((row) => [row.size, row.unitPrice, row.costPrice])).toEqual([["M", 0, 0]]);
+    // The orders list says which order an exchange is for, so it reads "Exchange for #…".
+    const listed = await listOrders(store.db, {});
+    expect(listed.find((row) => row.number === exchange.number)?.exchangeOf).toBe(number);
+    expect(listed.find((row) => row.number === number)?.exchangeOf).toBeNull();
     expect(await stock(BROWN.M)).toBe(0);
     expect(await stock(BROWN.S)).toBe(1);
 

@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 
 import { ActionDialog } from "@/components/admin/action-dialog";
 import { AdminReceiptUpload } from "@/components/admin/admin-receipt-upload";
-import { PaymentBadge, StatusBadge } from "@/components/admin/badges";
+import { ExchangeBadge, PaymentBadge, StatusBadge } from "@/components/admin/badges";
 import { Field } from "@/components/admin/field";
 import { MoneyBar } from "@/components/admin/money-bar";
 import { EditItems } from "@/components/admin/edit-items";
@@ -126,6 +126,7 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
             <span className="tabular-nums">#{order.number}</span>
             <StatusBadge status={order.status} courierStatus={order.courierStatus} />
             <PaymentBadge state={state} />
+            {links.replaces !== null ? <ExchangeBadge of={links.replaces} /> : null}
           </span>
         }
       >

@@ -122,6 +122,8 @@ export async function listOrders(
       paid: paidSum,
       receipts: sql<number>`(SELECT COUNT(*) FROM receipts WHERE receipts.order_id = orders.id AND receipts.kind = 'payment')`,
       items: sql<number>`(SELECT COALESCE(SUM(quantity), 0) FROM order_lines WHERE order_lines.order_id = orders.id)`,
+      // An exchange's original order, by number, for its "Exchange for #…" badge.
+      exchangeOf: sql<number | null>`(SELECT original.number FROM orders AS original WHERE original.id = orders.exchange_of)`,
     })
     .from(orders)
     .where(where)

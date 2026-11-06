@@ -37,3 +37,21 @@ for (const path of ["/", "/collections/all", "/products/dark-brown-cropped-sheep
     expect(await brokenImages(page)).toEqual([]);
   });
 }
+
+// The photo a shopper waits for, and the one Google times, is fetched first: a product's first
+// photo and a collection's first jacket. On a slow phone connection everything else shares the line,
+// so the rest wait their turn; the second jacket shares the first row on a phone, so it loads at once.
+test("the main photo on product and collection pages is fetched first", async ({ page }) => {
+  await page.goto("/products/dark-brown-cropped-sheepskin-leather-jacket");
+  const photos = page.getByRole("list", { name: "Photos" }).first().getByRole("img");
+  await expect(photos.first()).toHaveAttribute("fetchpriority", "high");
+  await expect(page.locator('img[fetchpriority="high"]')).toHaveCount(1);
+
+  await page.goto("/collections/all");
+  const cards = page.getByRole("main").getByRole("listitem").getByRole("img");
+  await expect(cards.nth(0)).toHaveAttribute("fetchpriority", "high");
+  await expect(cards.nth(0)).toHaveAttribute("loading", "eager");
+  await expect(cards.nth(1)).toHaveAttribute("loading", "eager");
+  await expect(page.locator('img[fetchpriority="high"]')).toHaveCount(1);
+  await expect(cards.nth(2)).toHaveAttribute("loading", "lazy");
+});

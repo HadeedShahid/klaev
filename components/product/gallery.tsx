@@ -26,7 +26,10 @@ export function Gallery({ handle, title, images }: { handle: string; title: stri
               height={image.height}
               alt={image.alt}
               sizes="(min-width: 768px) 30vw, 100vw"
+              // The first photo is what a shopper waits for, and what Google times: it's fetched
+              // first, ahead of the other photos, which otherwise share a slow connection with it.
               preload={index === 0}
+              fetchPriority={index === 0 ? "high" : undefined}
               // On phones the photo yields enough height for the name and price to share the first screen.
               className="h-[min(125vw,calc(100svh-17rem))] w-full bg-muted object-cover object-[50%_30%] md:aspect-4/5 md:h-auto md:rounded-2xl md:object-center"
             />

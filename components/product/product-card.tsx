@@ -6,7 +6,19 @@ import type { Product } from "@/lib/catalog";
 import { isRestocking } from "@/lib/restock";
 import { Price } from "./price";
 
-export function ProductCard({ product, sizes }: { product: Product; sizes: string }) {
+// A list's first cards can load at once and its first photo ahead of the rest (`loading`,
+// `fetchPriority`): the rest of a grid waits until it's scrolled near.
+export function ProductCard({
+  product,
+  sizes,
+  loading,
+  fetchPriority,
+}: {
+  product: Product;
+  sizes: string;
+  loading?: "eager";
+  fetchPriority?: "high";
+}) {
   const image = product.images[0];
   const soldOut = product.variants.every((variant) => !variant.available);
 
@@ -20,6 +32,8 @@ export function ProductCard({ product, sizes }: { product: Product; sizes: strin
             height={image.height}
             alt={image.alt}
             sizes={sizes}
+            loading={loading}
+            fetchPriority={fetchPriority}
             className="aspect-4/5 w-full rounded-2xl bg-muted object-cover transition-opacity group-hover:opacity-90"
           />
         </ViewTransition>

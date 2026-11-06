@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, eq, gte, inArray, isNull, lt, lte, notInArray, sql } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNull, lt, lte, ne, notInArray, sql } from "drizzle-orm";
 
 import type { Db } from "../db";
 import { orders, products, variants } from "../db/schema";
@@ -9,6 +9,9 @@ import { orderProfit, outstanding } from "./orders";
 const DAY = 24 * 60 * 60 * 1000;
 // Orders that didn't sell: they count in no total.
 const UNSOLD = ["cancelled", "refused"] as const;
+// Orders that sold. A size exchange isn't a sale: it's an order already counted going out again in
+// another size, so it counts in no total of sales or orders. Only what it cost counts, in profit.
+const sold = () => and(notInArray(orders.status, [...UNSOLD]), ne(orders.source, "exchange"));
 // A parcel out this long without being marked delivered needs a look.
 const OVERDUE_DAYS = 5;
 
@@ -22,7 +25,7 @@ export async function salesByDay(db: Db, days: number, now = new Date()) {
   const rows = await db
     .select({ date: day, sales: sql<number>`SUM(${orders.total})`, orders: sql<number>`COUNT(*)` })
     .from(orders)
-    .where(and(gte(orders.createdAt, since), notInArray(orders.status, [...UNSOLD])))
+    .where(and(gte(orders.createdAt, since), sold()))
     .groupBy(day);
   return Array.from({ length: days }, (_, index) => {
     const date = karachiDate(new Date(now.getTime() - (days - 1 - index) * DAY));
@@ -35,7 +38,7 @@ async function totals(db: Db, from: Date, to: Date) {
   const [row] = await db
     .select({ sales: sql<number>`COALESCE(SUM(${orders.total}), 0)`, orders: sql<number>`COUNT(*)` })
     .from(orders)
-    .where(and(gte(orders.createdAt, from), lt(orders.createdAt, to), notInArray(orders.status, [...UNSOLD])));
+    .where(and(gte(orders.createdAt, from), lt(orders.createdAt, to), sold()));
   return row;
 }
 
@@ -73,7 +76,8 @@ export async function dashboardSummary(db: Db, days: number, now = new Date(), c
     cashWithCourier: withCourier[0],
     profit: {
       amount: profits.reduce((sum, profit) => sum + profit.profit, 0),
-      orders: profits.length,
+      // An exchange's cost is in the amount, but it isn't another order.
+      orders: delivered.filter((order) => order.source !== "exchange").length,
       // Orders whose jacket cost isn't set: the profit leaves that cost out.
       missingCost: profits.filter((profit) => profit.costMissing).length,
       estimated: profits.some((profit) => !profit.complete),

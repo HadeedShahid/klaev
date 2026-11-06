@@ -46,6 +46,7 @@ export async function exchangeAction(_: ActionState, form: FormData): Promise<Ac
     lineId: Number(form.get("lineId")),
     variantId: Number(form.get("variantId")),
     charge: rupees(text(form, "charge"), 0),
+    paymentMethod: text(form, "paymentMethod"),
   });
   if (!result.ok) return { error: result.message };
   await refreshStore();

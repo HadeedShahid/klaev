@@ -13,12 +13,15 @@ export type CustomerSegment = (typeof CUSTOMER_SEGMENTS)[number];
 // No order for this long and a customer counts as lapsed: someone to win back.
 export const LAPSED_DAYS = 90;
 
-// Per customer, over their orders. Cancelled orders don't count as orders. Money spent counts only
-// orders confirmed onwards: one still waiting for its advance may never come, and a refused one
-// came back.
-const orderCount = sql<number>`COUNT(CASE WHEN ${orders.status} != 'cancelled' THEN 1 END)`;
-const spent = sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} NOT IN ('pending', 'cancelled', 'refused') THEN ${orders.total} END), 0)`;
-const lastOrderAt = sql<number | null>`MAX(CASE WHEN ${orders.status} != 'cancelled' THEN ${orders.createdAt} END)`;
+// Per customer, over their orders. Cancelled orders don't count as orders, and neither does a size
+// exchange: it's an order they already placed going out again in another size, so it makes no one a
+// repeat customer and isn't money spent. Money spent counts only orders confirmed onwards: one still
+// waiting for its advance may never come, and a refused one came back. A refusal counts whatever
+// the parcel was.
+const counted = sql`${orders.status} != 'cancelled' AND ${orders.source} != 'exchange'`;
+const orderCount = sql<number>`COUNT(CASE WHEN ${counted} THEN 1 END)`;
+const spent = sql<number>`COALESCE(SUM(CASE WHEN ${counted} AND ${orders.status} NOT IN ('pending', 'refused') THEN ${orders.total} END), 0)`;
+const lastOrderAt = sql<number | null>`MAX(CASE WHEN ${counted} THEN ${orders.createdAt} END)`;
 const refused = sql<number>`COUNT(CASE WHEN ${orders.status} = 'refused' THEN 1 END)`;
 
 const lapsedBefore = (now: Date) => Math.floor(now.getTime() / 1000) - LAPSED_DAYS * 86_400;
@@ -118,6 +121,7 @@ export async function getCustomer(db: Db, id: number) {
       number: orders.number,
       createdAt: orders.createdAt,
       status: orders.status,
+      source: orders.source,
       paymentMethod: orders.paymentMethod,
       total: orders.total,
       city: orders.city,
@@ -126,20 +130,21 @@ export async function getCustomer(db: Db, id: number) {
     .from(orders)
     .where(eq(orders.customerId, id))
     .orderBy(desc(orders.number));
-  const counted = history.filter((order) => order.status !== "cancelled");
-  const kept = counted.filter((order) => order.status !== "refused" && order.status !== "pending");
+  // As in the list: exchanges are on the page but aren't orders of their own.
+  const placed = history.filter((order) => order.status !== "cancelled" && order.source !== "exchange");
+  const kept = placed.filter((order) => order.status !== "refused" && order.status !== "pending");
   const spentTotal = kept.reduce((sum, order) => sum + order.total, 0);
   return {
     ...customer,
     orders: history,
     stats: {
-      orders: counted.length,
+      orders: placed.length,
       spent: spentTotal,
       average: kept.length ? Math.round(spentTotal / kept.length) : 0,
       refused: history.filter((order) => order.status === "refused").length,
-      cancelled: history.length - counted.length,
-      firstOrderAt: counted.at(-1)?.createdAt ?? null,
-      lastOrderAt: counted[0]?.createdAt ?? null,
+      cancelled: history.filter((order) => order.status === "cancelled").length,
+      firstOrderAt: placed.at(-1)?.createdAt ?? null,
+      lastOrderAt: placed[0]?.createdAt ?? null,
     },
   };
 }
@@ -151,7 +156,7 @@ export async function customerHistory(db: Db, order: { id: number; customerId: n
   const same = order.customerId !== null ? eq(orders.customerId, order.customerId) : order.phone ? eq(orders.phone, order.phone) : null;
   if (!same) return { orders: 0, refused: 0 };
   const [row] = await db
-    .select({ orders: sql<number>`COUNT(CASE WHEN ${orders.status} != 'cancelled' THEN 1 END)`, refused })
+    .select({ orders: orderCount, refused })
     .from(orders)
     .where(and(same, ne(orders.id, order.id)));
   return row;

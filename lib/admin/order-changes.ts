@@ -134,13 +134,18 @@ export async function editItems(db: Db, number: number, input: { variantId: numb
   }
 }
 
+// How the customer pays an exchange's delivery charge. Usually by transfer before it ships.
+export const EXCHANGE_METHODS = ["bank_transfer", "cod"] as const;
+
 // A size exchange on a delivered order: the new size goes out as its own order, linked to this one,
-// for the delivery charge the customer pays. The old jacket goes back in stock when it arrives
-// (receiveReturn), not before.
+// for the delivery charge the customer pays. Paid by transfer, it waits for that money like any
+// transfer order (confirming records it), unless there's nothing to pay; on cash on delivery the
+// rider collects it at the door. The old jacket goes back in stock when it arrives (receiveReturn),
+// not before.
 export async function createExchange(
   db: Db,
   number: number,
-  input: { lineId: number; variantId: number; charge: number },
+  input: { lineId: number; variantId: number; charge: number; paymentMethod: string },
 ): Promise<{ ok: true; number: number } | { ok: false; message: string }> {
   const order = await db.query.orders.findFirst({ where: eq(orders.number, number), with: { lines: true } });
   if (!order) return fail(`There's no order #${number}.`);
@@ -149,6 +154,8 @@ export async function createExchange(
   if (!line) return fail("Choose the jacket to exchange.");
   if (line.variantId === null) return fail("That jacket isn't in the catalog any more.");
   if (!whole(input.charge)) return fail("The delivery charge is a whole number of rupees.");
+  const method = EXCHANGE_METHODS.find((candidate) => candidate === input.paymentMethod);
+  if (!method) return fail("Choose how they pay the delivery charge.");
   const catalog = await variantsById(db, [line.variantId, input.variantId]);
   const old = catalog.get(line.variantId);
   const next = catalog.get(input.variantId);
@@ -159,15 +166,15 @@ export async function createExchange(
   const token = newToken();
   const exchangeId = sql`(SELECT id FROM orders WHERE token = ${token})`;
   const now = new Date();
+  const waiting = method === "bank_transfer" && input.charge > 0;
   const statements: Batch = [
     db.insert(orders).values({
       number: nextNumber,
       token,
       customerId: order.customerId,
-      status: "confirmed",
-      confirmedAt: now,
-      // The rider collects the delivery charge at the door.
-      paymentMethod: "cod",
+      status: waiting ? "pending" : "confirmed",
+      confirmedAt: waiting ? null : now,
+      paymentMethod: method,
       name: order.name,
       email: order.email,
       phone: order.phone,

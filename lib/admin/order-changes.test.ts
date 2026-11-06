@@ -7,10 +7,10 @@ import { catalogSeedStatements } from "@/scripts/lib/catalog-seed";
 
 import type { CheckoutValues } from "../checkout";
 import { createTestDb } from "../db/test-db";
-import { discounts, orders, stockChanges, variants } from "../db/schema";
+import { discounts, orders, payments, stockChanges, variants } from "../db/schema";
 import { placeOrder } from "../orders";
 import { createExchange, createManualOrder, editItems, receiveReturn, type ManualOrderInput } from "./order-changes";
-import { confirmOrder, markDelivered, markShipped, setCourierStatus } from "./orders";
+import { cancelOrder, confirmOrder, markDelivered, markShipped, setCourierStatus } from "./orders";
 
 const BROWN = { S: 49253873647687, M: 49253873680455, L: 49253873713223, XL: 49253873745991 }; // 2, 1, 1, 0 in stock; PKR 17,999
 const BLACK_M = 42204090892359; // 1 in stock, PKR 14,999
@@ -103,17 +103,26 @@ describe("size exchanges", () => {
     await confirmOrder(store.db, number);
     await markShipped(store.db, number, { trackingNumber: "PX-1", courierFee: 590 });
     const [line] = (await order(number)).lines;
-    expect(await createExchange(store.db, number, { lineId: line.id, variantId: BROWN.M, charge: 500 })).toMatchObject({ ok: false });
+    expect(await createExchange(store.db, number, { lineId: line.id, variantId: BROWN.M, charge: 500, paymentMethod: "cod" })).toMatchObject({ ok: false });
     await markDelivered(store.db, number);
 
-    expect(await createExchange(store.db, number, { lineId: line.id, variantId: BLACK_M, charge: 500 })).toMatchObject({ ok: false });
-    expect(await createExchange(store.db, number, { lineId: line.id, variantId: BROWN.XL, charge: 500 })).toMatchObject({ ok: false });
-    const exchange = await createExchange(store.db, number, { lineId: line.id, variantId: BROWN.M, charge: 500 });
+    expect(await createExchange(store.db, number, { lineId: line.id, variantId: BLACK_M, charge: 500, paymentMethod: "cod" })).toMatchObject({ ok: false });
+    expect(await createExchange(store.db, number, { lineId: line.id, variantId: BROWN.XL, charge: 500, paymentMethod: "cod" })).toMatchObject({ ok: false });
+    const exchange = await createExchange(store.db, number, { lineId: line.id, variantId: BROWN.M, charge: 500, paymentMethod: "cod" });
     if (!exchange.ok) throw new Error(exchange.message);
 
     const sent = await order(exchange.number);
     const original = await order(number);
-    expect(sent).toMatchObject({ source: "exchange", status: "confirmed", exchangeOf: original.id, returnVariantId: BROWN.S, total: 500, deliveryFee: 500, customerId: original.customerId });
+    expect(sent).toMatchObject({
+      source: "exchange",
+      status: "confirmed",
+      paymentMethod: "cod",
+      exchangeOf: original.id,
+      returnVariantId: BROWN.S,
+      total: 500,
+      deliveryFee: 500,
+      customerId: original.customerId,
+    });
     expect(sent.lines.map((row) => [row.size, row.unitPrice, row.costPrice])).toEqual([["M", 0, 0]]);
     expect(await stock(BROWN.M)).toBe(0);
     expect(await stock(BROWN.S)).toBe(1);
@@ -123,6 +132,42 @@ describe("size exchanges", () => {
     expect(await receiveReturn(store.db, exchange.number)).toMatchObject({ ok: false });
     expect(await stock(BROWN.S)).toBe(2);
     expect(await receiveReturn(store.db, number)).toMatchObject({ ok: false });
+  });
+
+  test("paid by bank transfer, it waits for the charge and confirming records it; with nothing to pay it starts confirmed", async () => {
+    const number = await place([{ variantId: BROWN.S, quantity: 1 }], { payment: "bank_transfer" });
+    await confirmOrder(store.db, number);
+    await markShipped(store.db, number, { trackingNumber: "PX-1", courierFee: 590 });
+    await markDelivered(store.db, number);
+    const [line] = (await order(number)).lines;
+    expect(await createExchange(store.db, number, { lineId: line.id, variantId: BROWN.M, charge: 310, paymentMethod: "cash" })).toMatchObject({ ok: false });
+
+    const paid = await createExchange(store.db, number, { lineId: line.id, variantId: BROWN.M, charge: 310, paymentMethod: "bank_transfer" });
+    if (!paid.ok) throw new Error(paid.message);
+    expect(await order(paid.number)).toMatchObject({ source: "exchange", status: "pending", paymentMethod: "bank_transfer", total: 310, confirmedAt: null });
+    expect(await stock(BROWN.M)).toBe(0);
+    expect(await confirmOrder(store.db, paid.number)).toEqual({ ok: true });
+    const sent = await order(paid.number);
+    expect(sent.status).toBe("confirmed");
+    const received = await store.db.select().from(payments).where(eq(payments.orderId, sent.id));
+    expect(received.map((row) => [row.method, row.amount])).toEqual([["bank_transfer", 310]]);
+
+    const free = await createExchange(store.db, number, { lineId: line.id, variantId: BROWN.L, charge: 0, paymentMethod: "bank_transfer" });
+    if (!free.ok) throw new Error(free.message);
+    expect(await order(free.number)).toMatchObject({ status: "confirmed", paymentMethod: "bank_transfer", total: 0 });
+  });
+
+  test("cancelling an exchange puts the new size back, and leaves the old one to come back by itself", async () => {
+    const number = await place([{ variantId: BROWN.S, quantity: 1 }], { payment: "bank_transfer" });
+    await confirmOrder(store.db, number);
+    await markShipped(store.db, number, { trackingNumber: "PX-1", courierFee: 590 });
+    await markDelivered(store.db, number);
+    const [line] = (await order(number)).lines;
+    const exchange = await createExchange(store.db, number, { lineId: line.id, variantId: BROWN.M, charge: 310, paymentMethod: "bank_transfer" });
+    if (!exchange.ok) throw new Error(exchange.message);
+    expect(await cancelOrder(store.db, exchange.number)).toEqual({ ok: true });
+    expect(await stock(BROWN.M)).toBe(1);
+    expect(await stock(BROWN.S)).toBe(1);
   });
 });
 

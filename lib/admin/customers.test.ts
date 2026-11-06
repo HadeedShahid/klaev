@@ -32,12 +32,16 @@ afterAll(() => store?.dispose());
 
 let number = 3000;
 // An order placed some days before NOW, in a given state.
-async function order(customerId: number, { daysAgo, status, total = 18899 }: { daysAgo: number; status: (typeof orders.$inferInsert)["status"]; total?: number }) {
+async function order(
+  customerId: number,
+  { daysAgo, status, total = 18899, source = "web" }: { daysAgo: number; status: (typeof orders.$inferInsert)["status"]; total?: number; source?: (typeof orders.$inferInsert)["source"] },
+) {
   number += 1;
   await store.db.insert(orders).values({
     number,
     customerId,
     status,
+    source,
     paymentMethod: "cod",
     name: "Test",
     phone: null,
@@ -129,6 +133,25 @@ describe("customers", () => {
     await order(hina.id, { daysAgo: 1, status: "pending" });
     const [latest] = await store.db.select({ id: orders.id }).from(orders).where(eq(orders.number, number));
     expect(await customerHistory(store.db, { id: latest.id, customerId: hina.id, phone: null })).toEqual({ orders: 2, refused: 1 });
+  });
+
+  test("an exchange isn't another order: no repeat customer, nothing more spent, and the last order stays the jacket they bought", async () => {
+    const [mehran] = await store.db.insert(customers).values({ name: "Mehran", email: "mehran@example.com", phone: "+923001110006" }).returning({ id: customers.id });
+    await order(mehran.id, { daysAgo: 100, status: "delivered", total: 17999 });
+    const bought = number;
+    await order(mehran.id, { daysAgo: 1, status: "delivered", total: 310, source: "exchange" });
+    const exchanged = number;
+
+    expect(await listCustomers(store.db, { query: "mehran", now: NOW })).toMatchObject([{ orders: 1, spent: 17999 }]);
+    expect(await customerCounts(store.db, NOW)).toMatchObject({ first_time: 1, repeat: 0, lapsed: 1 });
+    const page = (await getCustomer(store.db, mehran.id))!;
+    expect(page.orders).toHaveLength(2);
+    expect(page.stats).toMatchObject({ orders: 1, spent: 17999, average: 17999, cancelled: 0 });
+
+    const ids = await store.db.select({ id: orders.id, number: orders.number }).from(orders).where(eq(orders.customerId, mehran.id));
+    const idOf = (wanted: number) => ids.find((row) => row.number === wanted)!.id;
+    expect(await customerHistory(store.db, { id: idOf(bought), customerId: mehran.id, phone: null })).toEqual({ orders: 0, refused: 0 });
+    expect(await customerHistory(store.db, { id: idOf(exchanged), customerId: mehran.id, phone: null })).toEqual({ orders: 1, refused: 0 });
   });
 
   test("a customer's record can be corrected, and emails stay unique", async () => {

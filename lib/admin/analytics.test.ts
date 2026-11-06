@@ -5,7 +5,7 @@ import snapshot from "@/data/catalog.json";
 import { catalogSeedStatements } from "@/scripts/lib/catalog-seed";
 
 import { createTestDb } from "../db/test-db";
-import { customers, events, orders } from "../db/schema";
+import { customers, events, orderLines, orders } from "../db/schema";
 import { funnel, liveView, overview, REPORT_TABS, reports, tableCsv } from "./analytics";
 
 const NOW = new Date("2026-10-27T12:00:00+05:00");
@@ -152,5 +152,47 @@ describe("analytics", () => {
     expect(behaviour.find((table) => table.key === "exit-pages")?.rows.map((row) => row.page)).toEqual(expect.arrayContaining(["/checkout", "/collections/all"]));
     const [profit] = await reports(store.db, "profit", 30, { now: NOW });
     expect(profit.rows.map((row) => row.month)).toEqual(["October 2026", "September 2026"]);
+  });
+
+  // A size exchange is the same customer's order going out again in another size, not a new sale.
+  test("an exchange is left out of every count of orders and sales, and what it cost counts in profit", async () => {
+    const [buyer] = await store.db.insert(customers).values({ name: "Mehran", email: "m@example.com", phone: "+923001234568" }).returning({ id: customers.id });
+    const placed = { customerId: buyer.id, status: "delivered" as const, paymentMethod: "bank_transfer" as const, name: "Mehran", city: "Multan" };
+    const [sold, exchange] = await store.db
+      .insert(orders)
+      .values([
+        { ...placed, number: 1600, subtotal: 17999, total: 17999, courierFee: 0, createdAt: ago(60 * 24 * 3), shippedAt: ago(60 * 24 * 3), deliveredAt: ago(60 * 24 * 2) },
+        { ...placed, number: 1601, source: "exchange", subtotal: 0, total: 0, courierFee: 310, createdAt: ago(60), shippedAt: ago(50), deliveredAt: ago(10) },
+      ])
+      .returning({ id: orders.id });
+    await store.db.insert(orderLines).values([
+      { orderId: sold.id, title: "Black Cropped Sheepskin Leather Jacket", size: "M", quantity: 1, unitPrice: 17999, costPrice: 9000 },
+      { orderId: exchange.id, title: "Black Cropped Sheepskin Leather Jacket", size: "L", quantity: 1, unitPrice: 0, costPrice: 0 },
+    ]);
+
+    const result = await overview(store.db, 7, NOW);
+    expect(result.current).toMatchObject({ sales: 17999, orders: 1, averageOrder: 17999, returningRate: 0 });
+    expect(result.sales.reduce((sum, day) => sum + day.orders, 0)).toBe(1);
+    expect(result.products).toEqual([{ title: "Black Cropped Sheepskin Leather Jacket", units: 1, sales: 17999 }]);
+    expect(result.cities.find((row) => row.city === "Multan")).toMatchObject({ orders: 1, sales: 17999 });
+    // The exchange went out today, but no one bought anything today.
+    const live = await liveView(store.db, NOW);
+    expect(live.orders).toEqual([]);
+
+    const [byProduct, , , byPayment] = await reports(store.db, "sales", 30, { now: NOW });
+    expect(byProduct.rows).toEqual([{ product: "Black Cropped Sheepskin Leather Jacket", units: 1, orders: 1, sales: 17999 }]);
+    expect(byPayment.rows).toMatchObject([{ method: "Bank transfer", orders: 1, sales: 17999 }]);
+    const [mix, loyalty] = await reports(store.db, "customers", 30, { now: NOW });
+    expect(mix.rows).toEqual([
+      { who: "First order", orders: 1, sales: 17999 },
+      { who: "Ordered before", orders: 0, sales: 0 },
+    ]);
+    expect(loyalty.rows[0]).toEqual({ measure: "Customers who ordered again", value: "0% (0 of 1)" });
+    const [operations] = await reports(store.db, "operations", 30, { now: NOW });
+    expect(operations.rows[0]).toEqual({ measure: "Cancelled", value: "0% (0 of 1 orders)" });
+    expect(operations.rows[1]).toEqual({ measure: "Refused at the door", value: "0% (0 of 1 shipped)" });
+    // Profit: 17,999 less the M's 9,000, and the 310 it cost to send the L.
+    const [profit] = await reports(store.db, "profit", 30, { now: NOW });
+    expect(profit.rows).toEqual([{ month: "October 2026", orders: 1, revenue: 17999, cost: 9000, courier: 310, tax: 0, profit: 8689, missing: 0 }]);
   });
 });

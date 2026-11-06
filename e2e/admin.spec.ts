@@ -313,13 +313,22 @@ test.describe("admin", () => {
     await step(page, /^Mark delivered/);
     await expect(header.getByText("Delivered", { exact: true })).toBeVisible();
 
-    // L didn't fit after all: M goes out as an exchange, and the L comes back into stock.
+    // L didn't fit after all: M goes out as an exchange, and the L comes back into stock. They pay
+    // the delivery by bank transfer first, as exchanges usually are.
     await page.getByRole("button", { name: "Exchange a size" }).click();
     const exchange = page.getByRole("dialog", { name: `Exchange a size from #${number}` });
     await chooseSize(exchange.getByLabel("New size"), "M");
+    await exchange.getByLabel("Delivery charge").fill("310");
+    await expect(exchange.getByRole("radio", { name: /^Bank transfer/ })).toBeChecked();
+    await expect(exchange.getByRole("radio", { name: /^Cash on delivery/ })).not.toBeChecked();
     await exchange.getByRole("button", { name: "Send the new size" }).click();
     await expect(page.getByRole("link", { name: `#${number}`, exact: true })).toBeVisible();
     await expect(page).not.toHaveURL(new RegExp(`/admin/orders/${number}$`));
+    const sent = page.url().match(/(\d+)$/)![1];
+    const sentHeader = page.locator("header").filter({ hasText: `#${sent}` });
+    await expect(sentHeader.getByText("To confirm", { exact: true })).toBeVisible();
+    await step(page, "Confirm, PKR 310 received");
+    await expect(sentHeader.getByText("Confirmed", { exact: true })).toBeVisible();
     await expect(page.getByText("The old jacket isn't back yet.")).toBeVisible();
     await page.getByRole("button", { name: "It's back" }).click();
     await page.getByRole("dialog", { name: "Is the old jacket back?" }).getByRole("button", { name: "Yes, back in stock" }).click();

@@ -26,8 +26,12 @@ export function span(days: number, now = new Date()) {
 }
 
 // Orders that sold: placed, not cancelled. Refused ones count as orders here, as on the dashboard,
-// except where money is summed.
-const SOLD = sql`status NOT IN ('cancelled', 'refused')`;
+// except where money is summed. A size exchange isn't a sale: it's an order already counted going
+// out again in another size. So it's left out of every count of orders, sales and customers here,
+// and only what it cost counts, in profit.
+const SOLD = sql`status NOT IN ('cancelled', 'refused') AND source != 'exchange'`;
+// The same, where orders is joined to another table.
+const SOLD_ORDER = sql`orders.status NOT IN ('cancelled', 'refused') AND orders.source != 'exchange'`;
 
 type Totals = { sales: number; orders: number; visitors: number; sessions: number; orderedSessions: number; returningOrders: number; customerOrders: number };
 
@@ -65,7 +69,7 @@ export async function overview(db: Db, days: number, now = new Date()) {
     db.all<{ title: string; units: number; sales: number }>(sql`
       SELECT order_lines.title AS title, SUM(order_lines.quantity) AS units, SUM(order_lines.quantity * order_lines.unit_price) AS sales
       FROM order_lines JOIN orders ON orders.id = order_lines.order_id
-      WHERE orders.created_at >= ${from} AND orders.created_at < ${to} AND orders.status NOT IN ('cancelled', 'refused')
+      WHERE orders.created_at >= ${from} AND orders.created_at < ${to} AND ${SOLD_ORDER}
       GROUP BY order_lines.title ORDER BY sales DESC, units DESC LIMIT 10`),
     db.all<{ city: string; visitors: number }>(sql`
       SELECT city, COUNT(DISTINCT visitor_id) AS visitors FROM events
@@ -174,7 +178,7 @@ export async function liveView(db: Db, now = new Date()) {
       SELECT COUNT(*) AS checkouts FROM checkouts WHERE order_id IS NULL AND updated_at >= ${halfHour}`),
     db.all<{ number: number; name: string; city: string | null; total: number; status: string; at: number }>(sql`
       SELECT number, name, city, total, status, created_at AS at FROM orders
-      WHERE created_at >= ${midnight} AND status != 'cancelled' ORDER BY created_at DESC`),
+      WHERE created_at >= ${midnight} AND status != 'cancelled' AND source != 'exchange' ORDER BY created_at DESC`),
   ]);
   const cityCounts = new Map<string, number>();
   for (const page of pages) if (page.city) cityCounts.set(page.city, (cityCounts.get(page.city) ?? 0) + 1);
@@ -232,7 +236,7 @@ const percent = (key: string, label: string): Column => ({ key, label, kind: "pe
 
 // Sales by product, collection, city, payment method and discount code.
 async function salesReports(db: Db, from: number, to: number): Promise<ReportTable[]> {
-  const where = sql`orders.created_at >= ${from} AND orders.created_at < ${to} AND orders.status NOT IN ('cancelled', 'refused')`;
+  const where = sql`orders.created_at >= ${from} AND orders.created_at < ${to} AND ${SOLD_ORDER}`;
   const [byProduct, byCollection, byCity, byPayment, byCode] = await Promise.all([
     db.all(sql`
       SELECT order_lines.title AS product, SUM(order_lines.quantity) AS units, COUNT(DISTINCT orders.id) AS orders,
@@ -286,22 +290,22 @@ async function customerReports(db: Db, from: number, to: number, now: Date): Pro
         COUNT(CASE WHEN earlier IS NOT NULL THEN 1 END) AS returningOrders, COALESCE(SUM(CASE WHEN earlier IS NOT NULL THEN total END), 0) AS returningSales
       FROM (SELECT orders.total AS total,
         (SELECT 1 FROM orders AS prior WHERE prior.customer_id = orders.customer_id AND prior.created_at < orders.created_at AND prior.status != 'cancelled' LIMIT 1) AS earlier
-        FROM orders WHERE orders.created_at >= ${from} AND orders.created_at < ${to} AND orders.status NOT IN ('cancelled', 'refused'))`),
+        FROM orders WHERE orders.created_at >= ${from} AND orders.created_at < ${to} AND ${SOLD_ORDER})`),
     db.all<{ buyers: number; repeaters: number }>(sql`
       SELECT COUNT(*) AS buyers, COUNT(CASE WHEN placed >= 2 THEN 1 END) AS repeaters
-      FROM (SELECT customer_id, COUNT(*) AS placed FROM orders WHERE customer_id IS NOT NULL AND status != 'cancelled' GROUP BY customer_id)`),
+      FROM (SELECT customer_id, COUNT(*) AS placed FROM orders WHERE customer_id IS NOT NULL AND status != 'cancelled' AND source != 'exchange' GROUP BY customer_id)`),
     db.all<{ days: number | null }>(sql`
       SELECT AVG((last_at - first_at) / 86400.0 / (placed - 1)) AS days
       FROM (SELECT MIN(created_at) AS first_at, MAX(created_at) AS last_at, COUNT(*) AS placed FROM orders
-        WHERE customer_id IS NOT NULL AND status != 'cancelled' GROUP BY customer_id HAVING placed >= 2)`),
+        WHERE customer_id IS NOT NULL AND status != 'cancelled' AND source != 'exchange' GROUP BY customer_id HAVING placed >= 2)`),
     db.all<{ lapsed: number }>(sql`
       SELECT COUNT(*) AS lapsed FROM (SELECT MAX(created_at) AS last_at FROM orders
-        WHERE customer_id IS NOT NULL AND status != 'cancelled' GROUP BY customer_id HAVING last_at < ${lapsedBefore})`),
+        WHERE customer_id IS NOT NULL AND status != 'cancelled' AND source != 'exchange' GROUP BY customer_id HAVING last_at < ${lapsedBefore})`),
     db.all(sql`
       SELECT month, COUNT(*) AS customers, COUNT(CASE WHEN placed >= 2 THEN 1 END) AS returned,
         ROUND(100.0 * COUNT(CASE WHEN placed >= 2 THEN 1 END) / COUNT(*), 1) AS rate
       FROM (SELECT strftime('%Y-%m', MIN(created_at), 'unixepoch', '+5 hours') AS month, COUNT(*) AS placed FROM orders
-        WHERE customer_id IS NOT NULL AND status != 'cancelled' GROUP BY customer_id)
+        WHERE customer_id IS NOT NULL AND status != 'cancelled' AND source != 'exchange' GROUP BY customer_id)
       GROUP BY month ORDER BY month DESC LIMIT 12`),
   ]);
   return [
@@ -356,7 +360,7 @@ async function behaviourReports(db: Db, from: number, to: number): Promise<Repor
       JOIN products ON products.handle = viewed.handle
       LEFT JOIN (SELECT variants.product_id AS product_id, SUM(order_lines.quantity) AS units FROM order_lines
         JOIN orders ON orders.id = order_lines.order_id JOIN variants ON variants.id = order_lines.variant_id
-        WHERE orders.created_at >= ${from} AND orders.created_at < ${to} AND orders.status NOT IN ('cancelled', 'refused')
+        WHERE orders.created_at >= ${from} AND orders.created_at < ${to} AND ${SOLD_ORDER}
         GROUP BY variants.product_id) AS sold ON sold.product_id = products.id
       ORDER BY viewed.views DESC LIMIT 20`),
   ]);
@@ -379,19 +383,20 @@ async function behaviourReports(db: Db, from: number, to: number): Promise<Repor
   ];
 }
 
-// Cancellations, refusals by city, days to deliver, and cash still with the courier.
+// Cancellations, refusals by city, days to deliver, and cash still with the courier. Exchanges are
+// left out of the counts (see SOLD) but not out of the cash: a charge the rider collected is owed.
 async function operationsReports(db: Db, from: number, to: number): Promise<ReportTable[]> {
   const [[rates], refusals, [cash]] = await Promise.all([
     db.all<{ placed: number; cancelled: number; shipped: number; refused: number; days: number | null }>(sql`
       SELECT COUNT(*) AS placed, COUNT(CASE WHEN status = 'cancelled' THEN 1 END) AS cancelled,
         COUNT(CASE WHEN shipped_at IS NOT NULL THEN 1 END) AS shipped, COUNT(CASE WHEN status = 'refused' THEN 1 END) AS refused,
         AVG(CASE WHEN delivered_at IS NOT NULL AND shipped_at IS NOT NULL THEN (delivered_at - shipped_at) / 86400.0 END) AS days
-      FROM orders WHERE created_at >= ${from} AND created_at < ${to}`),
+      FROM orders WHERE created_at >= ${from} AND created_at < ${to} AND source != 'exchange'`),
     db.all(sql`
       SELECT COALESCE(NULLIF(trim(city), ''), 'Not given') AS city, COUNT(CASE WHEN shipped_at IS NOT NULL THEN 1 END) AS shipped,
         COUNT(CASE WHEN status = 'refused' THEN 1 END) AS refused,
         ROUND(100.0 * COUNT(CASE WHEN status = 'refused' THEN 1 END) / MAX(COUNT(CASE WHEN shipped_at IS NOT NULL THEN 1 END), 1), 1) AS rate
-      FROM orders WHERE created_at >= ${from} AND created_at < ${to} GROUP BY lower(trim(city))
+      FROM orders WHERE created_at >= ${from} AND created_at < ${to} AND source != 'exchange' GROUP BY lower(trim(city))
       HAVING shipped > 0 ORDER BY refused DESC, shipped DESC`),
     db.all<{ amount: number; orders: number }>(sql`
       SELECT COALESCE(SUM(total - (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE payments.order_id = orders.id) - cod_tax), 0) AS amount,
@@ -421,7 +426,8 @@ async function operationsReports(db: Db, from: number, to: number): Promise<Repo
 }
 
 // Profit by the month orders were delivered (or came back refused): revenue, less what the jackets
-// cost, the courier's charges and the COD tax, as on each order's Profit card.
+// cost, the courier's charges and the COD tax, as on each order's Profit card. An exchange's money
+// counts, but it isn't another order (see SOLD).
 async function profitReports(db: Db, codTaxPercent: number): Promise<ReportTable[]> {
   const settled = await db.query.orders.findMany({
     where: (orders, { inArray }) => inArray(orders.status, ["delivered", "refused"]),
@@ -433,7 +439,7 @@ async function profitReports(db: Db, codTaxPercent: number): Promise<ReportTable
     const month = karachiDate(at).slice(0, 7);
     const result = orderProfit({ ...order, paid: order.payments.reduce((sum, payment) => sum + payment.amount, 0) }, codTaxPercent);
     const row = months.get(month) ?? { month, orders: 0, revenue: 0, cost: 0, courier: 0, tax: 0, profit: 0, missing: 0 };
-    row.orders += 1;
+    if (order.source !== "exchange") row.orders += 1;
     row.revenue += result.revenue;
     row.cost += result.cost;
     row.courier += result.courier;

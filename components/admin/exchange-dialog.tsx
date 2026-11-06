@@ -13,12 +13,20 @@ import { cn } from "@/lib/utils";
 
 type Line = { id: number; title: string; size: string | null; variantId: number; productId: number };
 
-// A size exchange on a delivered order: which jacket, the size it becomes, and the delivery charge
-// the customer pays. The new size goes out as its own order.
+// How the customer pays the delivery charge: by transfer before it ships, as exchanges usually are,
+// or in cash to the rider. Admin choice cards, as on a manual order.
+const METHODS = [
+  { value: "bank_transfer", label: "Bank transfer", note: "Paid before it ships" },
+  { value: "cod", label: "Cash on delivery", note: "Collected at the door" },
+] as const;
+
+// A size exchange on a delivered order: which jacket, the size it becomes, the delivery charge the
+// customer pays and how they pay it. The new size goes out as its own order.
 export function ExchangeDialog({ number, lines, catalog, charge }: { number: number; lines: Line[]; catalog: SellableProduct[]; charge: number }) {
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState<ActionState, FormData>(exchangeAction, null);
   const [lineId, setLineId] = useState(lines[0]?.id ?? 0);
+  const [method, setMethod] = useState<(typeof METHODS)[number]["value"]>("bank_transfer");
   const id = useId();
   const line = lines.find((candidate) => candidate.id === lineId) ?? lines[0];
   const available = (catalog.find((product) => product.productId === line?.productId)?.sizes ?? []).filter(
@@ -88,7 +96,33 @@ export function ExchangeDialog({ number, lines, catalog, charge }: { number: num
             </div>
             )}
             {available.length > 0 ? (
-              <p className="text-xs text-muted-foreground">What the customer pays, collected at the door. The exchange terms have them cover delivery both ways.</p>
+              <>
+                <div role="radiogroup" aria-label="How they pay" className="grid grid-cols-2 gap-2">
+                  {METHODS.map((option) => (
+                    <label
+                      key={option.value}
+                      className="flex cursor-pointer flex-col gap-0.5 rounded-xl border border-input px-3 py-2.5 text-sm has-checked:border-foreground has-checked:ring-1 has-checked:ring-foreground"
+                    >
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value={option.value}
+                        checked={method === option.value}
+                        onChange={() => setMethod(option.value)}
+                        className="sr-only"
+                      />
+                      <span className="font-medium">{option.label}</span>
+                      <span className="text-xs text-muted-foreground">{option.note}</span>
+                    </label>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {method === "bank_transfer"
+                    ? "The new order waits for the transfer: confirm it from Update status once it's in. With nothing to pay, it starts confirmed."
+                    : "The rider collects it at the door, and the courier pays it out with the rest."}{" "}
+                  The exchange terms have the customer cover delivery both ways.
+                </p>
+              </>
             ) : null}
             {state && "error" in state ? (
               <p role="alert" className="text-sm text-destructive">

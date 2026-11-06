@@ -8,6 +8,7 @@ import { catalogSeedStatements } from "@/scripts/lib/catalog-seed";
 import type { CheckoutValues } from "../checkout";
 import { createTestDb } from "../db/test-db";
 import { orders, variants } from "../db/schema";
+import { createExchange } from "./order-changes";
 import { placeOrder } from "../orders";
 import { dashboardSummary, needsAction, salesByDay } from "./dashboard";
 import { confirmOrder, markDelivered, markShipped, recordPayment, recordPayout } from "./orders";
@@ -73,6 +74,28 @@ describe("dashboard", () => {
     summary = await dashboardSummary(store.db, 7, NOW);
     expect(summary.cashWithCourier).toEqual({ amount: 0, orders: 0 });
     expect(summary.profit).toEqual({ amount: 8633, orders: 1, missingCost: 0, estimated: false });
+  });
+
+  test("an exchange is left out of sales and orders, and what it cost counts in profit", async () => {
+    await store.db.update(variants).set({ costPrice: 9000 }).where(eq(variants.id, Number(DARK_BROWN_S)));
+    const number = await place(1, DARK_BROWN_S, "bank_transfer");
+    await confirmOrder(store.db, number);
+    await markShipped(store.db, number, { trackingNumber: "PX1", courierFee: 0 });
+    await markDelivered(store.db, number);
+    const [line] = (await store.db.query.orders.findFirst({ where: eq(orders.number, number), with: { lines: true } }))!.lines;
+    const exchange = await createExchange(store.db, number, { lineId: line.id, variantId: Number(DARK_BROWN_M), charge: 0, paymentMethod: "bank_transfer" });
+    if (!exchange.ok) throw new Error(exchange.message);
+    await store.db.update(orders).set({ createdAt: new Date(NOW.getTime() - DAY) }).where(eq(orders.number, exchange.number));
+    await markShipped(store.db, exchange.number, { trackingNumber: "PX2", courierFee: 310 });
+    await markDelivered(store.db, exchange.number);
+
+    expect((await salesByDay(store.db, 7, NOW)).at(-2)).toEqual({ date: "2026-10-26", sales: 17999, orders: 1 });
+    const summary = await dashboardSummary(store.db, 7, NOW);
+    expect(summary.sales.current).toBe(17999);
+    expect(summary.orders.current).toBe(1);
+    expect(summary.averageOrder.current).toBe(17999);
+    // 17,999 less the jacket's 9,000, and the 310 it cost to send the new size. Every figure is in.
+    expect(summary.profit).toEqual({ amount: 8689, orders: 1, missingCost: 0, estimated: false });
   });
 
   test("an order whose cash was recorded by hand, as Shopify's were, isn't cash with the courier", async () => {

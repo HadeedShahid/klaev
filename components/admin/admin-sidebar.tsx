@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgePercent, BarChart3, ExternalLink, FileText, Home, Inbox, LogOut, Package, Settings, ShoppingBag, Users, type LucideIcon } from "lucide-react";
+import { BadgePercent, BarChart3, ExternalLink, FileText, Home, Inbox, LogOut, Package, Settings, ShoppingBag, Star, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFormStatus } from "react-dom";
@@ -50,6 +50,7 @@ const NAV: Section[] = [
   },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/messages", label: "Messages", icon: Inbox },
+  { href: "/admin/reviews", label: "Reviews", icon: Star },
   { href: "/admin/discounts", label: "Discounts", icon: BadgePercent },
   {
     href: "/admin/content/journal",
@@ -89,7 +90,7 @@ function SignOutButton() {
   );
 }
 
-export function AdminSidebar({ waiting, messages }: { waiting: number; messages: number }) {
+export function AdminSidebar({ waiting, messages, reviews }: { waiting: number; messages: number; reviews: number }) {
   const pathname = usePathname();
   // On a phone the menu is a panel over the page: a tapped link closes it straight away, the page
   // you're already on included, rather than leaving it covering the page that's loading.
@@ -128,6 +129,11 @@ export function AdminSidebar({ waiting, messages }: { waiting: number; messages:
                     {section.href === "/admin/messages" && messages > 0 ? (
                       <SidebarMenuBadge className="tabular-nums" aria-label={`${messages} waiting`}>
                         {messages}
+                      </SidebarMenuBadge>
+                    ) : null}
+                    {section.href === "/admin/reviews" && reviews > 0 ? (
+                      <SidebarMenuBadge className="tabular-nums" aria-label={`${reviews} to approve`}>
+                        {reviews}
                       </SidebarMenuBadge>
                     ) : null}
                     {section.sub && inSection ? (

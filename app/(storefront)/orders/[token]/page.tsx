@@ -1,5 +1,6 @@
-import { CircleCheck } from "lucide-react";
+import { ChevronRight, CircleCheck } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
@@ -12,6 +13,7 @@ import { getDb } from "@/lib/db";
 import { formatPKR } from "@/lib/money";
 import { getOrderByToken } from "@/lib/orders";
 import { statusLine } from "@/lib/order-status";
+import { awaitsReview, reviewableOrder } from "@/lib/reviews";
 import { formatPhone } from "@/lib/phone";
 import { getBankAccount, type BankAccount } from "@/lib/settings";
 import { STORE, whatsappLink } from "@/lib/store";
@@ -24,7 +26,7 @@ export default async function OrderPage({ params }: PageProps<"/orders/[token]">
   await connection();
   const { token } = await params;
   const db = await getDb();
-  const [order, bank] = await Promise.all([getOrderByToken(db, token), getBankAccount()]);
+  const [order, bank, reviewable] = await Promise.all([getOrderByToken(db, token), getBankAccount(), reviewableOrder(db, token)]);
   if (!order) notFound();
 
   const cod = order.paymentMethod === "cod";
@@ -85,6 +87,16 @@ export default async function OrderPage({ params }: PageProps<"/orders/[token]">
           </div>
         )}
       </div>
+
+      {reviewable && awaitsReview(reviewable) ? (
+        <Link href={`/orders/${token}/review`} className="-mt-4 flex min-h-16 items-center justify-between gap-4 rounded-2xl bg-muted px-4 py-3 transition-colors hover:bg-accent">
+          <span className="flex flex-col">
+            <span className="font-medium">How is it?</span>
+            <span className="text-sm text-muted-foreground">Write a review for other buyers. It takes a minute.</span>
+          </span>
+          <ChevronRight className="size-5 shrink-0" strokeWidth={1.8} aria-hidden />
+        </Link>
+      ) : null}
 
       {waiting && !received ? payment : null}
 

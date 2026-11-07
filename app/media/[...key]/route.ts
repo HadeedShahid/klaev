@@ -7,7 +7,7 @@ import { MEDIA_URL } from "@/lib/media";
 // store links photos to the bucket directly and never comes through this route.
 export async function GET(_: Request, { params }: RouteContext<"/media/[...key]">) {
   const key = (await params).key.join("/");
-  if (process.env.NODE_ENV === "development" && /^(products|journal)\/[\w./-]+\.webp$/.test(key)) {
+  if (process.env.NODE_ENV === "development" && /^(products|journal|reviews)\/[\w./-]+\.webp$/.test(key)) {
     const { env } = await getCloudflareContext({ async: true });
     const file = await env.MEDIA.get(key);
     if (file) return new Response(file.body, { headers: { "Content-Type": "image/webp", "Cache-Control": "no-store" } });

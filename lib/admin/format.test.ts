@@ -65,4 +65,14 @@ describe("admin formatting", () => {
     expect(shipped).not.toMatch(/postex/i);
     expect(customerMessage({ ...order, status: "pending" })).toBe("Assalam o Alaikum Ayesha, this is Klaev about your order #1024.");
   });
+
+  test("once delivered, it asks for a review through the order's link", () => {
+    const link = "https://klaev.com/orders/abc/review";
+    const jacket = { ...order, status: "delivered", lines: [{ title: "Black Cropped Leather Jacket", size: "M", quantity: 1 }] };
+    expect(customerMessage(jacket, link)).toBe(
+      "Assalam o Alaikum Ayesha, hope the jacket is fitting well. If you have a minute, tell other buyers how it is: https://klaev.com/orders/abc/review",
+    );
+    expect(customerMessage({ ...jacket, lines: [{ title: "Black Stitched Leather Belt", size: null, quantity: 1 }] }, link)).toContain("hope the belt is fitting well");
+    expect(customerMessage(jacket)).toBe("Assalam o Alaikum Ayesha, this is Klaev about your order #1024.");
+  });
 });

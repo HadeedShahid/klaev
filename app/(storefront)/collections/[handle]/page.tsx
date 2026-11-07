@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { ProductCard } from "@/components/product/product-card";
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
 import { emptyCollectionRedirect, getCollection, getCollections } from "@/lib/catalog";
+import { getRatings } from "@/lib/reviews";
 import { collectionSeo, sharedImage, SITE_OPEN_GRAPH } from "@/lib/seo";
 
 // Listed at build and rendered on first visit, like the product pages. A collection added in the
@@ -40,6 +41,7 @@ export default async function CollectionPage({ params }: PageProps<"/collections
     if (elsewhere) redirect(elsewhere);
     notFound();
   }
+  const ratings = await getRatings(collection.items);
 
   const trail = [
     { name: "Home", href: "/" },
@@ -66,6 +68,7 @@ export default async function CollectionPage({ params }: PageProps<"/collections
                 sizes="(min-width: 768px) 25vw, 50vw"
                 loading={index < 2 ? "eager" : undefined}
                 fetchPriority={index === 0 ? "high" : undefined}
+                rating={ratings[product.handle]}
               />
             </li>
           ))}

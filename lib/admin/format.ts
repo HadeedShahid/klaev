@@ -77,8 +77,9 @@ export function parcelText(order: ParcelOrder) {
   ].join("\n");
 }
 
-// The WhatsApp message for the order's stage. Customers never see the courier's name.
-export function customerMessage(order: ParcelOrder & { status: string; trackingNumber: string | null }) {
+// The WhatsApp message for the order's stage. Customers never see the courier's name. A delivered
+// order with nothing reviewed yet gets the link to its review page instead.
+export function customerMessage(order: ParcelOrder & { status: string; trackingNumber: string | null }, reviewLink?: string) {
   const greeting = `Assalam o Alaikum ${order.name.split(/\s+/)[0]}`;
   if (order.status === "confirmed" || order.status === "packed") {
     return `${greeting}, your Klaev order #${order.number} is confirmed. We'll send you the tracking number as soon as it ships.`;
@@ -88,6 +89,10 @@ export function customerMessage(order: ParcelOrder & { status: string; trackingN
     const tracking = order.trackingNumber ? ` Tracking number: ${order.trackingNumber}.` : "";
     const ready = cash > 0 ? ` Please keep ${formatPKR(cash)} ready for the rider.` : "";
     return `${greeting}, your Klaev order #${order.number} is on its way.${tracking}${ready}`;
+  }
+  if (order.status === "delivered" && reviewLink) {
+    const thing = order.lines.length > 1 ? "order" : /belt/i.test(order.lines[0]?.title ?? "") ? "belt" : "jacket";
+    return `${greeting}, hope the ${thing} is fitting well. If you have a minute, tell other buyers how it is: ${reviewLink}`;
   }
   return `${greeting}, this is Klaev about your order #${order.number}.`;
 }

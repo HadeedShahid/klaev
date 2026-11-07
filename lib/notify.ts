@@ -7,7 +7,7 @@ import { after } from "next/server";
 import { getAdminOrder } from "./admin/orders";
 import { getDb } from "./db";
 import { sendEmail, siteOrigin } from "./email";
-import { messageAlert, newOrderAlert, receiptAlert } from "./emails/alerts";
+import { messageAlert, newOrderAlert, receiptAlert, reviewAlert } from "./emails/alerts";
 import { orderReceivedEmail, orderShippedEmail } from "./emails/customer";
 import { SUBJECT_LABELS, type SavedMessage } from "./messages";
 import { getOrderByToken } from "./orders";
@@ -55,5 +55,12 @@ export async function notifyMessage(message: SavedMessage) {
   after(async () => {
     const label = SUBJECT_LABELS[message.subject];
     await sendEmail(mailer, { to: STORE.email, replyTo: message.email ?? undefined, ...messageAlert({ ...message, subject: label }, site) });
+  });
+}
+
+export async function notifyReview(review: Parameters<typeof reviewAlert>[0]) {
+  const { mailer, site } = await sending();
+  after(async () => {
+    await sendEmail(mailer, { to: STORE.email, ...reviewAlert(review, site) });
   });
 }

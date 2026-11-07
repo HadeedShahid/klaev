@@ -91,7 +91,24 @@ const RETURN_POLICY = {
 
 // Shopify's shape: the jacket as a group, and each size its own product with its own offer, so
 // search sees which sizes are in stock. Only the cropped jackets named a material there.
-export function productData(product: Product) {
+type RatedReview = { rating: number; body: string | null; name: string };
+
+// A product's own reviews, as search wants them: the average and count, and the reviews themselves.
+function ratingData(reviews: RatedReview[]) {
+  if (reviews.length === 0) return {};
+  const average = Math.round((reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length) * 10) / 10;
+  return {
+    aggregateRating: { "@type": "AggregateRating", ratingValue: average, reviewCount: reviews.length, bestRating: 5, worstRating: 1 },
+    review: reviews.slice(0, 10).map((review) => ({
+      "@type": "Review",
+      reviewRating: { "@type": "Rating", ratingValue: review.rating, bestRating: 5, worstRating: 1 },
+      author: { "@type": "Person", name: review.name },
+      ...(review.body ? { reviewBody: review.body } : {}),
+    })),
+  };
+}
+
+export function productData(product: Product, reviews: RatedReview[] = []) {
   const url = `${SITE}/products/${product.handle}`;
   const description = product.intro.length > 0 ? product.intro.join("\n\n") : (product.tagline ?? product.seoDescription ?? undefined);
   const image = product.images.map((photo) => photo.src);
@@ -111,6 +128,7 @@ export function productData(product: Product) {
     color,
     audience: { "@type": "PeopleAudience", suggestedGender: "male" },
     productGroupID: product.handle,
+    ...ratingData(reviews),
     variesBy: ["https://schema.org/size"],
     hasVariant: product.variants.map((variant) => {
       const variantUrl = `${url}?variant=${variant.id}`;

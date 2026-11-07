@@ -254,7 +254,7 @@ Shopify's Facebook & Instagram app is connected today, and it stops when Shopify
 
 ## Emails
 
-Built on 1 November 2026: Order received, Shipped, New order, Receipt uploaded and New message. The rest of these tables comes later. They send once klaev.com is onboarded under Email Sending in Cloudflare, which needs Workers Paid and the domain on Cloudflare's nameservers; until then a send fails and is logged, and the order, receipt or message it reports on stands.
+Built on 1 November 2026: Order received, Shipped, New order, Receipt uploaded and New message. On 3 November 2026: How is it fitting? and New review. The rest of these tables comes later. They send: klaev.com is on Cloudflare's nameservers and onboarded under Email Sending (checked 6 November 2026). A send that fails is logged, and the order, receipt or message it reports on stands.
 
 To customers:
 
@@ -268,7 +268,7 @@ To customers:
 | Cancelled | Order cancelled |
 | Exchange started | You start a size exchange. Explains how to send the piece back and the delivery fee |
 | Finish your order | One hour after an abandoned checkout that has an email, sent once |
-| How is it fitting? | Seven days after delivery, asking for a review |
+| How is it fitting? | Seven days after delivery, once, asking for a review through the order's link. Sent by the Worker's daily schedule at 11:00 Pakistan time, to delivered orders with an email and no review, within 30 days of delivery |
 
 To you:
 
@@ -277,6 +277,7 @@ To you:
 | New order | Every order |
 | Receipt uploaded | A customer uploads a bank transfer receipt |
 | New message | Someone sends the contact form. Replying answers them, if they left an email |
+| New review | A buyer writes a review through their order's link. It waits under Reviews until published |
 | Low stock | A variant drops below its threshold |
 | Daily summary | Every morning: yesterday's sales, orders, visitors and open to-dos |
 
@@ -300,7 +301,6 @@ Many customers in Pakistan don't read email, so confirming by WhatsApp is a one-
 - The jacket designer canvas.
 - Customer accounts (the order tracking page covers v1).
 - Gift cards, multiple currencies or languages.
-- A reviews widget, until there are real reviews.
 - Automated WhatsApp or SMS (one-tap manual messages first).
 - A PostEx integration. Book parcels in the PostEx portal and enter the tracking number on the order. The customer's tracking page shows the statuses you set.
 - Staff accounts.

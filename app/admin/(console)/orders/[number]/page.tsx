@@ -2,6 +2,7 @@ import { ChevronLeft, FileText, MessageCircle, Printer, TriangleAlert } from "lu
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
@@ -33,7 +34,9 @@ import { getAdminOrder, orderProfit, paymentState, type AdminOrder } from "@/lib
 import { returnAction } from "@/app/actions/admin-orders";
 import { getDb } from "@/lib/db";
 import type { ReceiptKind } from "@/lib/db/schema";
+import { siteOrigin } from "@/lib/email";
 import { formatPKR } from "@/lib/money";
+import { awaitsReview, reviewableOrderByNumber } from "@/lib/reviews";
 import { getCodTerms } from "@/lib/settings";
 import { adminField, quietPill } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -82,12 +85,17 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
   if (!order) notFound();
   const editable = ITEMS_EDITABLE.some((status) => status === order.status);
   const exchangeable = order.status === "delivered" && order.lines.some((line) => line.variantId !== null && line.productId !== null);
-  const [history, links, catalog, terms] = await Promise.all([
+  const [history, links, catalog, terms, reviewable, request] = await Promise.all([
     customerHistory(db, order),
     exchangeLinks(db, order),
     editable || exchangeable ? listSellable(db) : Promise.resolve([]),
     getCodTerms(db),
+    reviewableOrderByNumber(db, order.number),
+    headers(),
   ]);
+  // Delivered with nothing reviewed: the WhatsApp message asks for a review, and one sent there can be typed in.
+  const askForReview = reviewable !== null && awaitsReview(reviewable);
+  const reviewLink = askForReview && order.token ? `${siteOrigin(request.get("host"))}/orders/${order.token}/review` : undefined;
 
   const cod = order.paymentMethod === "cod";
   const expected = cod ? order.advance : order.paymentMethod === "bank_transfer" ? order.total : 0;
@@ -399,7 +407,21 @@ export default async function OrderPage({ params }: PageProps<"/admin/orders/[nu
                     <p className="text-muted-foreground">
                       {[order.address1, order.city].filter(Boolean).join(", ")}
                     </p>
-                    {order.phone ? (
+                    {/* A delivered order with nothing reviewed asks for a review; any other order keeps the
+                        plain WhatsApp button, exactly as before reviews. */}
+                    {askForReview ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {order.phone ? (
+                          <a href={whatsappTo(order.phone, customerMessage(order, reviewLink))} target="_blank" rel="noreferrer" className={quietPill}>
+                            <MessageCircle className="size-4" strokeWidth={1.8} aria-hidden />
+                            {reviewLink ? `Ask ${firstName} for a review` : `WhatsApp ${firstName}`}
+                          </a>
+                        ) : null}
+                        <Link href={`/admin/reviews/new?order=${order.number}`} className={quietPill}>
+                          Add their review
+                        </Link>
+                      </div>
+                    ) : order.phone ? (
                       <a href={whatsappTo(order.phone, customerMessage(order))} target="_blank" rel="noreferrer" className={cn(quietPill, "mt-3 self-start")}>
                         <MessageCircle className="size-4" strokeWidth={1.8} aria-hidden />
                         WhatsApp {firstName}

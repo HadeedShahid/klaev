@@ -22,3 +22,7 @@ FIRST VIEWPORT: 390 by 844. Slim top bar. Headline "Cropped leather jackets." an
 FORM: The Story Scroll, third on the ranked list of seven, dealt as the lead. Seed key db4c7dfb. Steer from the user: the three cropped colours as tappable cards right under the hero, before the story. Signature moment: tapping a colour card morphs its photo into the product page.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+
+## Reviews extension (3 November 2026)
+
+A chapter added to the story, between "Real leather, up close." and "Sized by chest.", once three reviews have words. Approved by the user from `.impeccable/mocks/reviews/board.png`, frame 4: "In their words." with one buyer's words set like a headline, then the other reviews. Frame 3, a rating line under the hero price, was dropped by the user: "I think the hero section one, you can remove that." DESIGN.md: Reviews Chapter (landing). Later the same day the user asked for a way down to it from the top, on an existing line rather than a new one ("maybe not increasing the width vertically, maybe we can concatenate it horizontally with some other text"): the rating now shares the hero's price line as a link that glides to the chapter.

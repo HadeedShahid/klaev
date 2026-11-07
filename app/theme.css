@@ -139,43 +139,53 @@
       transition: none;
     }
   }
-  /* The cart drawer slides in from the right over a dimmed page. */
-  .cart-drawer {
+  /* The cart drawer, and the product page's sheet of every review, slide in from the right over a
+     dimmed page. */
+  .cart-drawer,
+  .reviews-sheet {
     translate: 100% 0;
     transition:
       translate 320ms cubic-bezier(0.32, 0.72, 0, 1),
       display 320ms allow-discrete,
       overlay 320ms allow-discrete;
   }
-  .cart-drawer[open] {
+  .cart-drawer[open],
+  .reviews-sheet[open] {
     translate: 0 0;
   }
   @starting-style {
-    .cart-drawer[open] {
+    .cart-drawer[open],
+    .reviews-sheet[open] {
       translate: 100% 0;
     }
   }
-  .cart-drawer::backdrop {
+  .cart-drawer::backdrop,
+  .reviews-sheet::backdrop {
     background-color: oklch(0.218 0.004 286 / 0);
     transition:
       background-color 320ms ease,
       display 320ms allow-discrete,
       overlay 320ms allow-discrete;
   }
-  .cart-drawer[open]::backdrop {
+  .cart-drawer[open]::backdrop,
+  .reviews-sheet[open]::backdrop {
     background-color: oklch(0.218 0.004 286 / 0.3);
   }
   @starting-style {
-    .cart-drawer[open]::backdrop {
+    .cart-drawer[open]::backdrop,
+    .reviews-sheet[open]::backdrop {
       background-color: oklch(0.218 0.004 286 / 0);
     }
   }
-  html:has(.cart-drawer[open]) {
+  html:has(.cart-drawer[open]),
+  html:has(.reviews-sheet[open]) {
     overflow: hidden;
   }
   @media (prefers-reduced-motion: reduce) {
     .cart-drawer,
-    .cart-drawer::backdrop {
+    .cart-drawer::backdrop,
+    .reviews-sheet,
+    .reviews-sheet::backdrop {
       transition: none;
     }
   }

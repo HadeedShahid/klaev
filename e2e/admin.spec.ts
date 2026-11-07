@@ -39,7 +39,8 @@ async function step(page: Page, name: RegExp | string) {
 // database too (CI's), not only on a local one with orders left from earlier runs. It sells black
 // cropped XL, which only the "confirmed without its advance" test also sells, and which nothing
 // checks the stock of; every sale restocks the one it sells, so the size never runs short.
-async function createOrder(page: Page, phone: string) {
+// With `paid`, it's a sale in person, handed over there and then and paid that way.
+async function createOrder(page: Page, phone: string, paid?: "Cash" | "Bank transfer") {
   const title = "Black Cropped Sheepskin Leather Jacket";
   await page.goto("/admin/inventory");
   const row = page.getByRole("row").filter({ hasText: title }).filter({ has: page.getByRole("cell", { name: "XL", exact: true }) });
@@ -57,6 +58,11 @@ async function createOrder(page: Page, phone: string) {
   await page.getByLabel("Mobile number").fill(phone);
   await page.getByLabel("City").fill("Multan");
   await page.getByLabel("Address").fill("House 7, Street 4");
+  if (paid) {
+    await page.getByRole("radio", { name: /^In person/ }).check();
+    await page.getByRole("radiogroup", { name: "Paid by" }).getByRole("radio", { name: paid }).check();
+    await page.getByLabel("Paid, and handed over").check();
+  }
   await page.getByRole("button", { name: "Create order" }).click();
   await expect(page).toHaveURL(/\/admin\/orders\/\d+$/);
 }
@@ -162,6 +168,24 @@ test.describe("admin", () => {
     await fresh.waitForURL(order);
     await fresh.getByRole("main").getByRole("link", { name: "Orders", exact: true }).click();
     await expect(fresh).toHaveURL(/\/admin\/orders$/);
+  });
+
+  test("a jacket picked up in person and paid by bank transfer is recorded as a transfer and delivered at once", async ({ page }, testInfo) => {
+    await signIn(page);
+    await expect(async () => {
+      await page.goto("/admin/orders/new");
+      await page.getByRole("radio", { name: /^In person/ }).check();
+      // Cash unless chosen otherwise.
+      await expect(page.getByRole("radiogroup", { name: "Paid by" }).getByRole("radio", { name: "Cash" })).toBeChecked();
+    }).toPass();
+
+    await createOrder(page, testInfo.project.name === "iphone" ? "0321 5550601" : "0321 5550602", "Bank transfer");
+    const number = page.url().match(/(\d+)$/)![1];
+    await expect(page.locator("header").filter({ hasText: `#${number}` }).getByText("Delivered", { exact: true })).toBeVisible();
+    // Handed over, so there's nothing to ship.
+    await expect(page.getByRole("button", { name: /^Mark shipped/ })).toHaveCount(0);
+    await page.getByRole("tab", { name: "Payments" }).click();
+    await expect(page.getByRole("tabpanel").getByRole("listitem").filter({ hasText: "PKR 17,999" })).toContainText("Bank transfer, picked up in person");
   });
 
   test("a message from the contact form waits in Messages until it's handled", async ({ page }, testInfo) => {

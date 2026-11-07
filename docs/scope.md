@@ -146,7 +146,7 @@ A toned-down Shopify admin, laid out the way Shopify's is so it feels familiar: 
   - **Packing slip and invoice** to print or save as PDF.
   - **Box label** from the parcel details, to print or save as PDF and tape on the box: name, phone, address, city, the order number and the cash to collect, or "Non-COD (Prepaid)" (also what Copy all pastes when there's nothing to collect).
   - The customer's other orders, and a warning if they refused a delivery before.
-- **Manual orders (built):** sales from WhatsApp, Instagram or in person, entered by hand at the agreed price with any discount and delivery fee. Cash on delivery with its advance, bank transfer, or in person. Money already in confirms it; paid in person is delivered on the spot. Stock is taken, and the customer is matched by phone.
+- **Manual orders (built):** sales from WhatsApp, Instagram or in person, entered by hand at the agreed price with any discount and delivery fee. Cash on delivery with its advance, bank transfer, or in person. Money already in confirms it; paid in person is delivered on the spot, the money recorded as cash or, for a jacket paid by transfer and picked up from the office, as a bank transfer. Stock is taken, and the customer is matched by phone.
 - **Abandoned checkouts (built):** saved once the phone number is typed at checkout, and listed when no order followed within 10 minutes, with the cart and a one-tap WhatsApp follow-up that's noted as sent. An order from the same phone later takes it off the list. Kept for 30 days.
 
 ### Products

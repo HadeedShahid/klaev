@@ -23,6 +23,18 @@ const METHODS: { value: Method; label: string; note: string }[] = [
   { value: "in_person", label: "In person", note: "Paid and handed over" },
 ];
 
+// In person, the money comes in cash at the counter or by a transfer before they pick it up.
+const PAID_BY = [
+  { value: "cash", label: "Cash" },
+  { value: "bank_transfer", label: "Bank transfer" },
+] as const;
+
+// A choice card: the radio lies invisible over the whole card, as the checkout's do, so a tap
+// anywhere picks it and keyboard focus rings the card.
+const choiceCard =
+  "relative flex min-h-11 cursor-pointer flex-col justify-center gap-0.5 rounded-xl border border-input px-3 py-2.5 text-sm has-checked:border-foreground has-checked:ring-1 has-checked:ring-foreground has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring";
+const choiceInput = "absolute inset-0 cursor-pointer appearance-none rounded-xl opacity-0";
+
 const amount = (value: string) => Number(value.replace(/[,\s]/g, "")) || 0;
 
 // An order taken on WhatsApp, Instagram or in person: the items at the price agreed, the customer,
@@ -32,6 +44,7 @@ export function ManualOrderForm({ catalog, codDeliveryFee, codAdvance }: { catal
   const [lines, setLines] = useState<Line[]>([]);
   const [adding, setAdding] = useState("");
   const [method, setMethod] = useState<Method>("cod");
+  const [paidBy, setPaidBy] = useState<(typeof PAID_BY)[number]["value"]>("cash");
   const [discount, setDiscount] = useState("");
   const [delivery, setDelivery] = useState(String(codDeliveryFee));
   // The advance follows the usual one, never more than the total, until it's typed over.
@@ -141,16 +154,28 @@ export function ManualOrderForm({ catalog, codDeliveryFee, codAdvance }: { catal
           <CardContent className="flex flex-col gap-4">
             <div role="radiogroup" aria-label="How they pay" className="grid gap-2 sm:grid-cols-3">
               {METHODS.map((option) => (
-                <label
-                  key={option.value}
-                  className="flex cursor-pointer flex-col gap-0.5 rounded-xl border border-input px-3 py-2.5 text-sm has-checked:border-foreground has-checked:ring-1 has-checked:ring-foreground"
-                >
-                  <input type="radio" name="method-choice" value={option.value} checked={method === option.value} onChange={() => choose(option.value)} className="sr-only" />
+                <label key={option.value} className={choiceCard}>
+                  <input type="radio" name="method-choice" value={option.value} checked={method === option.value} onChange={() => choose(option.value)} className={choiceInput} />
                   <span className="font-medium">{option.label}</span>
                   <span className="text-xs text-muted-foreground">{option.note}</span>
                 </label>
               ))}
             </div>
+            {method === "in_person" ? (
+              <div className="flex flex-col gap-2">
+                <p id={`${id}-paid-by`} className="text-sm font-medium">
+                  Paid by
+                </p>
+                <div role="radiogroup" aria-labelledby={`${id}-paid-by`} className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {PAID_BY.map((option) => (
+                    <label key={option.value} className={choiceCard}>
+                      <input type="radio" name="paidBy" value={option.value} checked={paidBy === option.value} onChange={() => setPaidBy(option.value)} className={choiceInput} />
+                      <span className="font-medium">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <Field id={`${id}-discount`} name="discount" label="Discount, PKR" inputMode="numeric" value={discount} onChange={(event) => setDiscount(event.target.value)} placeholder="0" />
               <Field id={`${id}-delivery`} name="deliveryFee" label="Delivery, PKR" inputMode="numeric" value={delivery} onChange={(event) => setDelivery(event.target.value)} />
@@ -198,7 +223,9 @@ export function ManualOrderForm({ catalog, codDeliveryFee, codAdvance }: { catal
                   {method === "cod" ? "The advance is in" : method === "bank_transfer" ? "The transfer is in" : "Paid, and handed over"}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {method === "in_person" ? "Records the cash and marks it delivered." : "Records the payment and confirms the order. Leave it for later otherwise."}
+                  {method === "in_person"
+                    ? `Records the ${paidBy === "cash" ? "cash" : "transfer"} and marks it delivered.`
+                    : "Records the payment and confirms the order. Leave it for later otherwise."}
                 </span>
               </span>
             </label>

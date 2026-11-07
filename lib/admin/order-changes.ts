@@ -239,6 +239,8 @@ export type ManualOrderInput = {
   advance: number;
   // Whether the money to confirm it is in: the advance, the transfer, or the cash in hand.
   received: boolean;
+  // In person: how they paid, in cash (the default) or by bank transfer before picking it up.
+  paidBy?: string;
   note: string;
 };
 
@@ -283,6 +285,7 @@ export async function createManualOrder(db: Db, input: ManualOrderInput): Promis
   const now = new Date();
   const confirmed = input.received || due === 0;
   const handedOver = method === "in_person" && input.received;
+  const transferred = method !== "in_person" || input.paidBy === "bank_transfer";
   const buyer = await customerFor(db, { name, phone, email, city: input.city.trim() || null, address1: input.address.trim() || null });
   const statements: Batch = [
     buyer.statement,
@@ -324,9 +327,9 @@ export async function createManualOrder(db: Db, input: ManualOrderInput): Promis
       ? [
           db.insert(payments).values({
             orderId,
-            method: method === "in_person" ? "cash" : "bank_transfer",
+            method: transferred ? "bank_transfer" : "cash",
             amount: due,
-            note: cod ? "Advance" : method === "in_person" ? "Paid in person" : "Bank transfer",
+            note: cod ? "Advance" : method !== "in_person" ? "Bank transfer" : transferred ? "Picked up in person" : "Paid in person",
             receivedAt: now,
           }),
         ]

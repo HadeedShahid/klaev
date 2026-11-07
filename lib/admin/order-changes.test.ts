@@ -207,7 +207,7 @@ describe("manual orders", () => {
     if (!inPerson.ok) throw new Error(inPerson.message);
     const handed = (await store.db.query.orders.findFirst({ where: eq(orders.number, inPerson.number), with: { payments: true } }))!;
     expect(handed).toMatchObject({ status: "delivered", total: 14999, advance: 0 });
-    expect(handed.payments.map((payment) => [payment.method, payment.amount])).toEqual([["cash", 14999]]);
+    expect(handed.payments.map((payment) => [payment.method, payment.amount, payment.note])).toEqual([["cash", 14999, "Paid in person"]]);
 
     const waiting = await createManualOrder(store.db, { ...input, paymentMethod: "bank_transfer", received: false });
     if (!waiting.ok) throw new Error(waiting.message);
@@ -221,5 +221,13 @@ describe("manual orders", () => {
     expect(await createManualOrder(store.db, { ...input, items: [{ variantId: BROWN.XL, quantity: 1, unitPrice: 17999 }] })).toMatchObject({ ok: false });
     expect(await createManualOrder(store.db, { ...input, phone: "12" })).toMatchObject({ ok: false });
     expect(await createManualOrder(store.db, { ...input, discount: 99999 })).toMatchObject({ ok: false });
+  });
+
+  test("a jacket picked up in person can be paid by bank transfer, and is still handed over at once", async () => {
+    const pickup = await createManualOrder(store.db, { ...input, paymentMethod: "in_person", paidBy: "bank_transfer", discount: 0 });
+    if (!pickup.ok) throw new Error(pickup.message);
+    const row = (await store.db.query.orders.findFirst({ where: eq(orders.number, pickup.number), with: { payments: true } }))!;
+    expect(row).toMatchObject({ status: "delivered", paymentMethod: "in_person", total: 16500, advance: 0 });
+    expect(row.payments.map((payment) => [payment.method, payment.amount, payment.note])).toEqual([["bank_transfer", 16500, "Picked up in person"]]);
   });
 });

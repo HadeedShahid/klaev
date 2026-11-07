@@ -77,6 +77,7 @@ export async function manualOrderAction(_: ActionState, form: FormData): Promise
     paymentMethod: text(form, "paymentMethod"),
     advance: rupees(text(form, "advance"), 0),
     received: form.get("received") === "on",
+    paidBy: text(form, "paidBy"),
     note: text(form, "note"),
   });
   if (!result.ok) return { error: result.message };

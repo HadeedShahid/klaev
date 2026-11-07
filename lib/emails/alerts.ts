@@ -96,3 +96,22 @@ export function messageAlert(message: { name: string; email: string | null; phon
     text: [`Message from ${name}`, message.subject, "", message.body, "", ...facts.map(({ term, value }) => `${term}: ${value}`), "", `Open Messages: ${link}`].join("\n"),
   };
 }
+
+// A review written through an order's link, waiting in the admin to be published.
+export function reviewAlert(review: { name: string; rating: number; body: string | null; title: string; orderNumber: number }, site: string): EmailContent {
+  const name = oneLine(review.name);
+  const stars = `${review.rating} of 5 stars`;
+  const subject = `Review from ${name}: ${stars}`;
+  const about = `${stars} for the ${review.title}, order #${review.orderNumber}.`;
+  const link = `${site}/admin/reviews`;
+  return {
+    subject,
+    html: page({
+      subject,
+      preview: review.body ? oneLine(review.body).slice(0, 120) : about,
+      signOff: false,
+      body: title(`Review from ${name}`) + lead(about, "It shows on the store once you publish it.") + (review.body ? quoted(review.body) : "") + pill("Open Reviews", link),
+    }),
+    text: [`Review from ${name}`, about, "It shows on the store once you publish it.", "", ...(review.body ? [review.body, ""] : []), `Open Reviews: ${link}`].join("\n"),
+  };
+}

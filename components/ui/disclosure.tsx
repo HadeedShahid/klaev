@@ -8,7 +8,7 @@ const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 
 // A native <details> whose panel slides open and closed. It stays a real <details>, so it works
 // before hydration and without JavaScript; with reduced motion it opens instantly. Put the
-// `disclosure-chevron` class on the summary's chevron and it turns with the panel (globals.css).
+// `disclosure-chevron` class on the summary's chevron and it turns with the panel (app/theme.css).
 export function Disclosure({
   summary,
   children,

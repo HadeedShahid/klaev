@@ -3,7 +3,9 @@ import Link from "next/link";
 import { ViewTransition } from "react";
 
 import type { Product } from "@/lib/catalog";
+import { Star } from "@/components/product/stars";
 import { isRestocking } from "@/lib/restock";
+import { formatRating } from "@/lib/review-rules";
 
 const COUNT_WORDS = ["", "One", "Two", "Three", "Four", "Five", "Six"];
 
@@ -20,7 +22,8 @@ function stockLines(product: Product) {
 // See the colours (ScrollLink) lands on the heading itself: the page's scroll padding already clears
 // the header, and the negative scroll margin cancels the section's top padding, so the cards and
 // their names fit a laptop screen below it. tabIndex lets the link hand focus to the section.
-export function ColourCards({ products }: { products: Product[] }) {
+// `rating` is the line's, shared by every colour (same cut, same leather); none until it has reviews.
+export function ColourCards({ products, rating = null }: { products: Product[]; rating?: { average: number; count: number } | null }) {
   return (
     <section
       id="colours"
@@ -54,11 +57,33 @@ export function ColourCards({ products }: { products: Product[] }) {
                   </ViewTransition>
                 ) : null}
                 <span className="sr-only">{product.title}</span>
-                <span className="flex flex-col px-0.5">
-                  <span className="text-sm font-medium md:text-base">{product.colour}</span>
-                  {stock.inStock ? <span className="text-xs text-muted-foreground md:text-sm">{stock.inStock}</span> : null}
-                  {stock.soon ? <span className="text-xs font-medium md:text-sm">Restocking soon</span> : null}
-                </span>
+                {/* The line's rating on each card: under the stock line on phones, where three cards
+                    share 390px, and at the right of the colour's name from 768px. Until the line has
+                    reviews, the card's words are exactly as they were. */}
+                {rating ? (
+                  <span className="flex flex-col px-0.5 md:flex-row md:items-start md:justify-between md:gap-3">
+                    <span className="flex flex-col">
+                      <span className="text-sm font-medium md:text-base">{product.colour}</span>
+                      {stock.inStock ? <span className="text-xs text-muted-foreground md:text-sm">{stock.inStock}</span> : null}
+                      {stock.soon ? <span className="text-xs font-medium md:text-sm">Restocking soon</span> : null}
+                    </span>
+                    <span className="mt-1 flex items-center gap-1 text-xs tabular-nums md:mt-0 md:pt-0.5 md:text-sm">
+                      <Star filled className="size-3 self-center md:size-3.5" />
+                      <span className="sr-only">Rated</span>
+                      <span className="font-medium">{formatRating(rating.average)}</span>
+                      <span className="text-muted-foreground">
+                        ({rating.count}
+                        <span className="sr-only"> {rating.count === 1 ? "review" : "reviews"}</span>)
+                      </span>
+                    </span>
+                  </span>
+                ) : (
+                  <span className="flex flex-col px-0.5">
+                    <span className="text-sm font-medium md:text-base">{product.colour}</span>
+                    {stock.inStock ? <span className="text-xs text-muted-foreground md:text-sm">{stock.inStock}</span> : null}
+                    {stock.soon ? <span className="text-xs font-medium md:text-sm">Restocking soon</span> : null}
+                  </span>
+                )}
               </Link>
             </li>
           );

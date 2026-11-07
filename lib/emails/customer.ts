@@ -173,3 +173,22 @@ export function orderShippedEmail(order: EmailOrder & { paid: number; codTax: nu
     ].join("\n"),
   };
 }
+
+// A week after delivery, once: how it's fitting, and the link to say so (lib/review-requests.ts).
+export function reviewRequestEmail(order: { number: number; token: string; lines: { title: string }[] }, { site }: { site: string }): EmailContent {
+  const subject = "How is it fitting?";
+  const item = order.lines.length === 1 ? `Your ${order.lines[0].title}` : `Your order #${order.number}`;
+  const first = `${item} arrived about a week ago.`;
+  const second = "If you have a minute, tell other buyers how it is. A star rating is enough; a photo of you wearing it helps most.";
+  const link = `${site}/orders/${order.token}/review`;
+
+  return {
+    subject,
+    html: page({
+      subject,
+      preview: first,
+      body: title(subject) + lead(first, second) + pill("Write a review", link),
+    }),
+    text: [subject, "", first, second, "", `Write a review: ${link}`, "", ...SIGN_OFF(site)].join("\n"),
+  };
+}

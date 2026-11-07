@@ -355,6 +355,7 @@ test.describe("admin", () => {
     await expect(page).not.toHaveURL(new RegExp(`/admin/orders/${number}$`));
     const sent = page.url().match(/(\d+)$/)![1];
     const sentHeader = page.locator("header").filter({ hasText: `#${sent}` });
+    await expect(sentHeader.getByRole("link", { name: `Exchange for #${number}`, exact: true })).toHaveAttribute("href", `/admin/orders/${number}`);
     await expect(sentHeader.getByText("To confirm", { exact: true })).toBeVisible();
     await step(page, "Confirm, PKR 310 received");
     await expect(sentHeader.getByText("Confirmed", { exact: true })).toBeVisible();
@@ -362,6 +363,14 @@ test.describe("admin", () => {
     await page.getByRole("button", { name: "It's back" }).click();
     await page.getByRole("dialog", { name: "Is the old jacket back?" }).getByRole("button", { name: "Yes, back in stock" }).click();
     await expect(page.getByText(/^The old jacket was back in stock on/)).toBeVisible();
+
+    // In the orders list the exchange says which order it's for, and its badge opens that order
+    // rather than the exchange's own row; the original has no badge.
+    await page.goto("/admin/orders");
+    const row = (order: string) => page.getByRole("row").filter({ has: page.getByRole("link", { name: `#${order}`, exact: true }) });
+    await expect(row(number!).getByText(/^Exchange for/)).toHaveCount(0);
+    await row(sent).getByRole("link", { name: `Exchange for #${number}`, exact: true }).filter({ visible: true }).click();
+    await expect(page).toHaveURL(new RegExp(`/admin/orders/${number}$`));
 
     const csv = await (await page.request.get("/admin/export/orders")).text();
     expect(csv).toContain(`"${number}"`);

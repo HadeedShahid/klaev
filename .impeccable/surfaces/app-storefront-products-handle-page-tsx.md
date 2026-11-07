@@ -22,3 +22,9 @@ FIRST VIEWPORT: 390 by 844. Slim glass top bar, 48px: Shop left, wordmark centre
 FORM: canon, chosen by the user, quality bar the Apple Store. Seed key 4dd00c55. Signature interaction: the size step. Each size is a card naming its chest range, sold-out sizes stay visible but disabled, and choosing one turns the sticky bar into "Add to cart" with the size named.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+
+## Reviews extension (3 November 2026)
+
+An extension inside this contract, not a new direction. Approved by the user from `.impeccable/mocks/reviews/board.png`: frame 1 (a quiet rating beside the price, and the fit verdict opposite "Size") and frame 2 ("In their words" after the details: the fit scale, then review cards swiped sideways, photos leading). Their words on seeing it: "The thing that is below the pricing on the landing page, you can build out the rest." Their answers before it: photos lead when a buyer sends one, though most send words, and WhatsApp screenshots back those up; stars stay quiet, Ink only. DESIGN.md: Stars, Review Card, Reviews (product page).
+
+Changed the same day at the user's request: no fit at all ("You can just remove how it fits, you know, true to the size and all that. I just need simple, very simple reviews"), so the fit scale, the size step's fit verdict and the form's fit question are gone; every card carries a "Verified buyer" badge ("so each review like has an extra layer of authenticity"); and the page shows at most six reviews with the rest in a sheet, because the user didn't want the page to keep growing. An auto-scrolling row was considered and refused: nothing on the store moves unless the shopper moves it.

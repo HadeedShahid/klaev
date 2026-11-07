@@ -1,4 +1,5 @@
 import { Check, FileCheck, Truck } from "lucide-react";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { COURIER_LABELS, STATE_LABELS, STATUS_LABELS } from "@/lib/admin/labels";
@@ -31,6 +32,18 @@ export function PaymentBadge({ state }: { state: ReturnType<typeof paymentState>
       {state === "paid" ? <Check strokeWidth={2} aria-hidden /> : state === "with_courier" ? <Truck strokeWidth={2} aria-hidden /> : null}
       {STATE_LABELS[state]}
     </ToneBadge>
+  );
+}
+
+// An exchange order: a customer's jacket going out again in another size, for the order named. Something
+// to know at a glance rather than a state or a call to act, so outline, like "No tracking". It links to
+// that order; in the orders table it sits above the row's own link (z-10), so it opens that order
+// rather than the exchange.
+export function ExchangeBadge({ of }: { of: number }) {
+  return (
+    <Badge variant="outline" render={<Link href={`/admin/orders/${of}`} />} className="relative z-10">
+      Exchange for #{of}
+    </Badge>
   );
 }
 

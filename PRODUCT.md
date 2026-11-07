@@ -76,7 +76,7 @@ Current catalog (from the live Shopify store, October 2026):
 - Product photography for all 12 products on the Shopify CDN (up to 12 images per cropped jacket). Reference shoots in `../klaev-shopify/images/references/` (cropped jackets in chocolate brown and burgundy, the primary model).
 - AI-generated campaign imagery in `../klaev-shopify/images/generated/` and hero images in `../klaev-shopify/assets/` (`Hero-section.webp`, `Hero-section-desktop.webp`).
 - Real FAQ copy on sizing, leather quality and care in the Shopify product templates.
-- No customer reviews, ratings or testimonials exist. Do not show ratings or invent quotes.
+- Customer reviews come only from real delivered orders: written through the order's private link, or typed in from a WhatsApp or Instagram message the buyer agreed to share (built 3 November 2026). Never invent a quote, a rating or a reviewer, not even as placeholder data in the seed.
 - No press or certifications.
 
 ## Product Principles

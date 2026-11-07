@@ -96,6 +96,19 @@ describe("structured data", () => {
     expect(productData({ ...unwritten, tagline: null }).description).toBe("Shop the black cropped jacket.");
   });
 
+  test("a product's own published reviews give it a rating in search; none, no rating", () => {
+    expect(productData(jacket)).not.toHaveProperty("aggregateRating");
+    const rated = productData(jacket, [
+      { rating: 5, body: "Soft and real.", name: "Ali K." },
+      { rating: 4, body: null, name: "Hamza R." },
+    ]);
+    expect(rated.aggregateRating).toEqual({ "@type": "AggregateRating", ratingValue: 4.5, reviewCount: 2, bestRating: 5, worstRating: 1 });
+    expect(rated.review).toEqual([
+      { "@type": "Review", reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5, worstRating: 1 }, author: { "@type": "Person", name: "Ali K." }, reviewBody: "Soft and real." },
+      { "@type": "Review", reviewRating: { "@type": "Rating", ratingValue: 4, bestRating: 5, worstRating: 1 }, author: { "@type": "Person", name: "Hamza R." } },
+    ]);
+  });
+
   test("the store: an online shop in Lahore with its contacts, Instagram and exchange policy, and the site's name", () => {
     const graph = storeData()["@graph"];
     expect(graph.find((node) => node["@type"] === "OnlineStore")).toMatchObject({

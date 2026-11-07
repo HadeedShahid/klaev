@@ -6,6 +6,7 @@ import { ColourCards } from "@/components/home/colour-cards";
 import { Faq } from "@/components/home/faq";
 import { SizeNotes, SizeTable } from "@/components/product/size-guide";
 import { Hero } from "@/components/home/hero";
+import { ReviewsChapter } from "@/components/home/reviews-chapter";
 import { StorySection } from "@/components/home/story";
 import { ExchangeTerms } from "@/components/site/exchange-terms";
 import { JsonLd } from "@/components/site/json-ld";
@@ -14,6 +15,7 @@ import { HOME_LISTING } from "@/data/search-listings";
 import { fillFaq, getFaq } from "@/lib/faq";
 import { getCodTerms } from "@/lib/settings";
 import { getCollection, getProduct, type Product } from "@/lib/catalog";
+import { getHomeReviews, getRatings } from "@/lib/reviews";
 import { formatPKR } from "@/lib/money";
 import { faqData, storeData } from "@/lib/seo";
 import { whatsappLink } from "@/lib/store";
@@ -32,20 +34,24 @@ function priceLabel(products: Product[]) {
 }
 
 // The landing page tells the cropped jacket's story: what it is, then the four doubts a
-// cash-on-delivery buyer has, one section each. Everything here is cached, so it is all static shell.
+// cash-on-delivery buyer has, one section each, with buyers' own words once there are reviews. Everything here is cached, so it is all static shell.
 export default async function HomePage() {
-  const [cropped, lambskin, suede, darkBrown, terms, faq] = await Promise.all([
+  const [cropped, lambskin, suede, darkBrown, terms, faq, reviews] = await Promise.all([
     getCollection("cropped-leather-jackets"),
     getCollection("leather-jackets"),
     getProduct("black-suede-jacket"),
     getProduct("dark-brown-cropped-sheepskin-leather-jacket"),
     getCodTerms(),
     getFaq(),
+    getHomeReviews(),
   ]);
   // The hero wears the black jacket, so black leads the colour cards.
   const croppedItems = [...(cropped?.items ?? [])].sort(
     (a, b) => Number(b.handle === "black-cropped-leather-jacket") - Number(a.handle === "black-cropped-leather-jacket"),
   );
+  // The cropped line's rating, as each colour's product page shows it (they share one cut). The hero
+  // shows it too, once the reviews chapter its link glides to is on the page.
+  const croppedRating = croppedItems.length ? (await getRatings(croppedItems.slice(0, 1)))[croppedItems[0].handle] : null;
   const sizeChart = croppedItems.find((product) => product.sizeGuide)?.sizeGuide?.chart;
   const sideView = darkBrown?.images[4];
   const closeUp = darkBrown?.images[9];
@@ -63,8 +69,8 @@ export default async function HomePage() {
     <div className="pb-8">
       <JsonLd data={storeData()} />
       <JsonLd data={faqData(fillFaq(faq, terms))} />
-      <Hero price={priceLabel(croppedItems)} colours={heroColours} />
-      <ColourCards products={croppedItems} />
+      <Hero price={priceLabel(croppedItems)} colours={heroColours} rating={reviews ? croppedRating : null} />
+      <ColourCards products={croppedItems} rating={croppedRating} />
 
       <StorySection
         id="cut"
@@ -90,6 +96,8 @@ export default async function HomePage() {
           like grain. Each jacket varies a little, the way real leather does.
         </p>
       </StorySection>
+
+      {reviews ? <ReviewsChapter reviews={reviews} /> : null}
 
       <StorySection id="fit" title="Sized by chest.">
         <p>Measured on the jacket, laid flat. Compare it with one you own.</p>

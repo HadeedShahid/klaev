@@ -1,3 +1,4 @@
+import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -8,6 +9,8 @@ import { PaymentOptions } from "@/components/product/payment-options";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductDetails } from "@/components/product/product-details";
 import { PurchasePanel } from "@/components/product/purchase-panel";
+import { ReviewsSection } from "@/components/product/reviews-section";
+import { Star } from "@/components/product/stars";
 import { SizeGuide } from "@/components/product/size-guide";
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
 import { JsonLd } from "@/components/site/json-ld";
@@ -17,6 +20,8 @@ import { Price } from "@/components/product/price";
 import { formatPKR } from "@/lib/money";
 import { codSummary } from "@/lib/payment";
 import { isRestocking } from "@/lib/restock";
+import { formatRating } from "@/lib/review-rules";
+import { getProductReviews } from "@/lib/reviews";
 import { productData, sharedImage, SITE_OPEN_GRAPH } from "@/lib/seo";
 import { getCodTerms } from "@/lib/settings";
 import { sizeMeasurement } from "@/lib/sizing";
@@ -70,7 +75,11 @@ export default async function ProductPage({ params }: PageProps<"/products/[hand
 
 async function ProductView({ product }: { product: Product }) {
   const terms = await getCodTerms();
-  const [related, collection] = await Promise.all([getRelatedProducts(product.handle), getCollection(product.collection)]);
+  const [related, collection, reviews] = await Promise.all([
+    getRelatedProducts(product.handle),
+    getCollection(product.collection),
+    getProductReviews(product),
+  ]);
   const trail = [
     { name: "Home", href: "/" },
     ...(collection ? [{ name: collection.title, href: `/collections/${collection.handle}` }] : []),
@@ -87,7 +96,7 @@ async function ProductView({ product }: { product: Product }) {
 
   return (
     <div>
-      <JsonLd data={productData(product)} />
+      <JsonLd data={productData(product, reviews.own)} />
       {/* Next's metadata refuses og:type "product", so these three go in by hand. */}
       <meta property="og:type" content="product" />
       <meta property="og:price:amount" content={product.price.toLocaleString("en-US")} />
@@ -107,9 +116,33 @@ async function ProductView({ product }: { product: Product }) {
             <h1 className="text-[1.75rem] leading-[1.15] font-semibold tracking-tight text-balance md:text-4xl">
               {product.title}
             </h1>
-            <p data-testid="product-price" className="text-xl font-medium">
-              <Price price={product.price} compareAt={product.compareAtPrice} />
-            </p>
+            {/* The rating beside the price, a quiet link like the hero's "See the colours": one star, the
+                average and the count, a chevron; the underline comes only on hover. Until the line has
+                reviews, the price stands alone exactly as before. */}
+            {reviews.summary ? (
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <p data-testid="product-price" className="text-xl font-medium">
+                  <Price price={product.price} compareAt={product.compareAtPrice} />
+                </p>
+                <a href="#reviews" className="group -my-3 inline-flex min-h-11 items-center gap-1.5 text-sm">
+                  <Star filled />
+                  <span className="sr-only">Rated</span>
+                  <span className="font-medium tabular-nums">{formatRating(reviews.summary.average)}</span>
+                  <span className="text-muted-foreground underline-offset-[0.2em] group-hover:text-foreground group-hover:underline">
+                    {reviews.summary.count === 1 ? "1 review" : `${reviews.summary.count} reviews`}
+                  </span>
+                  <ChevronRight
+                    className="-ml-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
+                    strokeWidth={1.8}
+                    aria-hidden
+                  />
+                </a>
+              </div>
+            ) : (
+              <p data-testid="product-price" className="text-xl font-medium">
+                <Price price={product.price} compareAt={product.compareAtPrice} />
+              </p>
+            )}
             {product.tagline ? <p className="text-muted-foreground">{product.tagline}</p> : null}
           </div>
 
@@ -127,6 +160,8 @@ async function ProductView({ product }: { product: Product }) {
           <ProductDetails intro={product.intro} sections={product.sections} />
         </div>
       </div>
+
+      <ReviewsSection handle={product.handle} reviews={reviews} />
 
       {related.length ? (
         <section aria-labelledby={`more-from-klaev-${product.handle}`} className="mx-auto max-w-6xl px-5 pt-16 pb-12 md:px-8">

@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { ProductCard } from "@/components/product/product-card";
 import { BreadcrumbData, Breadcrumbs } from "@/components/site/breadcrumbs";
 import { emptyCollectionRedirect, getCollection, getCollections } from "@/lib/catalog";
+import { getRatings } from "@/lib/reviews";
 import { collectionSeo, sharedImage, SITE_OPEN_GRAPH } from "@/lib/seo";
 
 // Listed at build and rendered on first visit, like the product pages. A collection added in the
@@ -40,6 +41,7 @@ export default async function CollectionPage({ params }: PageProps<"/collections
     if (elsewhere) redirect(elsewhere);
     notFound();
   }
+  const ratings = await getRatings(collection.items);
 
   const trail = [
     { name: "Home", href: "/" },
@@ -58,9 +60,16 @@ export default async function CollectionPage({ params }: PageProps<"/collections
           </p>
         </div>
         <ul className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-x-5">
-          {collection.items.map((product) => (
+          {/* The first row on a phone loads at once, the first photo ahead of everything (Google times it). */}
+          {collection.items.map((product, index) => (
             <li key={product.handle}>
-              <ProductCard product={product} sizes="(min-width: 768px) 25vw, 50vw" />
+              <ProductCard
+                product={product}
+                sizes="(min-width: 768px) 25vw, 50vw"
+                loading={index < 2 ? "eager" : undefined}
+                fetchPriority={index === 0 ? "high" : undefined}
+                rating={ratings[product.handle]}
+              />
             </li>
           ))}
         </ul>

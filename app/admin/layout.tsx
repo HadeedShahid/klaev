@@ -3,6 +3,8 @@ import type { Metadata, Viewport } from "next";
 import { AdminTheme } from "@/components/admin/admin-theme";
 import { THEME_SCRIPT } from "@/lib/admin-theme";
 
+import "./admin.css";
+
 // The admin never appears in search, and every page's title says which part of it you're in.
 export const metadata: Metadata = {
   title: { template: "%s · Klaev admin", default: "Klaev admin" },

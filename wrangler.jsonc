@@ -12,6 +12,8 @@
 	// Workers Cache: store pages are answered from Cloudflare's cache without running the Worker.
 	// lib/edge-cache.ts decides what's kept, refreshStore() purges it, and each deploy starts empty.
 	"cache": { "enabled": true },
+	// Every morning at 11:00 Pakistan time: the "How is it fitting?" emails (worker.ts).
+	"triggers": { "crons": ["0 6 * * *"] },
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"

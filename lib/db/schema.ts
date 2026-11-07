@@ -182,6 +182,8 @@ export const orders = sqliteTable(
     refusedAt: integer({ mode: "timestamp" }),
     // When the courier paid this COD order's cash out to Klaev.
     paidOutAt: integer({ mode: "timestamp" }),
+    // When the "How is it fitting?" email asked for a review. It's sent once.
+    reviewAskedAt: integer({ mode: "timestamp" }),
     updatedAt,
   },
   (t) => [
@@ -407,6 +409,54 @@ export const messages = sqliteTable(
     createdAt,
   },
   (t) => [index("messages_created_idx").on(t.createdAt)],
+);
+
+// What buyers say about what they bought. Every review belongs to a real order: written through the
+// review link on a delivered order's page, or typed in by Klaev from a WhatsApp or Instagram message
+// the customer agreed to share. Nothing shows on the store until it's published.
+export const REVIEW_STATUSES = ["pending", "published", "hidden"] as const;
+export const REVIEW_SOURCES = ["site", "whatsapp", "instagram"] as const;
+
+export const reviews = sqliteTable(
+  "reviews",
+  {
+    id: integer().primaryKey({ autoIncrement: true }),
+    productId: integer()
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    orderId: integer().references(() => orders.id, { onDelete: "set null" }),
+    // One review per line of an order.
+    orderLineId: integer()
+      .unique()
+      .references(() => orderLines.id, { onDelete: "set null" }),
+    rating: integer().notNull(),
+    body: text(),
+    // As shown on the store: a first name and an initial, and the city the order went to.
+    name: text().notNull(),
+    city: text(),
+    size: text(),
+    status: text({ enum: REVIEW_STATUSES }).notNull().default("pending"),
+    source: text({ enum: REVIEW_SOURCES }).notNull().default("site"),
+    // Picked for the home page.
+    featured: integer({ mode: "boolean" }).notNull().default(false),
+    reply: text(),
+    // A photo the customer sent of them wearing it, and the screenshot of a message typed in from
+    // WhatsApp or Instagram. Both are stored like product photos (lib/admin/media.ts).
+    photoSrc: text(),
+    photoWidth: integer(),
+    photoHeight: integer(),
+    screenshotSrc: text(),
+    screenshotWidth: integer(),
+    screenshotHeight: integer(),
+    publishedAt: integer({ mode: "timestamp" }),
+    createdAt,
+    updatedAt,
+  },
+  (t) => [
+    index("reviews_product_status_idx").on(t.productId, t.status),
+    index("reviews_order_idx").on(t.orderId),
+    check("reviews_rating_check", sql`${t.rating} BETWEEN 1 AND 5`),
+  ],
 );
 
 export const settings = sqliteTable("settings", {

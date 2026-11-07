@@ -2,6 +2,8 @@ import { SiteFooter } from "@/components/site/footer";
 import { SiteHeader } from "@/components/site/header";
 import { NotFoundContent } from "@/components/site/not-found-content";
 
+import "./store.css";
+
 // URLs that match no route at all land here, outside the storefront layout.
 export default function GlobalNotFound() {
   return (

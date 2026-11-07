@@ -61,7 +61,6 @@ async function createOrder(page: Page, phone: string, paid?: "Cash" | "Bank tran
   if (paid) {
     await page.getByRole("radio", { name: /^In person/ }).check();
     await page.getByRole("radiogroup", { name: "Paid by" }).getByRole("radio", { name: paid }).check();
-    await page.getByLabel("Paid, and handed over").check();
   }
   await page.getByRole("button", { name: "Create order" }).click();
   await expect(page).toHaveURL(/\/admin\/orders\/\d+$/);
@@ -178,14 +177,29 @@ test.describe("admin", () => {
       // Cash unless chosen otherwise.
       await expect(page.getByRole("radiogroup", { name: "Paid by" }).getByRole("radio", { name: "Cash" })).toBeChecked();
     }).toPass();
+    // In person is always paid and handed over there and then, so there's nothing to tick.
+    await expect(page.getByRole("checkbox")).toHaveCount(0);
 
-    await createOrder(page, testInfo.project.name === "iphone" ? "0321 5550601" : "0321 5550602", "Bank transfer");
+    const phone = testInfo.project.name === "iphone" ? "0321 5550601" : "0321 5550602";
+    await createOrder(page, phone, "Bank transfer");
     const number = page.url().match(/(\d+)$/)![1];
     await expect(page.locator("header").filter({ hasText: `#${number}` }).getByText("Delivered", { exact: true })).toBeVisible();
-    // Handed over, so there's nothing to ship.
+    // Handed over, so there's nothing to ship, and its progress skips packing and shipping.
     await expect(page.getByRole("button", { name: /^Mark shipped/ })).toHaveCount(0);
+    const progress = page.getByRole("list", { name: "Order progress" });
+    await expect(progress.getByRole("listitem")).toHaveText([/^Placed/, /^Paid/, /^Picked up/]);
     await page.getByRole("tab", { name: "Payments" }).click();
     await expect(page.getByRole("tabpanel").getByRole("listitem").filter({ hasText: "PKR 17,999" })).toContainText("Bank transfer, picked up in person");
+    // No courier, so the profit has nothing left to wait for.
+    await expect(page.getByRole("tabpanel")).toContainText("Courier charge−PKR 0");
+    await expect(page.getByRole("tabpanel")).not.toContainText("Not shipped yet");
+
+    // The customer's tracking page tells it the same way.
+    await page.goto("/track");
+    await page.getByLabel("Order number").fill(number);
+    await page.getByLabel("Mobile number").fill(phone);
+    await page.getByRole("button", { name: "Track order" }).click();
+    await expect(page.getByRole("listitem").filter({ hasText: /^(Placed|Confirmed|Packed|Shipped|Picked up|Delivered)/ })).toHaveText([/^Placed/, /^Confirmed/, /^Picked up/]);
   });
 
   test("a message from the contact form waits in Messages until it's handled", async ({ page }, testInfo) => {

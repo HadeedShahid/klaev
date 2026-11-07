@@ -237,7 +237,7 @@ export type ManualOrderInput = {
   paymentMethod: string;
   // Cash on delivery: the advance asked for up front.
   advance: number;
-  // Whether the money to confirm it is in: the advance, the transfer, or the cash in hand.
+  // Whether the money to confirm it is in: the advance or the transfer. In person it always is.
   received: boolean;
   // In person: how they paid, in cash (the default) or by bank transfer before picking it up.
   paidBy?: string;
@@ -283,8 +283,11 @@ export async function createManualOrder(db: Db, input: ManualOrderInput): Promis
   const token = newToken();
   const orderId = sql`(SELECT id FROM orders WHERE token = ${token})`;
   const now = new Date();
-  const confirmed = input.received || due === 0;
-  const handedOver = method === "in_person" && input.received;
+  // In person is paid and handed over there and then: the jacket never waits on a step that
+  // only shipping can finish.
+  const handedOver = method === "in_person";
+  const received = handedOver || input.received;
+  const confirmed = received || due === 0;
   const transferred = method !== "in_person" || input.paidBy === "bank_transfer";
   const buyer = await customerFor(db, { name, phone, email, city: input.city.trim() || null, address1: input.address.trim() || null });
   const statements: Batch = [
@@ -296,6 +299,8 @@ export async function createManualOrder(db: Db, input: ManualOrderInput): Promis
       status: handedOver ? "delivered" : confirmed ? "confirmed" : "pending",
       confirmedAt: confirmed ? now : null,
       deliveredAt: handedOver ? now : null,
+      // Handed over in person, so no courier: nothing to charge, and the profit is complete.
+      courierFee: handedOver ? 0 : null,
       paymentMethod: method,
       name,
       email,
@@ -323,7 +328,7 @@ export async function createManualOrder(db: Db, input: ManualOrderInput): Promis
       }),
       ...takeStock(db, item.variantId, item.quantity, "sale", orderId),
     ]),
-    ...(input.received && due > 0
+    ...(received && due > 0
       ? [
           db.insert(payments).values({
             orderId,

@@ -216,19 +216,22 @@ export function ManualOrderForm({ catalog, codDeliveryFee, codAdvance }: { catal
                 </>
               ) : null}
             </dl>
-            <label className="flex cursor-pointer items-start gap-2.5 text-sm">
-              <input type="checkbox" name="received" className="mt-0.5 size-4 accent-foreground" />
-              <span className="flex flex-col gap-0.5">
-                <span className="font-medium">
-                  {method === "cod" ? "The advance is in" : method === "bank_transfer" ? "The transfer is in" : "Paid, and handed over"}
+            {/* In person is paid and handed over there and then, so there's nothing to leave for later:
+                it says what creating the order records instead of asking. */}
+            {method === "in_person" ? (
+              <p className="flex flex-col gap-0.5 text-sm">
+                <span className="font-medium">Paid, and handed over</span>
+                <span className="text-xs text-muted-foreground">Records the {paidBy === "cash" ? "cash" : "transfer"} and marks it delivered.</span>
+              </p>
+            ) : (
+              <label className="flex cursor-pointer items-start gap-2.5 text-sm">
+                <input type="checkbox" name="received" className="mt-0.5 size-4 accent-foreground" />
+                <span className="flex flex-col gap-0.5">
+                  <span className="font-medium">{method === "cod" ? "The advance is in" : "The transfer is in"}</span>
+                  <span className="text-xs text-muted-foreground">Records the payment and confirms the order. Leave it for later otherwise.</span>
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  {method === "in_person"
-                    ? `Records the ${paidBy === "cash" ? "cash" : "transfer"} and marks it delivered.`
-                    : "Records the payment and confirms the order. Leave it for later otherwise."}
-                </span>
-              </span>
-            </label>
+              </label>
+            )}
           </CardContent>
         </Card>
       </div>

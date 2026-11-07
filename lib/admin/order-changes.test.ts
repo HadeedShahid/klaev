@@ -10,7 +10,7 @@ import { createTestDb } from "../db/test-db";
 import { discounts, orders, payments, stockChanges, variants } from "../db/schema";
 import { placeOrder } from "../orders";
 import { createExchange, createManualOrder, editItems, receiveReturn, type ManualOrderInput } from "./order-changes";
-import { cancelOrder, confirmOrder, listOrders, markDelivered, markShipped, setCourierStatus } from "./orders";
+import { cancelOrder, confirmOrder, listOrders, markDelivered, markShipped, orderProfit, setCourierStatus } from "./orders";
 
 const BROWN = { S: 49253873647687, M: 49253873680455, L: 49253873713223, XL: 49253873745991 }; // 2, 1, 1, 0 in stock; PKR 17,999
 const BLACK_M = 42204090892359; // 1 in stock, PKR 14,999
@@ -229,5 +229,21 @@ describe("manual orders", () => {
     const row = (await store.db.query.orders.findFirst({ where: eq(orders.number, pickup.number), with: { payments: true } }))!;
     expect(row).toMatchObject({ status: "delivered", paymentMethod: "in_person", total: 16500, advance: 0 });
     expect(row.payments.map((payment) => [payment.method, payment.amount, payment.note])).toEqual([["bank_transfer", 16500, "Picked up in person"]]);
+  });
+
+  test("a jacket handed over in person costs no courier, so its profit is complete", async () => {
+    const handed = await createManualOrder(store.db, { ...input, paymentMethod: "in_person", discount: 0 });
+    if (!handed.ok) throw new Error(handed.message);
+    const row = await order(handed.number);
+    expect(row).toMatchObject({ status: "delivered", courierFee: 0 });
+    expect(orderProfit({ ...row, lines: [{ costPrice: 9000, quantity: 1 }] })).toMatchObject({ courier: 0, profit: 7500, complete: true });
+  });
+
+  test("in person always means paid and handed over there and then, so it never waits on a step that needs shipping", async () => {
+    const counter = await createManualOrder(store.db, { ...input, paymentMethod: "in_person", received: false, discount: 0 });
+    if (!counter.ok) throw new Error(counter.message);
+    const row = (await store.db.query.orders.findFirst({ where: eq(orders.number, counter.number), with: { payments: true } }))!;
+    expect(row).toMatchObject({ status: "delivered", courierFee: 0, shippedAt: null });
+    expect(row.payments.map((payment) => [payment.method, payment.amount, payment.note])).toEqual([["cash", 16500, "Paid in person"]]);
   });
 });

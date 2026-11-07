@@ -2,12 +2,14 @@ import { Check, X } from "lucide-react";
 
 import { dateTime } from "@/lib/admin/format";
 import type { AdminOrder } from "@/lib/admin/orders";
+import { pickedUp } from "@/lib/order-status";
 import { cn } from "@/lib/utils";
 
 type Step = { label: string; at: Date | null; ended?: boolean };
 
 // Where the order is, step by step: done steps in Ink with their date, the next one ringed, the rest
-// waiting. Cash on delivery adds the courier's payout as the last step. A cancelled or refused order
+// waiting. Cash on delivery adds the courier's payout as the last step. A jacket picked up in person
+// never packed or shipped, so it goes straight from paid to picked up. A cancelled or refused order
 // ends at the step where it stopped.
 export function OrderStepper({ order }: { order: AdminOrder }) {
   const cod = order.paymentMethod === "cod";
@@ -19,9 +21,13 @@ export function OrderStepper({ order }: { order: AdminOrder }) {
     { label: "Placed", at: order.createdAt },
     // A COD order with no advance (an exchange, or one agreed without) is simply confirmed.
     { label: cod ? (order.advance > 0 ? "Advance in" : "Confirmed") : "Paid", at: order.confirmedAt },
-    { label: "Packed", at: order.packedAt },
-    { label: "Shipped", at: order.shippedAt },
-    { label: "Delivered", at: order.deliveredAt },
+    ...(pickedUp(order)
+      ? [{ label: "Picked up", at: order.deliveredAt }]
+      : [
+          { label: "Packed", at: order.packedAt },
+          { label: "Shipped", at: order.shippedAt },
+          { label: "Delivered", at: order.deliveredAt },
+        ]),
     ...(cod ? [{ label: "Paid out", at: settledAt }] : []),
   ];
   const ended = order.status === "cancelled" ? order.cancelledAt : order.status === "refused" ? order.refusedAt : null;

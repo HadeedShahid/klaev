@@ -71,7 +71,7 @@ What the Shopify theme has today, and what the new site does.
 | Cart | Slide-out drawer | Same, and the cart survives a closed tab | v1 |
 | Search | Predictive search in the header, results page with filters | Same, using SQLite full-text search in D1 | v1 |
 | Checkout | Shopify checkout with COD and bank transfer | Our own one-page checkout (see below) | v1 |
-| Order tracking | Shopify customer accounts | Track-your-order page (`/track`) using order number and phone. Shows our own status steps (placed, confirmed, packed, shipped, delivered) with where the parcel is (booked, in transit, out for delivery, a failed attempt, coming back), and never names the courier | v1, built |
+| Order tracking | Shopify customer accounts | Track-your-order page (`/track`) using order number and phone. Shows our own status steps (placed, confirmed, packed, shipped, delivered; placed, confirmed, picked up for a jacket handed over in person) with where the parcel is (booked, in transit, out for delivery, a failed attempt, coming back), and never names the courier | v1, built |
 | Customer accounts | Account menu in the header | Sign in with an emailed code to see past orders. No passwords | Later |
 | Journal | Blog with articles, three shown on home | Same URLs, existing posts carried over, new posts written in admin | v1 |
 | Pages | About, contact form, policies | Built 27 October 2026 at Shopify's addresses: About, Contact, the jackets size chart (from the products' size guides), and Delivery, Exchanges and refunds, Privacy and Terms, rewritten from Shopify's templates to say what this store actually does. Editable under Content, Pages. Contact messages land in the admin's Messages inbox (email once Resend is set up) | v1, built |
@@ -146,7 +146,7 @@ A toned-down Shopify admin, laid out the way Shopify's is so it feels familiar: 
   - **Packing slip and invoice** to print or save as PDF.
   - **Box label** from the parcel details, to print or save as PDF and tape on the box: name, phone, address, city, the order number and the cash to collect, or "Non-COD (Prepaid)" (also what Copy all pastes when there's nothing to collect).
   - The customer's other orders, and a warning if they refused a delivery before.
-- **Manual orders (built):** sales from WhatsApp, Instagram or in person, entered by hand at the agreed price with any discount and delivery fee. Cash on delivery with its advance, bank transfer, or in person. Money already in confirms it; paid in person is delivered on the spot, the money recorded as cash or, for a jacket paid by transfer and picked up from the office, as a bank transfer. Stock is taken, and the customer is matched by phone.
+- **Manual orders (built):** sales from WhatsApp, Instagram or in person, entered by hand at the agreed price with any discount and delivery fee. Cash on delivery with its advance, bank transfer, or in person. Money already in confirms it. In person is always paid and handed over on the spot, so it's delivered at once with no courier charge, the money recorded as cash or, for a jacket paid by transfer and picked up from the office, as a bank transfer; someone who pays first and collects later gets their order made when they collect. Stock is taken, and the customer is matched by phone.
 - **Abandoned checkouts (built):** saved once the phone number is typed at checkout, and listed when no order followed within 10 minutes, with the cart and a one-tap WhatsApp follow-up that's noted as sent. An order from the same phone later takes it off the list. Kept for 30 days.
 
 ### Products

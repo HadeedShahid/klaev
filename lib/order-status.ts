@@ -35,8 +35,14 @@ export function statusLine(order: { status: Status; courierStatus: CourierStatus
   }
 }
 
-// The steps an order goes through, each with when it happened. Cancelled and refused orders stop
-// where they were.
+// Handed over without ever going to the courier: a jacket picked up in person. Orders that shipped,
+// Shopify's included, never count, so they keep every step.
+export function pickedUp(order: { shippedAt: Date | null; deliveredAt: Date | null }) {
+  return order.deliveredAt !== null && order.shippedAt === null;
+}
+
+// The steps an order goes through, each with when it happened. A jacket picked up skips packing
+// and shipping. Cancelled and refused orders stop where they were.
 export function orderSteps(order: {
   createdAt: Date;
   confirmedAt: Date | null;
@@ -44,9 +50,13 @@ export function orderSteps(order: {
   shippedAt: Date | null;
   deliveredAt: Date | null;
 }) {
-  return [
+  const placed = [
     { label: "Placed", at: order.createdAt },
     { label: "Confirmed", at: order.confirmedAt },
+  ];
+  if (pickedUp(order)) return [...placed, { label: "Picked up", at: order.deliveredAt }];
+  return [
+    ...placed,
     { label: "Packed", at: order.packedAt },
     { label: "Shipped", at: order.shippedAt },
     { label: "Delivered", at: order.deliveredAt },

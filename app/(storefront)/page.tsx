@@ -49,7 +49,8 @@ export default async function HomePage() {
   const croppedItems = [...(cropped?.items ?? [])].sort(
     (a, b) => Number(b.handle === "black-cropped-leather-jacket") - Number(a.handle === "black-cropped-leather-jacket"),
   );
-  // The cropped line's rating, as each colour's product page shows it (they share one cut).
+  // The cropped line's rating, as each colour's product page shows it (they share one cut). The hero
+  // shows it too, once the reviews chapter its link glides to is on the page.
   const croppedRating = croppedItems.length ? (await getRatings(croppedItems.slice(0, 1)))[croppedItems[0].handle] : null;
   const sizeChart = croppedItems.find((product) => product.sizeGuide)?.sizeGuide?.chart;
   const sideView = darkBrown?.images[4];
@@ -68,7 +69,7 @@ export default async function HomePage() {
     <div className="pb-8">
       <JsonLd data={storeData()} />
       <JsonLd data={faqData(fillFaq(faq, terms))} />
-      <Hero price={priceLabel(croppedItems)} colours={heroColours} rating={reviews?.summary ?? null} />
+      <Hero price={priceLabel(croppedItems)} colours={heroColours} rating={reviews ? croppedRating : null} />
       <ColourCards products={croppedItems} rating={croppedRating} />
 
       <StorySection

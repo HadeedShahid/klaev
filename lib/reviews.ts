@@ -334,10 +334,10 @@ export async function getRatings(products: { handle: string; collection: string;
   return Object.fromEntries(products.map((product) => [product.handle, productReviews(all, product).summary]));
 }
 
-// The home page chapter, the cards after the lead photos first, and the rating its words stand on.
+// The home page chapter: the lead, then the other cards with photos first.
 export function homeReviews(all: StoreReview[]) {
   const selection = homeSelection(all);
-  return selection ? { lead: selection.lead, rest: photosFirst(selection.rest), summary: ratingSummary(all.map((review) => review.rating))! } : null;
+  return selection ? { lead: selection.lead, rest: photosFirst(selection.rest) } : null;
 }
 
 export async function getHomeReviews() {

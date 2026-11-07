@@ -36,14 +36,15 @@ async function step(page: Page, name: RegExp | string) {
 }
 
 // Creates a cash on delivery order, so a test that reads the orders list has one there on a fresh
-// database too (CI's), not only on a local one with orders left from earlier runs. Black cropped M
-// is sold out in the seed and no other test looks at it; each call restocks the one it sells.
+// database too (CI's), not only on a local one with orders left from earlier runs. It sells black
+// cropped XL, which only the "confirmed without its advance" test also sells, and which nothing
+// checks the stock of; every sale restocks the one it sells, so the size never runs short.
 async function createOrder(page: Page, phone: string) {
   const title = "Black Cropped Sheepskin Leather Jacket";
   await page.goto("/admin/inventory");
-  const row = page.getByRole("row").filter({ hasText: title }).filter({ has: page.getByRole("cell", { name: "M", exact: true }) });
+  const row = page.getByRole("row").filter({ hasText: title }).filter({ has: page.getByRole("cell", { name: "XL", exact: true }) });
   await row.getByRole("button", { name: "Restock" }).click();
-  const restock = page.getByRole("dialog", { name: `Restock ${title}, size M` });
+  const restock = page.getByRole("dialog", { name: `Restock ${title}, size XL` });
   await restock.getByLabel("How many came in").fill("1");
   await restock.getByRole("button", { name: "Restock" }).click();
   await expect(restock).toBeHidden();
@@ -51,7 +52,7 @@ async function createOrder(page: Page, phone: string) {
   await page.goto("/admin/orders/new");
   await page.getByLabel("Add a jacket or belt").selectOption({ label: `${title}, PKR 17,999` });
   await page.getByRole("button", { name: "Add", exact: true }).click();
-  await chooseSize(page.getByLabel("Size"), "M");
+  await chooseSize(page.getByLabel("Size"), "XL");
   await page.getByLabel("Name", { exact: true }).fill("Bilal Qureshi");
   await page.getByLabel("Mobile number").fill(phone);
   await page.getByLabel("City").fill("Multan");
@@ -376,7 +377,7 @@ test.describe("admin", () => {
     expect(csv).toContain(`"${number}"`);
   });
 
-  // Black cropped XL is sold out in the seed and no other test buys it; each phone restocks the one it sells.
+  // Black cropped XL is sold out in the seed; only createOrder also sells it, and each sale restocks the one it sells.
   test("an order confirmed without its advance, as Shopify's came, records it from Update status", async ({ page }, testInfo) => {
     test.slow();
     const title = "Black Cropped Sheepskin Leather Jacket";

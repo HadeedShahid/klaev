@@ -35,6 +35,32 @@ async function step(page: Page, name: RegExp | string) {
   await page.getByRole("menuitem", { name }).click();
 }
 
+// Creates a cash on delivery order, so a test that reads the orders list has one there on a fresh
+// database too (CI's), not only on a local one with orders left from earlier runs. It sells black
+// cropped XL, which only the "confirmed without its advance" test also sells, and which nothing
+// checks the stock of; every sale restocks the one it sells, so the size never runs short.
+async function createOrder(page: Page, phone: string) {
+  const title = "Black Cropped Sheepskin Leather Jacket";
+  await page.goto("/admin/inventory");
+  const row = page.getByRole("row").filter({ hasText: title }).filter({ has: page.getByRole("cell", { name: "XL", exact: true }) });
+  await row.getByRole("button", { name: "Restock" }).click();
+  const restock = page.getByRole("dialog", { name: `Restock ${title}, size XL` });
+  await restock.getByLabel("How many came in").fill("1");
+  await restock.getByRole("button", { name: "Restock" }).click();
+  await expect(restock).toBeHidden();
+
+  await page.goto("/admin/orders/new");
+  await page.getByLabel("Add a jacket or belt").selectOption({ label: `${title}, PKR 17,999` });
+  await page.getByRole("button", { name: "Add", exact: true }).click();
+  await chooseSize(page.getByLabel("Size"), "XL");
+  await page.getByLabel("Name", { exact: true }).fill("Bilal Qureshi");
+  await page.getByLabel("Mobile number").fill(phone);
+  await page.getByLabel("City").fill("Multan");
+  await page.getByLabel("Address").fill("House 7, Street 4");
+  await page.getByRole("button", { name: "Create order" }).click();
+  await expect(page).toHaveURL(/\/admin\/orders\/\d+$/);
+}
+
 test.describe("admin", () => {
   test.skip(!local, "signs in with the local test password and changes orders");
   test.use({ viewport: { width: 1440, height: 900 } });
@@ -65,7 +91,8 @@ test.describe("admin", () => {
     await expect(page).toHaveURL(/\/admin\/login/);
   });
 
-  test("orders filter by payment and date, in colour, and the tabs and export keep the filters", async ({ page }) => {
+  test("orders filter by payment and date, in colour, and the tabs and export keep the filters", async ({ page }, testInfo) => {
+    test.slow();
     await signIn(page);
     // A change on the dashboard is green going up and red going down.
     for (const delta of await page.locator("[data-delta]").all()) {
@@ -73,6 +100,7 @@ test.describe("admin", () => {
       await expect(delta).toHaveAttribute("data-tone", text.startsWith("+") ? "green" : text.startsWith("-") ? "red" : "grey");
     }
 
+    await createOrder(page, testInfo.project.name === "iphone" ? "0321 5550401" : "0321 5550402");
     await page.goto("/admin/orders");
     // Every status and payment badge has its colour, and its words: colour is never the only sign.
     const badges = page.getByRole("table").locator("[data-tone]").filter({ visible: true });
@@ -112,8 +140,10 @@ test.describe("admin", () => {
     await expect(page.getByRole("link", { name: "Clear filters" })).toBeVisible();
   });
 
-  test("the back link on an order works like the browser's back button, filters and all", async ({ page }) => {
+  test("the back link on an order works like the browser's back button, filters and all", async ({ page }, testInfo) => {
+    test.slow();
     await signIn(page);
+    await createOrder(page, testInfo.project.name === "iphone" ? "0321 5550501" : "0321 5550502");
     await page.goto("/admin/orders");
     await page.getByRole("combobox", { name: "Payment method" }).click();
     await page.getByRole("option", { name: "Cash on delivery" }).click();
@@ -347,7 +377,7 @@ test.describe("admin", () => {
     expect(csv).toContain(`"${number}"`);
   });
 
-  // Black cropped XL is sold out in the seed and no other test buys it; each phone restocks the one it sells.
+  // Black cropped XL is sold out in the seed; only createOrder also sells it, and each sale restocks the one it sells.
   test("an order confirmed without its advance, as Shopify's came, records it from Update status", async ({ page }, testInfo) => {
     test.slow();
     const title = "Black Cropped Sheepskin Leather Jacket";

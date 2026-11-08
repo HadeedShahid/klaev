@@ -5,6 +5,7 @@ import { COLLECTION_LISTINGS, HOME_LISTING, type Listing } from "@/data/search-l
 
 import type { Product } from "./catalog";
 import { MEDIA_URL } from "./media";
+import { formatPKR } from "./money";
 import { STORE } from "./store";
 
 // What search engines and link previews are told about the store: schema.org data, the sitemap and
@@ -88,6 +89,26 @@ const RETURN_POLICY = {
   refundType: "https://schema.org/ExchangeRefund",
   merchantReturnLink: `${SITE}/policies/refund-policy`,
 };
+
+// Delivery as search reads a store's shipping policy. Its format can't tie a rate to how someone
+// pays, and where two rates fit Google shows the lower one, so a free rate would read as free
+// delivery for everyone. It gets the most delivery costs, cash on delivery's fee, and the words say
+// the rest.
+function shippingService(codDeliveryFee: number) {
+  const [fewest, most] = STORE.deliveryDays.split(" to ").map(Number);
+  return {
+    "@type": "ShippingService",
+    name: "Delivery across Pakistan",
+    description: `${formatPKR(codDeliveryFee)} with cash on delivery, free with a bank transfer. Most orders arrive in ${STORE.deliveryDays} days.`,
+    fulfillmentType: "https://schema.org/FulfillmentTypeDelivery",
+    shippingConditions: {
+      "@type": "ShippingConditions",
+      shippingDestination: { "@type": "DefinedRegion", addressCountry: "PK" },
+      shippingRate: { "@type": "MonetaryAmount", maxValue: codDeliveryFee, currency: "PKR" },
+      transitTime: { "@type": "ServicePeriod", duration: { "@type": "QuantitativeValue", minValue: fewest, maxValue: most, unitCode: "DAY" } },
+    },
+  };
+}
 
 // Shopify's shape: the jacket as a group, and each size its own product with its own offer, so
 // search sees which sizes are in stock. Only the cropped jackets named a material there.
@@ -176,8 +197,9 @@ export function faqData(items: { question: string; answer: string }[]) {
   };
 }
 
-// The store itself, for the home page: who sells, where, how to reach them, and the site's name.
-export function storeData(): { "@context": string; "@graph": Record<string, unknown>[] } {
+// The store itself, for the home page: who sells, where, how to reach them, what delivery costs,
+// and the site's name. The fee is the one set under Settings.
+export function storeData(codDeliveryFee: number): { "@context": string; "@graph": Record<string, unknown>[] } {
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -200,6 +222,7 @@ export function storeData(): { "@context": string; "@graph": Record<string, unkn
           addressCountry: "PK",
         },
         hasMerchantReturnPolicy: RETURN_POLICY,
+        hasShippingService: shippingService(codDeliveryFee),
       },
       { "@type": "WebSite", "@id": `${SITE}/#website`, name: "Klaev", url: `${SITE}/`, inLanguage: "en-PK", publisher: { "@id": STORE_ID } },
     ],

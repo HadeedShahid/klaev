@@ -10,7 +10,7 @@ const CROPPED = [
 test.describe("landing page", () => {
   test("opens on the cropped jackets with the price and a way to shop them", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Klaev. Premium leather jackets in Pakistan.");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Klaev. Men's leather jackets in Pakistan.");
     await expect(page.getByText("Cropped leather jackets.", { exact: true })).toBeVisible();
     await expect(page.getByTestId("hero-price").filter({ visible: true })).toHaveText("PKR 17,999");
     await expect(page.getByRole("link", { name: "Shop cropped" })).toHaveAttribute(
@@ -117,6 +117,10 @@ test.describe("landing page", () => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "Shop lambskin" })).toHaveAttribute("href", "/collections/leather-jackets");
     await expect(page.getByRole("link", { name: "Shop suede" })).toHaveAttribute("href", "/products/black-suede-jacket");
+    // Each line's photo is named after its jacket, for image search.
+    const lines = page.getByRole("region", { name: "More jackets" });
+    await expect(lines.getByRole("img", { name: /Lambskin Leather Jacket$/ })).toBeVisible();
+    await expect(lines.getByRole("img", { name: "Black Goatskin Suede Jacket" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Design yours on WhatsApp" })).toHaveAttribute(
       "href",
       /^https:\/\/wa\.me\/923231483650/,

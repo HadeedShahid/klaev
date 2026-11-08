@@ -67,7 +67,7 @@ export default async function HomePage() {
 
   return (
     <div className="pb-8">
-      <JsonLd data={storeData()} />
+      <JsonLd data={storeData(terms.codDeliveryFee)} />
       <JsonLd data={faqData(fillFaq(faq, terms))} />
       <Hero price={priceLabel(croppedItems)} colours={heroColours} rating={reviews ? croppedRating : null} />
       <ColourCards products={croppedItems} rating={croppedRating} />
@@ -127,7 +127,7 @@ export default async function HomePage() {
             line="Soft from day one, and it ages into its own patina."
             price={priceLabel(lambskin.items)}
             action={{ label: "Shop lambskin", href: "/collections/leather-jackets" }}
-            image={lambskin.items[0]?.images[0]}
+            image={lambskin.items[0]?.images[0] && { ...lambskin.items[0].images[0], alt: lambskin.items[0].title }}
           />
         ) : null}
         {suede ? (
@@ -136,7 +136,7 @@ export default async function HomePage() {
             line="Matte and velvety, with more character than smooth leather."
             price={formatPKR(suede.price)}
             action={{ label: "Shop suede", href: `/products/${suede.handle}` }}
-            image={suede.images[0]}
+            image={suede.images[0] && { ...suede.images[0], alt: suede.title }}
           />
         ) : null}
       </section>
@@ -172,7 +172,8 @@ function LineTile({
   line: string;
   price: string;
   action: { label: string; href: string };
-  image?: { src: string; width: number; height: number };
+  // Named after its jacket, for image search.
+  image?: { src: string; width: number; height: number; alt: string };
 }) {
   return (
     <div className="flex flex-col items-center gap-3 overflow-hidden rounded-2xl bg-muted px-5 pt-10 text-center">
@@ -187,7 +188,7 @@ function LineTile({
           src={image.src}
           width={image.width}
           height={image.height}
-          alt=""
+          alt={image.alt}
           sizes="(min-width: 768px) 50vw, 100vw"
           className="mt-6 mb-5 aspect-5/4 w-full rounded-xl object-cover"
         />

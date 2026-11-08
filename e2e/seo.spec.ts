@@ -98,13 +98,17 @@ test.describe("search engines", () => {
 
   test("the home page has its search title and introduces the store", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle("Klaev | Leather Jackets in Pakistan");
-    await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /Free delivery on bank transfer/);
+    await expect(page).toHaveTitle("Men's Leather Jackets in Pakistan | Klaev");
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      "content",
+      "Shop men's genuine leather jackets in Pakistan from PKR 14,999: cropped sheepskin, lambskin and goatskin suede. Cash on delivery, or free delivery on bank transfer.",
+    );
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https:\/\/klaev\.com\/?$/);
     const data = await structuredData(page);
     expect(data.find((entry) => entry["@type"] === "FAQPage").mainEntity.length).toBeGreaterThan(0);
     const graph = data.find((entry) => entry["@graph"])["@graph"];
     expect(graph.map((node: { "@type": string }) => node["@type"])).toEqual(["OnlineStore", "WebSite"]);
+    expect(graph[0].hasShippingService.shippingConditions.shippingRate).toEqual({ "@type": "MonetaryAmount", maxValue: 900, currency: "PKR" });
   });
 
   test("a collection page has its own search title, description and address", async ({ page }) => {

@@ -110,7 +110,7 @@ describe("structured data", () => {
   });
 
   test("the store: an online shop in Lahore with its contacts, Instagram and exchange policy, and the site's name", () => {
-    const graph = storeData()["@graph"];
+    const graph = storeData(900)["@graph"];
     expect(graph.find((node) => node["@type"] === "OnlineStore")).toMatchObject({
       "@id": "https://klaev.com/#store",
       name: "Klaev",
@@ -133,6 +133,24 @@ describe("structured data", () => {
       name: "Klaev",
       url: "https://klaev.com/",
       publisher: { "@id": "https://klaev.com/#store" },
+    });
+  });
+
+  // Google can't tie a rate to how someone pays, and where two rates fit it shows the lower one, so
+  // a free rate would read as free delivery for everyone. It gets the most delivery costs instead.
+  test("the store's delivery: Pakistan, up to the cash on delivery fee, in 2 to 5 days", () => {
+    const store = storeData(1100)["@graph"].find((node) => node["@type"] === "OnlineStore");
+    expect(store?.hasShippingService).toEqual({
+      "@type": "ShippingService",
+      name: "Delivery across Pakistan",
+      description: "PKR 1,100 with cash on delivery, free with a bank transfer. Most orders arrive in 2 to 5 days.",
+      fulfillmentType: "https://schema.org/FulfillmentTypeDelivery",
+      shippingConditions: {
+        "@type": "ShippingConditions",
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "PK" },
+        shippingRate: { "@type": "MonetaryAmount", maxValue: 1100, currency: "PKR" },
+        transitTime: { "@type": "ServicePeriod", duration: { "@type": "QuantitativeValue", minValue: 2, maxValue: 5, unitCode: "DAY" } },
+      },
     });
   });
 });

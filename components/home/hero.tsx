@@ -15,7 +15,7 @@ export function Hero({ price, colours, rating }: { price: string; colours: HeroC
     <section aria-labelledby="hero-title" className="flex flex-col">
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 px-5 pt-8 pb-6 text-center md:pt-14 md:pb-10">
         {/* Search reads the h1, as it did on Shopify, where it was hidden too. Shoppers read the headline. */}
-        <h1 className="sr-only">Klaev. Premium leather jackets in Pakistan.</h1>
+        <h1 className="sr-only">{"Klaev. Men's leather jackets in Pakistan."}</h1>
         <p
           id="hero-title"
           className="text-[2.5rem] leading-[1.05] font-semibold tracking-tight text-balance md:text-6xl"

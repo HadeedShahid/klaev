@@ -1,14 +1,18 @@
 // How the home page and the collection pages show in search results: the title (the layout adds
-// " | Klaev" to a collection's) and the line under it. These are Shopify's, word for word, so search
-// sees no change, with three corrections: delivery is free with bank transfer only, the belts are
-// hidden, and the suede is goatskin. A collection added in the admin gets a plain listing from its
-// name (lib/seo.ts).
+// " | Klaev" to a collection's) and the line under it. The collections' are Shopify's, word for word,
+// so search sees no change, with three corrections: delivery is free with bank transfer only, the
+// belts are hidden, and the suede is goatskin. A collection added in the admin gets a plain listing
+// from its name (lib/seo.ts).
+//
+// The home page's follows what Pakistan searches (Google Trends, November 2026): "men" is the word
+// most added to "leather jacket" after "pakistan", then "price". Its starting price is typed in, so
+// change it here when the lambskin jackets' price changes.
 export type Listing = { title: string; description: string };
 
 export const HOME_LISTING: Listing = {
-  title: "Klaev | Leather Jackets in Pakistan",
+  title: "Men's Leather Jackets in Pakistan | Klaev",
   description:
-    "Shop genuine leather jackets and suede jackets online in Pakistan. Handcrafted from lambskin and goatskin. Free delivery on bank transfer.",
+    "Shop men's genuine leather jackets in Pakistan from PKR 14,999: cropped sheepskin, lambskin and goatskin suede. Cash on delivery, or free delivery on bank transfer.",
 };
 
 export const COLLECTION_LISTINGS: Record<string, Listing> = {

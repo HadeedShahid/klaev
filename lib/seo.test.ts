@@ -2,6 +2,7 @@
 import { describe, expect, test } from "vitest";
 
 import { POLICIES_WRITTEN } from "@/data/pages";
+import { HOME_LISTING } from "@/data/search-listings";
 
 import type { Product } from "./catalog";
 import { collectionSeo, productData, robotsFor, sharedImage, SITE_OPEN_GRAPH, sitemapEntries, storeData } from "./seo";
@@ -219,6 +220,15 @@ describe("the sitemap", () => {
   test("with no articles, the journal is listed without a date", () => {
     const entries = sitemapEntries({ products: [], collections: [], pages: [], posts: [] });
     expect(entries.find((entry) => entry.url === "https://klaev.com/blogs/blog")?.lastModified).toBeUndefined();
+  });
+});
+
+describe("the home page's search listing", () => {
+  // Measured in Google's results on 8 November 2026: the home page's result is three full-width lines
+  // on a phone, which held 150 characters at 360 and 375 px wide and cut a 164-character one short.
+  test("the description shows whole on a phone, in the brand's words", () => {
+    expect(HOME_LISTING.description.length).toBeLessThanOrEqual(150);
+    expect(HOME_LISTING.description).not.toMatch(/[–—]|free delivery(?! on bank transfer)/i);
   });
 });
 

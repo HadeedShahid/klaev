@@ -6,13 +6,14 @@
 //
 // The home page's follows what Pakistan searches (Google Trends, November 2026): "men" is the word
 // most added to "leather jacket" after "pakistan", then "price". Its starting price is typed in, so
-// change it here when the lambskin jackets' price changes.
+// change it here when the lambskin jackets' price changes. The description stays within 150
+// characters, what Google showed whole on a phone (lib/seo.test.ts).
 export type Listing = { title: string; description: string };
 
 export const HOME_LISTING: Listing = {
   title: "Men's Leather Jackets in Pakistan | Klaev",
   description:
-    "Shop men's genuine leather jackets in Pakistan from PKR 14,999: cropped sheepskin, lambskin and goatskin suede. Cash on delivery, or free delivery on bank transfer.",
+    "Men's genuine leather jackets in Pakistan from PKR 14,999: cropped sheepskin, lambskin and suede. Cash on delivery, or free delivery on bank transfer.",
 };
 
 export const COLLECTION_LISTINGS: Record<string, Listing> = {

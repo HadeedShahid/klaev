@@ -101,7 +101,7 @@ test.describe("search engines", () => {
     await expect(page).toHaveTitle("Men's Leather Jackets in Pakistan | Klaev");
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       "content",
-      "Shop men's genuine leather jackets in Pakistan from PKR 14,999: cropped sheepskin, lambskin and goatskin suede. Cash on delivery, or free delivery on bank transfer.",
+      "Men's genuine leather jackets in Pakistan from PKR 14,999: cropped sheepskin, lambskin and suede. Cash on delivery, or free delivery on bank transfer.",
     );
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https:\/\/klaev\.com\/?$/);
     const data = await structuredData(page);

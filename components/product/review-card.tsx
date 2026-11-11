@@ -7,13 +7,12 @@ import { cn } from "@/lib/utils";
 import { LeatherSwatch } from "./leather-swatch";
 import { Stars, VerifiedBadge } from "./stars";
 
-const SENT_ON = { whatsapp: "Sent on WhatsApp.", instagram: "Sent on Instagram." } as const;
-
 // Where a review's photo and screenshot sit in the row's photo viewer.
 export type ViewerSlots = Map<string, number>;
 
 // One buyer's note: their photo when they sent one, the stars and the verified badge, their words,
-// and who they are, the leather they bought shown as a swatch. A review typed in from a message can show the message.
+// and who they are, the leather they bought shown as a swatch. A review typed in from a message can show
+// the message, once its screenshot is added; where it was sent isn't said.
 // `linked` makes the jacket a link, for reviews of another colour or away from the product page.
 export function ReviewCard({
   review,
@@ -74,14 +73,11 @@ export function ReviewCard({
           </p>
         </div>
       </div>
-      {review.source !== "site" ? (
-        <p className="text-sm text-muted-foreground">
-          {SENT_ON[review.source]}{" "}
-          {messageSlot !== undefined ? (
-            <button type="button" data-open-photo={messageSlot} className="text-foreground underline underline-offset-[0.2em] hover:no-underline">
-              See the message
-            </button>
-          ) : null}
+      {messageSlot !== undefined ? (
+        <p className="text-sm">
+          <button type="button" data-open-photo={messageSlot} className="underline underline-offset-[0.2em] hover:no-underline">
+            See the message
+          </button>
         </p>
       ) : null}
       {review.reply ? (

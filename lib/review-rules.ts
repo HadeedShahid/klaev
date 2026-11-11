@@ -67,12 +67,12 @@ export function photosFirst<T extends { photo: unknown }>(reviews: T[]) {
   return [...reviews.filter((review) => review.photo), ...reviews.filter((review) => !review.photo)];
 }
 
-type Sized = { photo: unknown; body: string | null; reply: string | null; source: string };
+type Sized = { photo: unknown; screenshot: unknown; body: string | null; reply: string | null };
 
 // Roughly how tall a review card stands, in short text cards: a photo adds about two, long words and
-// a reply a little more.
+// a reply or a message's screenshot (its link) a little more.
 const cardWeight = (review: Sized) =>
-  1 + (review.photo ? 2.2 : 0) + (review.body ? review.body.length / 180 : 0) + (review.reply ? 0.3 : 0) + (review.source !== "site" ? 0.2 : 0);
+  1 + (review.photo ? 2.2 : 0) + (review.body ? review.body.length / 180 : 0) + (review.reply ? 0.3 : 0) + (review.screenshot ? 0.2 : 0);
 
 // Wide screens show the cards in columns of even height: each card, in order, goes to the shortest
 // column so far. Returns each card's column.

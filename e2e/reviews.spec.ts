@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import sharp from "sharp";
 
 // Reviews belong to delivered orders, so these tests sell, ship and deliver one first, from the
 // admin. They sign in with the local test password and change orders, so they skip against any
@@ -6,6 +7,8 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 const base = process.env.BASE_URL;
 const local = !base || /^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(base);
 const PASSWORD = process.env.ADMIN_TEST_PASSWORD ?? "local-admin-password";
+// A small grey image standing in for a screenshot of their message, wide so its copies stay small.
+const screenshot = () => sharp({ create: { width: 48, height: 12, channels: 3, background: "#e5e5e5" } }).png().toBuffer();
 
 async function signIn(page: Page) {
   await page.goto("/admin");
@@ -151,8 +154,21 @@ test.describe("reviews", () => {
     await card.getByRole("button", { name: "Show on the home page" }).click();
     await expect(card.getByText("On the home page", { exact: true })).toBeVisible();
 
+    // The store doesn't say where the words came from; it shows the message itself, once there's a screenshot.
     await page.goto(`/products/${handle}`);
     const section = page.getByRole("region", { name: "In their words" });
-    await expect(section.locator("[data-testid='review']").filter({ hasText: words })).toContainText("Sent on WhatsApp.");
+    const review = section.locator("[data-testid='review']").filter({ hasText: words });
+    await expect(review).toBeVisible();
+    await expect(review).not.toContainText("Sent on");
+    await expect(review.getByRole("button", { name: "See the message" })).toHaveCount(0);
+
+    await page.goto("/admin/reviews?tab=live");
+    await card.getByLabel("Add the message's screenshot").setInputFiles({ name: "message.png", mimeType: "image/png", buffer: await screenshot() });
+    await expect(card.getByText("Remove screenshot")).toBeVisible();
+
+    await page.goto(`/products/${handle}`);
+    await expect(review).not.toContainText("Sent on");
+    await review.getByRole("button", { name: "See the message" }).click();
+    await expect(page.getByRole("dialog").getByRole("img", { name: /'s message$/ })).toBeVisible();
   });
 });

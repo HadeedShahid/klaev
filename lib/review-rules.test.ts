@@ -51,7 +51,7 @@ describe("review rules", () => {
   });
 
   test("photos lead, and wide screens spread cards so the columns stand even", () => {
-    const card = (id: number, photo = false, body = "Soft.") => ({ id, photo: photo ? {} : null, body, reply: null, source: "site" });
+    const card = (id: number, photo = false, body = "Soft.") => ({ id, photo: photo ? {} : null, body, reply: null, screenshot: null });
     expect(photosFirst([card(1), card(2, true), card(3)]).map((review) => review.id)).toEqual([2, 1, 3]);
     // The photo card stands about three text cards tall, so the next three short ones share the
     // other two columns before the first column takes another.

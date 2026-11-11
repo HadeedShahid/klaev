@@ -8,8 +8,6 @@ import { ReviewRow } from "@/components/product/review-row";
 import { Stars, VerifiedBadge } from "@/components/product/stars";
 import type { getHomeReviews } from "@/lib/reviews";
 
-const SENT_ON = { whatsapp: "Sent on WhatsApp.", instagram: "Sent on Instagram." } as const;
-
 // A chapter of the home page's story, between the leather and the sizing: one buyer's words set like
 // a headline, then the others to swipe through. It appears once three reviews have words.
 export function ReviewsChapter({ reviews }: { reviews: NonNullable<Awaited<ReturnType<typeof getHomeReviews>>> }) {
@@ -58,15 +56,10 @@ export function ReviewsChapter({ reviews }: { reviews: NonNullable<Awaited<Retur
               ) : null}
             </span>
           </figcaption>
-          {lead.source !== "site" ? (
-            <p className="text-sm text-muted-foreground">
-              {SENT_ON[lead.source]}{" "}
-              {messageSlot !== undefined ? (
-                <button type="button" data-open-photo={messageSlot} className="text-foreground underline underline-offset-[0.2em] hover:no-underline">
-                  See the message
-                </button>
-              ) : null}
-            </p>
+          {messageSlot !== undefined ? (
+            <button type="button" data-open-photo={messageSlot} className="text-sm underline underline-offset-[0.2em] hover:no-underline">
+              See the message
+            </button>
           ) : null}
         </figure>
 

@@ -5,6 +5,7 @@ import { afterAll, beforeEach, describe, expect, test } from "vitest";
 import snapshot from "@/data/catalog.json";
 import { catalogSeedStatements } from "@/scripts/lib/catalog-seed";
 
+import { createExchange } from "./admin/order-changes";
 import { confirmOrder, markDelivered, markPacked, markShipped } from "./admin/orders";
 import type { CheckoutValues } from "./checkout";
 import { createTestDb } from "./db/test-db";
@@ -19,6 +20,7 @@ import {
   productReviews,
   readPublished,
   reviewableOrder,
+  reviewableOrderByNumber,
   reviewCounts,
   setFeatured,
   setReviewStatus,
@@ -26,6 +28,8 @@ import {
 } from "./reviews";
 
 const BROWN_S = 49253873647687; // Dark brown cropped, 2 in stock
+const BROWN_M = 49253873680455; // Dark brown cropped, 1 in stock
+const BROWN_L = 49253873713223; // Dark brown cropped, 1 in stock
 const BLACK_LAMB_M = 42204090892359; // Black lambskin, 1 in stock
 const DARK_BROWN = { handle: "dark-brown-cropped-sheepskin-leather-jacket", collection: "cropped-leather-jackets", sizeGuide: {} };
 const BURGUNDY = { handle: "burgundy-cropped-leather-jacket", collection: "cropped-leather-jackets", sizeGuide: {} };
@@ -104,6 +108,37 @@ describe("writing a review", () => {
     expect(await addCustomerPhoto(store.db, token, saved.id, photo)).toBe(true);
     expect(await addCustomerPhoto(store.db, token, saved.id, photo)).toBe(false);
     expect((await listReviews(store.db, "pending"))[0].photo).toEqual(photo);
+  });
+
+  test("a jacket swapped for another size is reviewed through the first order, in the size they kept", async () => {
+    const { number, token } = await delivered([BROWN_S]);
+    const swap = async (from: number, variantId: number) => {
+      const order = await store.db.query.orders.findFirst({ where: eq(orders.number, from), with: { lines: true } });
+      const exchange = await createExchange(store.db, from, { lineId: order!.lines[0].id, variantId, charge: 0, paymentMethod: "cod" });
+      if (!exchange.ok) throw new Error(exchange.message);
+      return exchange.number;
+    };
+    const deliver = async (exchange: number) => {
+      await markPacked(store.db, exchange);
+      await markShipped(store.db, exchange, { trackingNumber: "PX-2", courierFee: null });
+      await markDelivered(store.db, exchange);
+    };
+    const size = async () => (await reviewableOrder(store.db, token))!.items[0].size;
+
+    // Until the new size arrives, they still have the first one.
+    const toM = await swap(number, BROWN_M);
+    expect(await size()).toBe("S");
+    await deliver(toM);
+    expect(await size()).toBe("M");
+    // The exchange itself isn't reviewed, so one jacket gets one review.
+    expect((await reviewableOrderByNumber(store.db, toM))!.open).toBe(false);
+
+    // Swapped again, the latest size counts, and the review keeps it.
+    await deliver(await swap(toM, BROWN_L));
+    expect(await size()).toBe("L");
+    const order = (await reviewableOrder(store.db, token))!;
+    expect(await submitReview(store.db, token, order.items[0].lineId, words)).toMatchObject({ ok: true });
+    expect((await listReviews(store.db, "pending"))[0]).toMatchObject({ size: "L", orderNumber: number });
   });
 });
 

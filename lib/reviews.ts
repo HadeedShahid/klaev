@@ -42,6 +42,7 @@ async function orderItems(db: Db, where: ReturnType<typeof eq>) {
     },
   });
   if (!order) return null;
+  const kept = await keptSizes(db, order.id);
   const written = await db
     .select({ id: reviews.id, orderLineId: reviews.orderLineId, productId: reviews.productId })
     .from(reviews)
@@ -56,7 +57,7 @@ async function orderItems(db: Db, where: ReturnType<typeof eq>) {
         lineId: line.id,
         productId,
         title: line.title,
-        size: line.size,
+        size: kept.get(productId) ?? line.size,
         colour: line.variant!.product.colour,
         image: line.variant!.product.images[0] ?? null,
         reviewId: written.find((review) => review.productId === productId)?.id ?? null,
@@ -66,6 +67,25 @@ async function orderItems(db: Db, where: ReturnType<typeof eq>) {
   // A delivered order can be reviewed. An exchange is reviewed through the order it replaced.
   const open = order.status === "delivered" && order.source !== "exchange";
   return { id: order.id, number: order.number, name: order.name, city: order.city, token: order.token, open, items };
+}
+
+// A jacket swapped for another size is reviewed in the size they kept: each delivered exchange's size,
+// by jacket, following an exchange of an exchange to the last one.
+async function keptSizes(db: Db, orderId: number) {
+  const sizes = new Map<number, string | null>();
+  let from = orderId;
+  for (let hops = 0; hops < 5; hops++) {
+    const exchange = await db.query.orders.findFirst({
+      where: and(eq(orders.exchangeOf, from), eq(orders.status, "delivered")),
+      orderBy: desc(orders.id),
+      columns: { id: true },
+      with: { lines: { columns: { size: true }, with: { variant: { columns: { productId: true } } } } },
+    });
+    if (!exchange) break;
+    for (const line of exchange.lines) if (line.variant) sizes.set(line.variant.productId, line.size);
+    from = exchange.id;
+  }
+  return sizes;
 }
 
 export type ReviewableOrder = NonNullable<Awaited<ReturnType<typeof orderItems>>>;

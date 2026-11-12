@@ -6,7 +6,7 @@ import { catalogSeedStatements } from "@/scripts/lib/catalog-seed";
 
 import { createTestDb } from "../db/test-db";
 import { customers, events, orderLines, orders } from "../db/schema";
-import { funnel, liveView, overview, REPORT_TABS, reports, tableCsv } from "./analytics";
+import { funnel, liveView, overview, REPORT_TABS, reports, splitRupees, tableCsv } from "./analytics";
 
 const NOW = new Date("2026-10-27T12:00:00+05:00");
 const ago = (minutes: number) => new Date(NOW.getTime() - minutes * 60_000);
@@ -152,6 +152,9 @@ describe("analytics", () => {
     expect(behaviour.find((table) => table.key === "exit-pages")?.rows.map((row) => row.page)).toEqual(expect.arrayContaining(["/checkout", "/collections/all"]));
     const [profit] = await reports(store.db, "profit", 30, { now: NOW });
     expect(profit.rows.map((row) => row.month)).toEqual(["October 2026", "September 2026"]);
+    // A phone keeps a report's first and last columns (components/admin/report-table.tsx), so each
+    // profit table ends with the profit.
+    for (const table of await reports(store.db, "profit", 30, { now: NOW })) expect(table.columns.at(-1)?.key, table.key).toBe("profit");
   });
 
   // A size exchange is the same customer's order going out again in another size, not a new sale.
@@ -194,5 +197,79 @@ describe("analytics", () => {
     // Profit: 17,999 less the M's 9,000, and the 310 it cost to send the L.
     const [profit] = await reports(store.db, "profit", 30, { now: NOW });
     expect(profit.rows).toEqual([{ month: "October 2026", orders: 1, revenue: 17999, cost: 9000, courier: 310, tax: 0, profit: 8689, missing: 0 }]);
+  });
+});
+
+describe("profit by collection and product", () => {
+  test("a parcel's rupees split by price stay whole and add up exactly", () => {
+    expect(splitRupees(311, [17999, 14999])).toEqual([170, 141]);
+    expect(splitRupees(31998, [17999, 14999])).toEqual([17454, 14544]);
+    expect(splitRupees(310, [0, 0])).toEqual([155, 155]);
+    expect(splitRupees(1, [1, 1, 1])).toEqual([1, 0, 0]);
+    expect(splitRupees(0, [5, 5])).toEqual([0, 0]);
+    for (const [total, weights] of [[675, [17999, 2500, 2500]], [590, [3, 7]], [18899, [1]]] as const) {
+      expect(splitRupees(total, [...weights]).reduce((sum, part) => sum + part, 0)).toBe(total);
+    }
+  });
+
+  // Every order on record, each one's money split over its jackets: a parcel's courier charge, COD tax
+  // and discount by each jacket's share of its price, so the jackets add up to the order to the rupee.
+  test("each collection, then its jackets; a jacket with no cost shows that rather than a profit", async () => {
+    const [buyer] = await store.db.insert(customers).values({ name: "Sana", email: "s@example.com", phone: "+923001234569" }).returning({ id: customers.id });
+    const base = { customerId: buyer.id, name: "Sana", city: "Lahore", createdAt: ago(60 * 24 * 5), deliveredAt: ago(60 * 24 * 3) };
+    const placed: (typeof orders.$inferInsert)[] = [
+        // COD, paid out: 18,899 less the 9,000 jacket, 590 courier and 675 tax kept.
+        { ...base, number: 1700, status: "delivered", paymentMethod: "cod", subtotal: 17999, deliveryFee: 900, total: 18899, advance: 2000, courierFee: 590, codTax: 675, paidOutAt: ago(60 * 24 * 2) },
+        // Two jackets in one parcel, 1,000 off, an odd courier charge: split by price, rupees kept whole.
+        { ...base, number: 1701, status: "delivered", paymentMethod: "bank_transfer", subtotal: 32998, discountTotal: 1000, total: 31998, courierFee: 311 },
+        // Turned away at the door: no sale, just the courier charge. Its missing cost doesn't matter.
+        { ...base, number: 1702, status: "refused", paymentMethod: "cod", subtotal: 17999, total: 18899, advance: 2000, courierFee: 590, deliveredAt: null, refusedAt: ago(60 * 24 * 2) },
+        // A size exchange of #1700: no sale, its courier charge on the same jacket.
+        { ...base, number: 1703, status: "delivered", paymentMethod: "bank_transfer", source: "exchange", subtotal: 0, total: 0, courierFee: 310 },
+        // The suede's cost isn't set.
+        { ...base, number: 1704, status: "delivered", paymentMethod: "bank_transfer", subtotal: 18999, total: 18999, courierFee: 310 },
+        // Neither of these has made anything yet.
+        { ...base, number: 1705, status: "cancelled", paymentMethod: "cod", subtotal: 17999, total: 18899, courierFee: null, deliveredAt: null },
+        { ...base, number: 1706, status: "shipped", paymentMethod: "cod", subtotal: 17999, total: 18899, courierFee: 590, deliveredAt: null },
+        // A product since deleted from the catalog.
+        { ...base, number: 1707, status: "delivered", paymentMethod: "bank_transfer", subtotal: 2500, total: 2500, courierFee: null },
+    ];
+    // One at a time: D1 takes at most 100 values in a statement.
+    const ids: number[] = [];
+    for (const order of placed) ids.push((await store.db.insert(orders).values(order).returning({ id: orders.id }))[0].id);
+    const [cod, pair, refused, exchange, suede, cancelled, shipped, gone] = ids;
+    const line = (orderId: number, variantId: number | null, title: string, unitPrice: number, costPrice: number | null) => ({ orderId, variantId, title, size: "M", quantity: 1, unitPrice, costPrice });
+    await store.db.insert(orderLines).values([
+      line(cod, 45831741538375, "Black Cropped Sheepskin Leather Jacket", 17999, 9000),
+      line(pair, 49253873647687, "Dark Brown Cropped Sheepskin Leather Jacket", 17999, 9000),
+      line(pair, 42204090892359, "Black Lambskin Leather Jacket", 14999, 7500),
+      line(refused, 45831741505607, "Black Cropped Sheepskin Leather Jacket", 17999, null),
+      line(exchange, 45831741571143, "Black Cropped Sheepskin Leather Jacket", 0, 0),
+      line(suede, 42205323198535, "Black Goatskin Suede Jacket", 18999, null),
+      line(cancelled, 45831741538375, "Black Cropped Sheepskin Leather Jacket", 17999, 9000),
+      line(shipped, 45831741538375, "Black Cropped Sheepskin Leather Jacket", 17999, 9000),
+      line(gone, null, "Old Belt", 2500, 1000),
+    ]);
+
+    const [byMonth, byProduct] = await reports(store.db, "profit", 30, { now: NOW });
+    expect(byProduct).toMatchObject({ key: "profit-by-product", title: "By collection and product" });
+    expect(byProduct.rows).toEqual([
+      { name: "Men’s Cropped Leather Jackets", level: 0, sold: 2, revenue: 36353, cost: 18000, courier: 1660, tax: 675, profit: 16018 },
+      { name: "Black Cropped Sheepskin Leather Jacket", level: 1, sold: 1, revenue: 18899, cost: 9000, courier: 1490, tax: 675, profit: 7734 },
+      { name: "Dark Brown Cropped Sheepskin Leather Jacket", level: 1, sold: 1, revenue: 17454, cost: 9000, courier: 170, tax: 0, profit: 8284 },
+      { name: "Suede Jackets", level: 0, sold: 1, revenue: 18999, cost: "Cost not set", courier: 310, tax: 0, profit: "Cost not set" },
+      { name: "Black Goatskin Suede Jacket", level: 1, sold: 1, revenue: 18999, cost: "Cost not set", courier: 310, tax: 0, profit: "Cost not set" },
+      { name: "Leather Jackets", level: 0, sold: 1, revenue: 14544, cost: 7500, courier: 141, tax: 0, profit: 6903 },
+      { name: "Black Lambskin Leather Jacket", level: 1, sold: 1, revenue: 14544, cost: 7500, courier: 141, tax: 0, profit: 6903 },
+      { name: "Not in the catalog any more", level: 0, sold: 1, revenue: 2500, cost: 1000, courier: 0, tax: 0, profit: 1500 },
+      { name: "Old Belt", level: 1, sold: 1, revenue: 2500, cost: 1000, courier: 0, tax: 0, profit: 1500 },
+    ]);
+
+    // Every rupee is accounted for: the months' revenue, courier and tax are the collections', and the
+    // months' profit is theirs plus the suede, which the months count as costing nothing.
+    const collections = byProduct.rows.filter((row) => row.level === 0);
+    const total = (rows: typeof byMonth.rows, key: string) => rows.reduce((sum, row) => sum + (typeof row[key] === "number" ? (row[key] as number) : 0), 0);
+    for (const key of ["revenue", "courier", "tax"]) expect(total(collections, key), key).toBe(total(byMonth.rows, key));
+    expect(total(collections, "profit") + (18999 - 310)).toBe(total(byMonth.rows, "profit"));
   });
 });

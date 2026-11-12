@@ -7,8 +7,12 @@ import type { Column, ReportTable } from "@/lib/admin/analytics";
 import { formatPKR } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
+// A figure that couldn't be worked out says why in words ("Cost not set"), and is shown as it is.
+const unknown = (kind: Column["kind"], value: string | number | null | undefined) => kind !== "text" && typeof value === "string" && Number.isNaN(Number(value));
+
 export function formatCell(kind: Column["kind"], value: string | number | null | undefined) {
   if (value === null || value === undefined || value === "") return "None";
+  if (unknown(kind, value)) return String(value);
   if (kind === "pkr") return formatPKR(Number(value));
   if (kind === "count") return Number(value).toLocaleString("en-PK");
   if (kind === "percent") return `${value}%`;
@@ -20,7 +24,8 @@ export function formatCell(kind: Column["kind"], value: string | number | null |
 // scroll sideways; the CSV has them all.
 const between = (index: number, columns: number) => columns > 3 && index > 0 && index < columns - 1 && "hidden sm:table-cell";
 
-// One report's table in a card, with its CSV beside the title.
+// One report's table in a card, with its CSV beside the title. A row with `level: 1` belongs to the
+// one above it (a jacket under its collection): its name is indented and not bold.
 export function ReportCard({ table, csvHref, empty = "Nothing in this period yet." }: { table: ReportTable; csvHref?: string; empty?: string }) {
   return (
     <Card className="gap-0 py-0">
@@ -56,9 +61,10 @@ export function ReportCard({ table, csvHref, empty = "Nothing in this period yet
                       key={column.key}
                       className={cn(
                         index === 0 ? "max-w-72 truncate pl-4 font-medium whitespace-normal sm:whitespace-nowrap" : "text-right tabular-nums",
+                        index === 0 && row.level === 1 && "pl-8 font-normal",
                         index === table.columns.length - 1 && "pr-4",
                         between(index, table.columns.length),
-                        (row[column.key] === null || row[column.key] === undefined) && "text-muted-foreground",
+                        (row[column.key] === null || row[column.key] === undefined || unknown(column.kind, row[column.key])) && "text-muted-foreground",
                       )}
                     >
                       {formatCell(column.kind, row[column.key])}

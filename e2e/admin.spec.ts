@@ -265,6 +265,12 @@ test.describe("admin", () => {
     await expect(page.getByText("Visited the store")).toBeVisible();
     await page.goto("/admin/analytics/reports?tab=behaviour&days=7");
     await expect(page.getByText("Landing pages", { exact: true })).toBeVisible();
+    // Profit by month, then what each collection and jacket made, with their own CSV.
+    await page.goto("/admin/analytics/reports?tab=profit");
+    await expect(page.getByText("By collection and product", { exact: true })).toBeVisible();
+    const products = await page.request.get("/admin/export/report?tab=profit&table=profit-by-product&days=30");
+    expect(products.status()).toBe(200);
+    expect(await products.text()).toContain("Collection and product");
     const csv = await page.request.get("/admin/export/report?tab=sales&table=by-product&days=30");
     expect(csv.status()).toBe(200);
     expect(await csv.text()).toContain("Product");

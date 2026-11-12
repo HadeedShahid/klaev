@@ -428,11 +428,96 @@ async function operationsReports(db: Db, from: number, to: number): Promise<Repo
 // Profit by the month orders were delivered (or came back refused): revenue, less what the jackets
 // cost, the courier's charges and the COD tax, as on each order's Profit card. An exchange's money
 // counts, but it isn't another order (see SOLD).
-async function profitReports(db: Db, codTaxPercent: number): Promise<ReportTable[]> {
-  const settled = await db.query.orders.findMany({
-    where: (orders, { inArray }) => inArray(orders.status, ["delivered", "refused"]),
-    with: { lines: { columns: { costPrice: true, quantity: true } }, payments: { columns: { amount: true } } },
+// A whole number of rupees split by weights, in whole rupees: each part rounded down, and the rupees
+// left over to the largest remainders, so the parts always add up to the whole. With no weights to
+// go by (an exchange's jackets cost the customer nothing), the parts are even.
+export function splitRupees(total: number, weights: number[]) {
+  const shares = weights.some((weight) => weight > 0) ? weights : weights.map(() => 1);
+  const whole = shares.reduce((sum, share) => sum + share, 0);
+  const exact = shares.map((share) => (total * share) / whole);
+  const parts = exact.map((value) => Math.floor(value));
+  let left = total - parts.reduce((sum, part) => sum + part, 0);
+  const byRemainder = exact.map((value, index) => ({ index, rest: value - Math.floor(value) })).sort((a, b) => b.rest - a.rest || a.index - b.index);
+  for (const { index } of byRemainder) {
+    if (left <= 0) break;
+    parts[index] += 1;
+    left -= 1;
+  }
+  return parts;
+}
+
+const COST_NOT_SET = "Cost not set";
+type Tally = { name: string; sold: number; revenue: number; cost: number; courier: number; tax: number; profit: number; missing: boolean };
+const tally = (name: string): Tally => ({ name, sold: 0, revenue: 0, cost: 0, courier: 0, tax: 0, profit: 0, missing: false });
+
+// What each collection and each jacket made, from every order on record, by the same rules as the
+// months: delivered and refused orders, exchanges' costs, never cancelled ones. A parcel's revenue
+// (its total, so after any discount), courier charge and COD tax are split over its jackets by price,
+// so they add up to the order to the rupee. A jacket sold with no cost recorded on the order shows
+// that, not a profit that counts it as free; the same goes for its collection.
+function profitByProduct(settled: SettledOrder[], codTaxPercent: number): ReportTable["rows"] {
+  const collections = new Map<string, { total: Tally; products: Map<string, Tally> }>();
+  for (const order of settled) {
+    const result = orderProfit({ ...order, paid: order.payments.reduce((sum, payment) => sum + payment.amount, 0) }, codTaxPercent);
+    const weights = order.lines.map((line) => line.quantity * line.unitPrice);
+    const [revenue, courier, tax] = [result.revenue, result.courier, result.tax].map((amount) => splitRupees(amount, weights));
+    const refused = order.status === "refused";
+    order.lines.forEach((line, index) => {
+      const product = line.variant?.product ?? null;
+      const collectionName = product ? (product.collection?.title ?? "No collection") : "Not in the catalog any more";
+      const group = collections.get(collectionName) ?? { total: tally(collectionName), products: new Map<string, Tally>() };
+      collections.set(collectionName, group);
+      const key = product ? `product:${product.id}` : `title:${line.title}`;
+      const row = group.products.get(key) ?? tally(product?.title ?? line.title);
+      group.products.set(key, row);
+      // A refused parcel came back, so its jackets cost nothing; only what it cost to send counts.
+      const cost = refused ? 0 : (line.costPrice ?? 0) * line.quantity;
+      const sold = order.status === "delivered" && order.source !== "exchange" ? line.quantity : 0;
+      for (const target of [row, group.total]) {
+        target.sold += sold;
+        target.revenue += revenue[index];
+        target.cost += cost;
+        target.courier += courier[index];
+        target.tax += tax[index];
+        target.profit += revenue[index] - cost - courier[index] - tax[index];
+        if (!refused && line.costPrice === null) target.missing = true;
+      }
+    });
+  }
+  const shown = (row: Tally, level: number) => ({
+    name: row.name,
+    level,
+    sold: row.sold,
+    revenue: row.revenue,
+    cost: row.missing ? COST_NOT_SET : row.cost,
+    courier: row.courier,
+    tax: row.tax,
+    profit: row.missing ? COST_NOT_SET : row.profit,
   });
+  const byRevenue = (a: Tally, b: Tally) => b.revenue - a.revenue || a.name.localeCompare(b.name);
+  return [...collections.values()]
+    .sort((a, b) => byRevenue(a.total, b.total))
+    .flatMap(({ total, products }) => [shown(total, 0), ...[...products.values()].sort(byRevenue).map((row) => shown(row, 1))]);
+}
+
+type SettledOrder = Awaited<ReturnType<typeof settledOrders>>[number];
+
+function settledOrders(db: Db) {
+  return db.query.orders.findMany({
+    where: (orders, { inArray }) => inArray(orders.status, ["delivered", "refused"]),
+    with: {
+      lines: {
+        columns: { costPrice: true, quantity: true, unitPrice: true, title: true },
+        orderBy: (lines, { asc }) => asc(lines.id),
+        with: { variant: { columns: { id: true }, with: { product: { columns: { id: true, title: true }, with: { collection: { columns: { title: true } } } } } } },
+      },
+      payments: { columns: { amount: true } },
+    },
+  });
+}
+
+async function profitReports(db: Db, codTaxPercent: number): Promise<ReportTable[]> {
+  const settled = await settledOrders(db);
   const months = new Map<string, { month: string; orders: number; revenue: number; cost: number; courier: number; tax: number; profit: number; missing: number }>();
   for (const order of settled) {
     const at = order.deliveredAt ?? order.refusedAt ?? order.createdAt;
@@ -452,7 +537,7 @@ async function profitReports(db: Db, codTaxPercent: number): Promise<ReportTable
     {
       key: "profit-by-month",
       title: "By month",
-      note: "By the month each order was delivered or came back. A jacket with no cost set counts as costing nothing: the last column says how many orders that touches.",
+      note: "By the month each order was delivered or came back. A jacket with no cost set counts as costing nothing: the Cost not set column says how many orders that touches.",
       columns: [
         text("month", "Month"),
         count("orders", "Orders"),
@@ -460,10 +545,26 @@ async function profitReports(db: Db, codTaxPercent: number): Promise<ReportTable
         money("cost", "Jacket cost"),
         money("courier", "Courier"),
         money("tax", "COD tax"),
-        money("profit", "Profit"),
+        // Profit last, so a phone, which keeps a table's first and last columns, shows it.
         count("missing", "Cost not set"),
+        money("profit", "Profit"),
       ],
       rows: [...months.values()].sort((a, b) => b.month.localeCompare(a.month)).map((row) => ({ ...row, month: monthLabel(row.month) })),
+    },
+    {
+      key: "profit-by-product",
+      title: "By collection and product",
+      note: "Every order on record. A parcel's courier charge, COD tax and any discount are split over its jackets by price. Where a jacket was sold with no cost recorded, its cost and profit say so rather than count it as free.",
+      columns: [
+        text("name", "Collection and product"),
+        count("sold", "Sold"),
+        money("revenue", "Revenue"),
+        money("cost", "Jacket cost"),
+        money("courier", "Courier"),
+        money("tax", "COD tax"),
+        money("profit", "Profit"),
+      ],
+      rows: profitByProduct(settled, codTaxPercent),
     },
   ];
 }

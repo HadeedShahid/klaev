@@ -5,7 +5,7 @@ import { POLICIES_WRITTEN } from "@/data/pages";
 import { HOME_LISTING } from "@/data/search-listings";
 
 import type { Product } from "./catalog";
-import { collectionSeo, productData, robotsFor, sharedImage, SITE_OPEN_GRAPH, sitemapEntries, storeData } from "./seo";
+import { articleData, collectionSeo, productData, robotsFor, sharedImage, SITE_OPEN_GRAPH, sitemapEntries, storeData } from "./seo";
 
 const jacket: Product = {
   handle: "black-cropped-leather-jacket",
@@ -86,6 +86,8 @@ describe("structured data", () => {
           refundType: "https://schema.org/ExchangeRefund",
           merchantReturnLink: "https://klaev.com/policies/refund-policy",
         },
+        // Delivery is the store's one policy (on the home page); each size points to it by its @id.
+        shippingDetails: { "@type": "OfferShippingDetails", hasShippingService: { "@id": "https://klaev.com/#shipping" } },
       },
     });
 
@@ -143,6 +145,8 @@ describe("structured data", () => {
     const store = storeData(1100)["@graph"].find((node) => node["@type"] === "OnlineStore");
     expect(store?.hasShippingService).toEqual({
       "@type": "ShippingService",
+      // What each size's offer points to.
+      "@id": "https://klaev.com/#shipping",
       name: "Delivery across Pakistan",
       description: "PKR 1,100 with cash on delivery, free with a bank transfer. Most orders arrive in 2 to 5 days.",
       fulfillmentType: "https://schema.org/FulfillmentTypeDelivery",
@@ -153,6 +157,33 @@ describe("structured data", () => {
         transitTime: { "@type": "ServicePeriod", duration: { "@type": "QuantitativeValue", minValue: 2, maxValue: 5, unitCode: "DAY" } },
       },
     });
+  });
+
+  // Google: "Use the Person type for people, and the Organization type for organizations."
+  test("an article is written by Klaev, the organisation, and published by it", () => {
+    const post = {
+      handle: "how-a-cropped-leather-jacket-should-fit",
+      title: "How a Cropped Leather Jacket Should Fit",
+      seoDescription: "How it should sit at the waist.",
+      excerpt: "An excerpt.",
+      publishedAt: new Date("2026-09-20T08:11:30Z"),
+      updatedAt: new Date("2026-10-31T19:28:16Z"),
+      coverSrc: "https://media.example/journal/fit.webp",
+    };
+    expect(articleData(post)).toEqual({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: "How a Cropped Leather Jacket Should Fit",
+      description: "How it should sit at the waist.",
+      datePublished: "2026-09-20T08:11:30.000Z",
+      dateModified: "2026-10-31T19:28:16.000Z",
+      image: "https://media.example/journal/fit.webp",
+      author: { "@type": "Organization", name: "Klaev", url: "https://klaev.com/" },
+      publisher: { "@type": "Organization", name: "Klaev" },
+      mainEntityOfPage: { "@type": "WebPage", "@id": "https://klaev.com/blogs/blog/how-a-cropped-leather-jacket-should-fit" },
+    });
+    // Without a search description it falls back to the excerpt, and without a cover it has no image.
+    expect(articleData({ ...post, seoDescription: null, coverSrc: null })).toMatchObject({ description: "An excerpt.", image: undefined });
   });
 });
 

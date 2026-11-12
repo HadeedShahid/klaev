@@ -12,6 +12,9 @@ import { STORE } from "./store";
 // robots.txt. Every address is on the real domain, whichever host served the page.
 const SITE = STORE.siteUrl;
 const STORE_ID = `${SITE}/#store`;
+// The store's one delivery policy, on the home page. Each size's offer points to it by this @id, as
+// Google suggests for a policy that lives on another page.
+const SHIPPING_ID = `${SITE}/#shipping`;
 const SAME_AS = [
   `https://www.instagram.com/${STORE.instagram}/`,
   "https://www.facebook.com/profile.php?id=61575756869911",
@@ -98,6 +101,7 @@ function shippingService(codDeliveryFee: number) {
   const [fewest, most] = STORE.deliveryDays.split(" to ").map(Number);
   return {
     "@type": "ShippingService",
+    "@id": SHIPPING_ID,
     name: "Delivery across Pakistan",
     description: `${formatPKR(codDeliveryFee)} with cash on delivery, free with a bank transfer. Most orders arrive in ${STORE.deliveryDays} days.`,
     fulfillmentType: "https://schema.org/FulfillmentTypeDelivery",
@@ -172,9 +176,37 @@ export function productData(product: Product, reviews: RatedReview[] = []) {
           availability: variant.available ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
           itemCondition: "https://schema.org/NewCondition",
           hasMerchantReturnPolicy: RETURN_POLICY,
+          shippingDetails: { "@type": "OfferShippingDetails", hasShippingService: { "@id": SHIPPING_ID } },
         },
       };
     }),
+  };
+}
+
+type ArticleInput = {
+  handle: string;
+  title: string;
+  seoDescription: string | null;
+  excerpt: string | null;
+  publishedAt: Date | null;
+  updatedAt: Date;
+  coverSrc: string | null;
+};
+
+// A journal article. Klaev writes them as the business, so the author is the organisation with its
+// home page, not a person (Google: "the Organization type for organizations").
+export function articleData(post: ArticleInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.seoDescription ?? post.excerpt ?? undefined,
+    datePublished: post.publishedAt?.toISOString(),
+    dateModified: post.updatedAt.toISOString(),
+    image: post.coverSrc ?? undefined,
+    author: { "@type": "Organization", name: "Klaev", url: `${SITE}/` },
+    publisher: { "@type": "Organization", name: "Klaev" },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE}/blogs/blog/${post.handle}` },
   };
 }
 

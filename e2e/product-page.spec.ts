@@ -24,6 +24,28 @@ test.describe("product page", () => {
     );
   });
 
+  // Search lists each size by its own link (?variant=, as Shopify's were), and Google wants that link
+  // to open with the size chosen: "showing the right image, price, and availability".
+  test("a link to one size opens with that size chosen; a sold-out size's link opens with it marked sold out", async ({ page }) => {
+    const sizes = page.getByRole("radiogroup", { name: "Size" });
+    const buy = page.getByTestId("buy-button");
+
+    await page.goto(`${CROPPED}?variant=49253873647687`);
+    await expect(sizes.getByRole("radio", { name: /^S\b/ })).toBeChecked();
+    await expect(buy).toHaveText("Add to cart, size S");
+
+    // XL is sold out: it can't be chosen, so nothing is, and XL says so.
+    await page.goto(`${CROPPED}?variant=49253873745991`);
+    await expect(sizes.getByRole("radio", { name: /^XL\b/ })).toBeDisabled();
+    await expect(sizes.getByRole("radio", { checked: true })).toHaveCount(0);
+    await expect(buy).toHaveText("Choose a size");
+
+    // Another product's size, or a made-up one, picks nothing.
+    await page.goto(`${CROPPED}?variant=45831741505607`);
+    await expect(buy).toHaveText("Choose a size");
+    await expect(sizes.getByRole("radio", { checked: true })).toHaveCount(0);
+  });
+
   test("sizes name their measurements, and sold-out sizes stay visible but can't be chosen", async ({
     page,
   }) => {

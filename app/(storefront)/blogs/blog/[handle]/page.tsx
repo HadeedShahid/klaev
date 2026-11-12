@@ -7,8 +7,7 @@ import { JsonLd } from "@/components/site/json-ld";
 import { getPublishedPost } from "@/lib/journal";
 import { RichText } from "@/components/site/rich-text";
 import { readingMinutes } from "@/lib/journal-body";
-import { sharedImage, SITE_OPEN_GRAPH } from "@/lib/seo";
-import { STORE } from "@/lib/store";
+import { articleData, sharedImage, SITE_OPEN_GRAPH } from "@/lib/seo";
 
 const day = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Karachi", day: "numeric", month: "long", year: "numeric" });
 
@@ -45,23 +44,11 @@ export default async function ArticlePage({ params }: PageProps<"/blogs/blog/[ha
     { name: "Blog", href: "/blogs/blog" },
     { name: post.title, href: `/blogs/blog/${post.handle}` },
   ];
-  const structured = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: post.seoDescription ?? post.excerpt ?? undefined,
-    datePublished: post.publishedAt?.toISOString(),
-    dateModified: post.updatedAt.toISOString(),
-    image: post.coverSrc ?? undefined,
-    author: { "@type": "Person", name: "Klaev Editorial" },
-    publisher: { "@type": "Organization", name: "Klaev" },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `${STORE.siteUrl}/blogs/blog/${post.handle}` },
-  };
 
   return (
     <article className="mx-auto flex max-w-2xl flex-col gap-8 px-5 pt-6 pb-16 md:px-8 md:pt-10">
       <BreadcrumbData trail={trail} />
-      <JsonLd data={structured} />
+      <JsonLd data={articleData(post)} />
       <Breadcrumbs trail={trail} placement="top" className="px-0 pt-0" />
       <header className="flex flex-col gap-3">
         <h1 className="text-[2rem] leading-tight font-semibold tracking-tight text-balance md:text-5xl">{post.title}</h1>

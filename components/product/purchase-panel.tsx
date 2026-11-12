@@ -9,6 +9,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type FormEvent,
   type ReactNode,
 } from "react";
@@ -40,6 +41,12 @@ type Props = {
 
 const idle: AddToCartState = { status: "idle" };
 
+// The size a link named (?variant=, as search lists each size). Only the browser knows the link: the
+// page is the same for every one, so the server renders with none and the browser fills it in.
+const noSubscribe = () => () => {};
+const linkedVariant = () => new URLSearchParams(window.location.search).get("variant");
+const noLink = () => null;
+
 export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGuide, restocking }: Props) {
   const [state, formAction, pending] = useActionState(addToCart, idle);
   // Told only once the action says it's really in the cart.
@@ -48,6 +55,11 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
     metaEvent("AddToCart", { content_ids: [state.variantId], content_type: "product", content_name: state.title, value: state.price, num_items: 1 });
   }, [state]);
   const [selected, setSelected] = useState<SizeOption | null>(null);
+  // Opened from one size's link, the page starts with that size chosen, unless it's sold out
+  // (Google wants the link to show "the right image, price, and availability"). A size the shopper
+  // picks takes over.
+  const linkedId = useSyncExternalStore(noSubscribe, linkedVariant, noLink);
+  const chosen = selected ?? sizes.find((option) => option.variantId === linkedId && option.available) ?? null;
   const sizesRef = useRef<HTMLDivElement>(null);
   const sizeLabelId = useId();
 
@@ -71,13 +83,13 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
   const soldOut = hasSizes ? sizes.every((option) => !option.available) : !singleVariant?.available;
   // Sold out with a batch on order: the pill becomes the way to hold one from it.
   const reserve = soldOut && restocking;
-  const needsSize = hasSizes && !selected;
+  const needsSize = hasSizes && !chosen;
   const limit = shown.status === "limit" ? limitWords(shown.limit, shown.size) : null;
 
   let label = "Add to cart";
   if (soldOut) label = "Sold out";
   else if (needsSize) label = "Choose a size";
-  else if (selected) label = `Add to cart, size ${selected.size}`;
+  else if (chosen) label = `Add to cart, size ${chosen.size}`;
 
   function promptForSize(event: React.MouseEvent<HTMLButtonElement>) {
     if (!needsSize) return;
@@ -133,7 +145,7 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
                   value={option.variantId}
                   disabled={!option.available}
                   // Controlled, because React resets a form's fields after its action finishes.
-                  checked={selected?.variantId === option.variantId}
+                  checked={chosen?.variantId === option.variantId}
                   onChange={() => {
                     setSelected(option);
                     // What the bar said was about the last size.

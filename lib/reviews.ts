@@ -22,7 +22,7 @@ const photoOf = (src: string | null, width: number | null, height: number | null
 async function orderItems(db: Db, where: ReturnType<typeof eq>) {
   const order = await db.query.orders.findFirst({
     where,
-    columns: { id: true, number: true, name: true, city: true, status: true, source: true, token: true },
+    columns: { id: true, number: true, name: true, city: true, status: true, source: true, token: true, exchangeOf: true },
     with: {
       lines: {
         columns: { id: true, title: true, size: true },
@@ -64,9 +64,22 @@ async function orderItems(db: Db, where: ReturnType<typeof eq>) {
       },
     ];
   });
-  // A delivered order can be reviewed. An exchange is reviewed through the order it replaced.
+  // A delivered order can be reviewed. An exchange is reviewed through the order it replaced, the
+  // first of an exchange of an exchange: `replaces` is that order's number.
   const open = order.status === "delivered" && order.source !== "exchange";
-  return { id: order.id, number: order.number, name: order.name, city: order.city, token: order.token, open, items };
+  const replaces = await firstOrder(db, order.exchangeOf);
+  return { id: order.id, number: order.number, name: order.name, city: order.city, token: order.token, open, replaces, items };
+}
+
+// The number of the order an exchange started from, following an exchange of an exchange back.
+async function firstOrder(db: Db, id: number | null) {
+  for (let hops = 0; id !== null && hops < 5; hops++) {
+    const order = await db.query.orders.findFirst({ where: eq(orders.id, id), columns: { number: true, exchangeOf: true } });
+    if (!order) return null;
+    if (order.exchangeOf === null) return order.number;
+    id = order.exchangeOf;
+  }
+  return null;
 }
 
 // A jacket swapped for another size is reviewed in the size they kept: each delivered exchange's size,

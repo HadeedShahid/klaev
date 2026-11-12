@@ -1,6 +1,7 @@
 import { ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { AddReviewForm } from "@/components/admin/add-review-form";
 import { PageHeader } from "@/components/admin/page-header";
@@ -22,8 +23,17 @@ export default async function NewReviewPage({ searchParams }: PageProps<"/admin/
   const order = asked ? await reviewableOrderByNumber(await getDb(), asked) : null;
   const waiting = order?.items.filter((item) => item.reviewId === null) ?? [];
 
-  let problem: string | null = null;
+  let problem: ReactNode = null;
   if (asked && !order) problem = `There's no order #${asked}.`;
+  else if (order?.replaces)
+    problem = (
+      <>
+        #{order.number} is a size exchange for #{order.replaces}, so the review goes on #{order.replaces}, in the size they kept.{" "}
+        <Link href={`/admin/reviews/new?order=${order.replaces}`} className="font-medium text-foreground underline underline-offset-[0.2em] hover:no-underline">
+          Open #{order.replaces}
+        </Link>
+      </>
+    );
   else if (order && !order.open) problem = `Order #${order.number} isn't delivered yet. Mark it delivered, then add the review.`;
   else if (order && waiting.length === 0) problem = `Everything in #${order.number} has a review already.`;
 

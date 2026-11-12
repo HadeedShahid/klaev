@@ -130,12 +130,15 @@ describe("writing a review", () => {
     expect(await size()).toBe("S");
     await deliver(toM);
     expect(await size()).toBe("M");
-    // The exchange itself isn't reviewed, so one jacket gets one review.
-    expect((await reviewableOrderByNumber(store.db, toM))!.open).toBe(false);
+    // The exchange itself isn't reviewed, so one jacket gets one review: it points to the first order.
+    expect(await reviewableOrderByNumber(store.db, toM)).toMatchObject({ open: false, replaces: number });
+    expect((await reviewableOrder(store.db, token))!.replaces).toBeNull();
 
     // Swapped again, the latest size counts, and the review keeps it.
-    await deliver(await swap(toM, BROWN_L));
+    const toL = await swap(toM, BROWN_L);
+    await deliver(toL);
     expect(await size()).toBe("L");
+    expect((await reviewableOrderByNumber(store.db, toL))!.replaces).toBe(number);
     const order = (await reviewableOrder(store.db, token))!;
     expect(await submitReview(store.db, token, order.items[0].lineId, words)).toMatchObject({ ok: true });
     expect((await listReviews(store.db, "pending"))[0]).toMatchObject({ size: "L", orderNumber: number });

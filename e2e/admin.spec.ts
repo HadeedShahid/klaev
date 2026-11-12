@@ -403,6 +403,15 @@ test.describe("admin", () => {
     await page.getByRole("dialog", { name: "Is the old jacket back?" }).getByRole("button", { name: "Yes, back in stock" }).click();
     await expect(page.getByText(/^The old jacket was back in stock on/)).toBeVisible();
 
+    // Its review goes on the order it replaced, so adding one to the exchange points there.
+    await page.goto(`/admin/reviews/new?order=${sent}`);
+    const pointer = page.getByRole("alert").filter({ hasText: "is a size exchange for" });
+    await expect(pointer).toHaveText(`#${sent} is a size exchange for #${number}, so the review goes on #${number}, in the size they kept. Open #${number}`);
+    await pointer.getByRole("link", { name: `Open #${number}` }).click();
+    await expect(page).toHaveURL(new RegExp(`/admin/reviews/new\\?order=${number}$`));
+    await expect(pointer).toHaveCount(0);
+    await expect(page.getByLabel("Words")).toBeVisible();
+
     // In the orders list the exchange says which order it's for, and its badge opens that order
     // rather than the exchange's own row; the original has no badge.
     await page.goto("/admin/orders");

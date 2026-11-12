@@ -745,4 +745,35 @@ test.describe("admin", () => {
     await page.getByRole("dialog", { name: `Remove ${code}?` }).getByRole("button", { name: "Remove it" }).click();
     await expect(row).toBeHidden();
   });
+
+  test("the admin installs as its own app, and Settings turns alerts on for the phone it's open on", async ({ page }, testInfo) => {
+    // The sign-in page already offers the app, so it can be installed before signing in.
+    await page.goto("/admin/login");
+    await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/admin/manifest.webmanifest");
+    const manifest = await (await page.request.get("/admin/manifest.webmanifest")).json();
+    expect(manifest).toMatchObject({ name: "Klaev Admin", start_url: "/admin", scope: "/admin", display: "standalone" });
+    for (const icon of manifest.icons) expect((await page.request.get(icon.src)).status()).toBe(200);
+    const helper = await page.request.get("/admin/sw.js");
+    expect(helper.headers()["content-type"]).toContain("javascript");
+    expect(await helper.text()).toContain("showNotification");
+
+    await signIn(page);
+    await page.goto("/admin/settings");
+    const card = page.locator('[data-slot="card"]').filter({ has: page.getByText("Alerts on this phone", { exact: true }) });
+    await expect(card.getByText(/No phone gets them yet\./)).toBeVisible();
+    // Test browsers can't reach a real push service, so this stops at the offer. An iPhone outside its
+    // Home Screen app is told how to get there; Chrome, with notifications blocked as it starts in tests,
+    // says how to allow them, and once allowed offers the button.
+    if (testInfo.project.name === "iphone") {
+      await expect(card.getByText(/add the admin to your Home Screen/)).toBeVisible();
+    } else {
+      await expect(card.getByText(/Notifications are blocked for this site/)).toBeVisible();
+      await page.context().grantPermissions(["notifications"]);
+      // The browser can take a moment to apply it to the page.
+      await expect(async () => {
+        await page.reload();
+        await expect(card.getByRole("button", { name: "Turn on alerts" })).toBeVisible({ timeout: 3_000 });
+      }).toPass();
+    }
+  });
 });

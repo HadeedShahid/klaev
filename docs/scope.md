@@ -281,6 +281,8 @@ To you:
 | Low stock | A variant drops below its threshold |
 | Daily summary | Every morning: yesterday's sales, orders, visitors and open to-dos |
 
+**Phone alerts (built 12 November 2026).** New order, Receipt uploaded, New message and New review also arrive as notifications on the owner's phones, so they aren't lost in a shared inbox. The admin installs as its own app, "Klaev Admin", and each phone turns alerts on for itself under Settings, Alerts on this phone (with a test). Each alert is a line or two and opens the order, Messages or Reviews when tapped. They go through the phone browser's own push service (Web Push), sealed for each phone and signed with the store's key, which the store makes itself and keeps in `settings`; no outside account. A phone that turns them off, or whose browser drops them, is forgotten. Android Chrome gets them in the app or the browser; an iPhone only once the admin is added to its Home Screen.
+
 Many customers in Pakistan don't read email, so confirming by WhatsApp is a one-tap action in the admin (a prefilled `wa.me` link, no API cost). Automated WhatsApp or SMS comes later.
 
 ## What Shopify couldn't do

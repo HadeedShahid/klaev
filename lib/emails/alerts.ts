@@ -6,7 +6,7 @@ import { formatPhone } from "@/lib/phone";
 import { lead, lineDetail, orderLines, page, panel, pill, quoted, title, type EmailLine } from "./layout";
 
 // What the owner gets by email: what happened, who it's from, and the link to deal with it.
-type AlertOrder = {
+export type AlertOrder = {
   number: number;
   paymentMethod: string;
   name: string;
@@ -18,11 +18,11 @@ type AlertOrder = {
 };
 
 const orderUrl = (order: AlertOrder, site: string) => `${site}/admin/orders/${order.number}`;
-const methodLabel = (order: AlertOrder) => (PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod).toLowerCase();
-const expected = (order: AlertOrder) => formatPKR(order.paymentMethod === "cod" ? order.advance : order.total);
+export const methodLabel = (order: AlertOrder) => (PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod).toLowerCase();
+export const expected = (order: AlertOrder) => formatPKR(order.paymentMethod === "cod" ? order.advance : order.total);
 const phoneOf = (phone: string | null) => (phone ? formatPhone(phone) : "Not given");
 // Strangers type these, so they can't be trusted to stay on one line.
-const oneLine = (value: string) => value.replace(/\s+/g, " ").trim();
+export const oneLine = (value: string) => value.replace(/\s+/g, " ").trim();
 
 export function newOrderAlert(order: AlertOrder, site: string): EmailContent {
   const summary = `${formatPKR(order.total)}, ${methodLabel(order)}`;

@@ -465,6 +465,16 @@ export const settings = sqliteTable("settings", {
   updatedAt,
 });
 
+// The phones that get the admin's alerts: one row per browser that turned them on in Settings, with
+// the address and keys its push service gave it (lib/push.ts).
+export const alertDevices = sqliteTable("alert_devices", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  endpoint: text().notNull().unique(),
+  p256dh: text().notNull(),
+  auth: text().notNull(),
+  createdAt,
+});
+
 export const collectionsRelations = relations(collections, ({ many }) => ({
   products: many(products),
 }));

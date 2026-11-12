@@ -5,10 +5,12 @@ import { THEME_SCRIPT } from "@/lib/admin-theme";
 
 import "./admin.css";
 
-// The admin never appears in search, and every page's title says which part of it you're in.
+// The admin never appears in search, and every page's title says which part of it you're in. It
+// installs as its own app, "Klaev Admin", which is what gets the alerts (public/admin/).
 export const metadata: Metadata = {
   title: { template: "%s · Klaev admin", default: "Klaev admin" },
   robots: { index: false, follow: false },
+  manifest: "/admin/manifest.webmanifest",
 };
 
 // The browser's own chrome follows the system's light or dark, as the admin does by default.

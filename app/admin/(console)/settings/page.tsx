@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { bankAccountAction, codTermsAction, metaAction, passwordAction } from "@/app/actions/admin-settings";
+import { AlertsCard } from "@/components/admin/alerts-card";
 import { CourierForm } from "@/components/admin/courier-form";
 import { PageHeader } from "@/components/admin/page-header";
 import { SettingsForm } from "@/components/admin/settings-form";
@@ -9,6 +10,7 @@ import { MIN_PASSWORD_LENGTH, requireAdmin } from "@/lib/admin/auth";
 import { getCourierSettings } from "@/lib/admin/courier";
 import { getDb } from "@/lib/db";
 import { metaTokenIsSet } from "@/lib/meta-server";
+import { countDevices, getPushKeys } from "@/lib/push";
 import { getBankAccount, getCodTerms, getMetaSettings } from "@/lib/settings";
 import { STORE } from "@/lib/store";
 
@@ -17,17 +19,32 @@ export const metadata: Metadata = { title: "Settings" };
 export default async function SettingsPage() {
   await requireAdmin();
   const db = await getDb();
-  const [courier, terms, bank, meta, metaToken] = await Promise.all([
+  const [courier, terms, bank, meta, metaToken, pushKeys, phones] = await Promise.all([
     getCourierSettings(db),
     getCodTerms(db),
     getBankAccount(db),
     getMetaSettings(db),
     metaTokenIsSet(),
+    getPushKeys(db),
+    countDevices(db),
   ]);
   return (
     <>
       <PageHeader title="Settings" />
       <div className="flex flex-col gap-4 p-4 md:p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Alerts on this phone</CardTitle>
+            <CardDescription>
+              New orders, transfer screenshots, messages and reviews, as notifications. Each phone turns them on for itself, so clearing one here
+              clears nothing on another. {phones === 0 ? "No phone gets them yet." : phones === 1 ? "1 phone gets them." : `${phones} phones get them.`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AlertsCard publicKey={pushKeys.publicKey} />
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Checkout</CardTitle>

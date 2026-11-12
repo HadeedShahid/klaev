@@ -22,6 +22,9 @@ const P256 = { namedCurve: "P-256" } as const;
 const DAY_SECONDS = 24 * 60 * 60;
 // One record holds the whole message; a push service takes at most 4,096 bytes.
 const RECORD_SIZE = 4096;
+// A sign-up this new can still be unknown to its push service for a moment (seen with Google's right
+// after a phone signed up again), so "gone" isn't believed yet.
+const SETTLING_MS = 2 * 60 * 1000;
 
 const encoder = new TextEncoder();
 const b64url = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -94,8 +97,10 @@ async function vapid(endpoint: string, keys: Keys) {
 }
 
 // A phone that turned alerts on. Its browser's push service gave it the address and keys; asking
-// again (the Settings page does on every visit) changes nothing.
-export async function saveDevice(db: Db, device: Device): Promise<{ ok: true } | { ok: false; message: string }> {
+// again (the Settings page does on every visit) changes nothing. `replaces` is the address this
+// browser had before, which its push service has dropped (on Android, installing the app makes Chrome
+// drop the sign-up it had), so it goes, and the count stays one per phone.
+export async function saveDevice(db: Db, device: Device, { replaces }: { replaces?: string } = {}): Promise<{ ok: true } | { ok: false; message: string }> {
   let url: URL;
   try {
     url = new URL(device.endpoint);
@@ -109,6 +114,7 @@ export async function saveDevice(db: Db, device: Device): Promise<{ ok: true } |
     return { ok: false, message: "The phone's keys didn't come through." };
   }
   await db.insert(alertDevices).values(device).onConflictDoUpdate({ target: alertDevices.endpoint, set: { p256dh: device.p256dh, auth: device.auth } });
+  if (replaces && replaces !== device.endpoint) await removeDevice(db, replaces);
   return { ok: true };
 }
 
@@ -122,7 +128,7 @@ export async function countDevices(db: Db) {
 
 // Sends one alert to every signed-up phone, or only to `endpoint`'s, and says how many push services
 // took it. It never throws: a phone that can't be reached is logged, and one whose push service says
-// it's gone (turned off, or the browser dropped it) is forgotten.
+// it's gone (turned off, or the browser dropped it) is forgotten, unless it signed up moments ago.
 export async function sendAlert(db: Db, alert: Alert, { send = fetch, endpoint }: { send?: typeof fetch; endpoint?: string } = {}) {
   let sent = 0;
   try {
@@ -145,7 +151,11 @@ export async function sendAlert(db: Db, alert: Alert, { send = fetch, endpoint }
             body: await encryptPayload(payload, device),
           });
           if (response.ok) sent++;
-          else if (response.status === 404 || response.status === 410) await removeDevice(db, device.endpoint);
+          else if (response.status === 404 || response.status === 410) {
+            const settling = Date.now() - device.createdAt.getTime() < SETTLING_MS;
+            console.warn(`Alert to phone ${device.id}: its push service says it's gone (${response.status})${settling ? ", but it only just signed up, so it stays" : ", so it's forgotten"}`);
+            if (!settling) await removeDevice(db, device.endpoint);
+          }
           else console.error(`Alert to phone ${device.id} failed: ${response.status} ${await response.text()}`);
         } catch (error) {
           console.error(`Alert to phone ${device.id} failed`, error);

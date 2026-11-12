@@ -9,9 +9,14 @@ import { removeDevice, saveDevice, sendAlert, type Device } from "@/lib/push";
 
 // The Settings card's actions for the phone it's open on (components/admin/alerts-card.tsx).
 
-export async function saveAlertPhone(device: Device) {
+// `replaces` is this browser's previous sign-up, which its push service has dropped.
+export async function saveAlertPhone(device: Device, replaces?: string | null) {
   await requireAdmin();
-  const saved = await saveDevice(await getDb(), { endpoint: String(device.endpoint), p256dh: String(device.p256dh), auth: String(device.auth) });
+  const saved = await saveDevice(
+    await getDb(),
+    { endpoint: String(device.endpoint), p256dh: String(device.p256dh), auth: String(device.auth) },
+    { replaces: replaces ? String(replaces) : undefined },
+  );
   refresh();
   return saved;
 }

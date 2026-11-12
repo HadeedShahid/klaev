@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { eq } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, test } from "vitest";
 
 import { createTestDb } from "./db/test-db";
@@ -68,11 +69,26 @@ describe("push messages", () => {
     expect(await store.db.select().from(alertDevices)).toHaveLength(0);
   });
 
+  test("a phone signing up again replaces its own last sign-up, and no one else's", async () => {
+    const before = await phone("https://fcm.googleapis.com/fcm/send/before");
+    const other = await phone("https://fcm.googleapis.com/fcm/send/other");
+    const after = await phone("https://fcm.googleapis.com/fcm/send/after");
+    await saveDevice(store.db, before);
+    await saveDevice(store.db, other);
+    expect(await saveDevice(store.db, after, { replaces: before.endpoint })).toEqual({ ok: true });
+    expect((await store.db.select().from(alertDevices)).map((device) => device.endpoint).sort()).toEqual([after.endpoint, other.endpoint].sort());
+    // The same sign-up saved again stays.
+    await saveDevice(store.db, after, { replaces: after.endpoint });
+    expect(await store.db.select().from(alertDevices)).toHaveLength(2);
+  });
+
   test("an alert goes to every phone, signed by the store, and a phone that's gone is forgotten", async () => {
     const kept = await phone("https://fcm.googleapis.com/fcm/send/kept");
     const gone = await phone("https://updates.push.services.mozilla.com/wpush/v2/gone");
     await saveDevice(store.db, kept);
     await saveDevice(store.db, gone);
+    // Signed up an hour ago, so "gone" is believed.
+    await store.db.update(alertDevices).set({ createdAt: new Date(Date.now() - 60 * 60 * 1000) }).where(eq(alertDevices.endpoint, gone.endpoint));
     const keys = await getPushKeys(store.db);
 
     const sent: { url: string; init: RequestInit }[] = [];
@@ -104,6 +120,14 @@ describe("push messages", () => {
     expect(body[20]).toBe(65);
 
     expect((await store.db.select().from(alertDevices)).map((device) => device.endpoint)).toEqual([kept.endpoint]);
+  });
+
+  test("a phone that signed up a moment ago isn't forgotten when its push service hasn't caught up", async () => {
+    const fresh = await phone("https://fcm.googleapis.com/fcm/send/fresh");
+    await saveDevice(store.db, fresh);
+    const sent = await sendAlert(store.db, { title: "x", body: "y", url: "/admin" }, { send: async () => new Response(null, { status: 404 }) });
+    expect(sent).toBe(0);
+    expect(await store.db.select().from(alertDevices)).toHaveLength(1);
   });
 
   test("with no phones signed up, nothing is sent", async () => {

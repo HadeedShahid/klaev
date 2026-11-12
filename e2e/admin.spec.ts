@@ -762,18 +762,19 @@ test.describe("admin", () => {
     const card = page.locator('[data-slot="card"]').filter({ has: page.getByText("Alerts on this phone", { exact: true }) });
     await expect(card.getByText(/No phone gets them yet\./)).toBeVisible();
     // Test browsers can't reach a real push service, so this stops at the offer. An iPhone outside its
-    // Home Screen app is told how to get there; Chrome, with notifications blocked as it starts in tests,
-    // says how to allow them, and once allowed offers the button.
+    // Home Screen app is told how to get there; Chrome with notifications blocked says how to allow
+    // them, and once they're allowed offers the button.
     if (testInfo.project.name === "iphone") {
       await expect(card.getByText(/add the admin to your Home Screen/)).toBeVisible();
     } else {
       await expect(card.getByText(/Notifications are blocked for this site/)).toBeVisible();
-      await page.context().grantPermissions(["notifications"]);
-      // The browser can take a moment to apply it to the page.
-      await expect(async () => {
-        await page.reload();
-        await expect(card.getByRole("button", { name: "Turn on alerts" })).toBeVisible({ timeout: 3_000 });
-      }).toPass();
+      // Allowed, it offers the button. Playwright's Chrome reports notifications as denied on the page
+      // even once they're granted, so the page is told they're allowed; real Chrome is checked by hand.
+      await page.context().addInitScript(() => Object.defineProperty(Notification, "permission", { get: () => "granted" }));
+      const allowed = await page.context().newPage();
+      await allowed.goto("/admin/settings");
+      const offer = allowed.locator('[data-slot="card"]').filter({ has: allowed.getByText("Alerts on this phone", { exact: true }) });
+      await expect(offer.getByRole("button", { name: "Turn on alerts" })).toBeVisible();
     }
   });
 });

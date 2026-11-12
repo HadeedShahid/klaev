@@ -41,8 +41,9 @@ type Props = {
 
 const idle: AddToCartState = { status: "idle" };
 
-// The size a link named (?variant=, as search lists each size). Only the browser knows the link: the
-// page is the same for every one, so the server renders with none and the browser fills it in.
+// The size a link named (?variant=, as search lists each size, and as the address says once a size is
+// chosen). Only the browser knows the link: the page is the same for every one, so the server renders
+// with none and the browser fills it in.
 const noSubscribe = () => () => {};
 const linkedVariant = () => new URLSearchParams(window.location.search).get("variant");
 const noLink = () => null;
@@ -148,6 +149,11 @@ export function PurchasePanel({ price, confirmNow, sizes, singleVariant, sizeGui
                   checked={chosen?.variantId === option.variantId}
                   onChange={() => {
                     setSelected(option);
+                    // The address names the size too, so a copied or shared link keeps it. Replaced,
+                    // not pushed, so Back still leaves the jacket in one step.
+                    const address = new URL(window.location.href);
+                    address.searchParams.set("variant", option.variantId);
+                    window.history.replaceState(null, "", address);
                     // What the bar said was about the last size.
                     setDismissed(state);
                   }}

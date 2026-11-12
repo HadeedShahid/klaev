@@ -46,6 +46,26 @@ test.describe("product page", () => {
     await expect(sizes.getByRole("radio", { checked: true })).toHaveCount(0);
   });
 
+  test("choosing a size puts it in the address, so the link keeps it, without adding a step to Back", async ({ page }) => {
+    const sizes = page.getByRole("radiogroup", { name: "Size" });
+    await page.goto("/collections/all");
+    await page.goto(`${CROPPED}?utm_source=instagram`);
+
+    await sizes.getByRole("radio", { name: /^S\b/ }).check();
+    await expect(page).toHaveURL(`${CROPPED}?utm_source=instagram&variant=49253873647687`);
+    await sizes.getByRole("radio", { name: /^L\b/ }).check();
+    await expect(page).toHaveURL(`${CROPPED}?utm_source=instagram&variant=49253873713223`);
+
+    // The address it now shows opens with that size chosen.
+    await page.reload();
+    await expect(sizes.getByRole("radio", { name: /^L\b/ })).toBeChecked();
+    await expect(page.getByTestId("buy-button")).toHaveText("Add to cart, size L");
+
+    // Back leaves the jacket in one step, rather than going back through the sizes.
+    await page.goBack();
+    await expect(page).toHaveURL(/\/collections\/all$/);
+  });
+
   test("sizes name their measurements, and sold-out sizes stay visible but can't be chosen", async ({
     page,
   }) => {

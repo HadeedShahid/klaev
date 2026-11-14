@@ -37,6 +37,29 @@ test.describe("search engines", () => {
     expect(xml).not.toMatch(/\/(cart|checkout|track|orders)\b/);
   });
 
+  test("AI tools get the store at /llms.txt, in full at /llms-full.txt, and how to shop at /agents.md, all from the live catalog", async ({ request }) => {
+    const index = await request.get("/llms.txt");
+    expect(index.status()).toBe(200);
+    expect(index.headers()["content-type"]).toBe("text/plain; charset=utf-8");
+    const text = await index.text();
+    expect(text).toMatch(/^# Klaev\n\n> /);
+    expect(text).toContain("- [Dark Brown Cropped Sheepskin Leather Jacket](https://klaev.com/products/dark-brown-cropped-sheepskin-leather-jacket): PKR 17,999.");
+    // Belts are drafts: nothing hidden is listed.
+    expect(text).not.toContain("belt](");
+
+    const full = await request.get("/llms-full.txt");
+    expect(full.status()).toBe(200);
+    expect(full.headers()["content-type"]).toBe("text/plain; charset=utf-8");
+    const fullText = await full.text();
+    expect(fullText).toContain("### Black Lambskin Leather Jacket");
+    expect(fullText).toContain("## Exchanges and refunds");
+
+    const agents = await request.get("/agents.md");
+    expect(agents.status()).toBe(200);
+    expect(agents.headers()["content-type"]).toBe("text/markdown; charset=utf-8");
+    expect(await agents.text()).toContain("## Placing an order");
+  });
+
   test("robots.txt opens klaev.com to crawlers, and keeps them off any other address", async ({ request, baseURL }) => {
     const text = await (await request.get("/robots.txt")).text();
     if (new URL(baseURL!).host === "klaev.com") {
